@@ -229,6 +229,8 @@
 ;;   `maxima-insert-last-output'
 ;; C-c=t
 ;;   `maxima-insert-last-output-tex'
+;; GENERAL TODO:
+;; - Comment all the functions
 
 ;;; Code:
 
