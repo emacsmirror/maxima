@@ -32,7 +32,7 @@
 ;; Quick intro
 ;;
 ;; To install, put this file (as well as maxima-font-lock.el)
-;; somewhere in your emacs load path.
+;; somewhere in your Emacs load path.
 ;; To make sure that `maxima.el' is loaded when necessary, whether to
 ;; edit a file in maxima mode or interact with Maxima in an Emacs buffer,
 ;; put the lines
@@ -234,10 +234,6 @@
 
 ;;; Code:
 
-;;;; First
-(defvar maxima-running-xemacs 
-  (featurep 'xemacs))
-
 ;;;; The requires
 
 (require 'comint)
@@ -357,11 +353,6 @@ Choices are 'newline, 'newline-and-indent, and 'reindent-then-newline-and-indent
 
 (defcustom maxima-use-full-color-in-process-buffer nil
   "*If non-nil, font-lock the maxima process buffer."
-  :group 'maxima
-  :type 'boolean)
-
-(defcustom maxima-fix-double-prompt maxima-running-xemacs
-  "*If non-nil, fix the double prompt that sometimes appears in XEmacs."
   :group 'maxima
   :type 'boolean)
 
@@ -511,7 +502,7 @@ in maxima minor mode."
 
 (defun maxima-remove-kill-buffer-hooks ()
   "Remove the kill-buffer-hooks locally"
-  (if (or maxima-running-xemacs (< emacs-major-version 21))
+  (if (or (< emacs-major-version 21))
       (progn
         (make-local-hook 'kill-buffer-hook)
         (setq kill-buffer-hook nil))
@@ -1812,22 +1803,17 @@ which is in a comment which begins on a previous line."
 ;;;; Help functions
 
 (defun maxima-goto-info-node (node)
-  (if maxima-running-xemacs
-      (info "Maxima")
-    (info-other-window (concat "(Maxima)" node))))
+    (info-other-window (concat "(Maxima)" node)))
 
 (defun maxima-get-info-on-subject (subject &optional same-window)
   (if (or
-       maxima-running-xemacs
        same-window)
       (progn
         (info "Maxima")
         (Info-menu "Function and Variable Index"))
     (info-other-window "(Maxima)Function and Variable Index"))
   (search-forward subject)
-  (if maxima-running-xemacs
-      (Info-follow-nearest-node (point))
-    (Info-follow-nearest-node))
+    (Info-follow-nearest-node)
   (re-search-forward (concat "-.*: *" subject "\\( \\|$\\)"))
   (if (looking-at "^")
       (forward-line -1)
@@ -2049,9 +2035,7 @@ which is in a comment which begins on a previous line."
 (defun maxima-info ()
   "Read the info file for Maxima."
   (interactive)
-  (if maxima-running-xemacs
-      (info "Maxima")
-    (info-other-window "Maxima")))
+    (info-other-window "Maxima"))
 
 ;;; The help map
 
@@ -2109,11 +2093,9 @@ which is in a comment which begins on a previous line."
 	 to-str)))
 
 ;;; The next functions are from comint.el in cvs emacs
-(if (and
-     (not maxima-running-xemacs)
-     (or
+(if (or
       (< emacs-major-version 21)
-      (< emacs-minor-version 3)))
+      (< emacs-minor-version 3))
 (defun comint-dynamic-list-completions (completions)
   "List in help buffer sorted COMPLETIONS.
 Typing SPC flushes the help buffer."
@@ -2349,26 +2331,17 @@ if completion is ambiguous."
 (defun maxima-mode-add-highlight ()
   (maxima-mode-remove-highlight)
   (if (and maxima-mode-region-begin maxima-mode-region-end)
-      (if maxima-running-xemacs
-          (progn
-            (setq maxima-mode-highlight
-                  (make-extent 
-                   maxima-mode-region-begin
-                   maxima-mode-region-end))
-            (set-extent-property maxima-mode-highlight 'face 'highlight))
         (setq maxima-mode-highlight
               (make-overlay
                maxima-mode-region-begin
                maxima-mode-region-end))
-        (overlay-put maxima-mode-highlight 'face 'highlight)))
+        (overlay-put maxima-mode-highlight 'face 'highlight))
   (setq maxima-mode-region-begin nil)
   (setq maxima-mode-region-end nil))
 
 (defun maxima-mode-remove-highlight ()
   (when maxima-mode-highlight
-    (if maxima-running-xemacs
-        (delete-extent maxima-mode-highlight)
-      (delete-overlay maxima-mode-highlight))
+      (delete-overlay maxima-mode-highlight)
     (setq maxima-mode-highlight nil)))
 
 (defun maxima-mode-add-remove-highlight ()
@@ -2648,11 +2621,8 @@ To get apropos with the symbol under point, use:
    ((eq maxima-newline-style 'perhaps-smart)
     (setq maxima-indent-style 'perhaps-smart)))
   (easy-menu-add maxima-mode-menu maxima-mode-map)
-  (if maxima-running-xemacs
-      (add-local-hook 'post-command-hook
-                      'maxima-mode-add-remove-highlight)
     (add-hook 'post-command-hook
-              'maxima-mode-add-remove-highlight nil t))
+              'maxima-mode-add-remove-highlight nil t)
   (run-hooks 'maxima-mode-hook))
 
 (define-derived-mode maxima-noweb-mode maxima-mode
@@ -2755,9 +2725,7 @@ The variable `tab-width' controls the spacing of tab stops."
           inferior-maxima-waiting-for-output
           (inferior-maxima-running))
     (accept-process-output inferior-maxima-process))
-  (if maxima-running-xemacs
-      (sleep-for 0.1)
-    (sit-for 0 inferior-maxima-after-output-wait)))
+    (sit-for 0 inferior-maxima-after-output-wait))
 
 (defun inferior-maxima-output-filter (str)
   "Look for a new input prompt"
@@ -3283,17 +3251,8 @@ To scroll through previous commands,
   (setq mode-line-process '(": %s"))
   (maxima-mode-variables)
   (setq tab-width 8)
-  (if (and (not maxima-running-xemacs) (< emacs-major-version 21))
+  (if  (< emacs-major-version 21)
       (make-local-hook 'kill-buffer-hook))
-  (if maxima-running-xemacs
-      (add-local-hook 'kill-buffer-hook
-                      (function
-                       (lambda ()
-                         (maxima-clear-queue)
-                         (if (processp inferior-maxima-process)
-                             (delete-process inferior-maxima-process))
-                         (setq inferior-maxima-process nil)
-                         (run-hooks 'inferior-maxima-exit-hook))))
     (add-hook 'kill-buffer-hook
               (function
                (lambda ()
@@ -3301,7 +3260,7 @@ To scroll through previous commands,
                  (if (processp inferior-maxima-process)
                      (delete-process inferior-maxima-process))
                  (setq inferior-maxima-process nil)
-                 (run-hooks 'inferior-maxima-exit-hook))) t t))
+                 (run-hooks 'inferior-maxima-exit-hook))) t t)
   (setq comint-input-ring-size maxima-input-history-length)
   (if maxima-save-input-history
       (progn
@@ -3354,7 +3313,7 @@ To scroll through previous commands,
   (maxima-start)
   (let ((input (read-string "Maxima: " nil maxima-minibuffer-history))
         (output nil)
-        (twod (and maxima-minibuffer-2d (not maxima-running-xemacs))))
+        (twod maxima-minibuffer-2d))
     (setq input (maxima-strip-string-add-semicolon input))
     (if twod
         (maxima-single-string-wait 
@@ -3413,7 +3372,7 @@ will be deleted."
         (delreg)
         (delregbeg)
         (delregend)
-        (twod (and maxima-minibuffer-2d (not maxima-running-xemacs))))
+        (twod maxima-minibuffer-2d ))
     (save-excursion
       (goto-char beg)
       (maxima-forward-over-comment-whitespace)
@@ -3632,26 +3591,17 @@ buffer, preceded by \" ==> \" (customizable with `maxima-minor-output').
   (maxima-minor-mode-remove-highlight)
   (when (and maxima-minor-mode-region-begin 
              maxima-minor-mode-region-end)
-    (if maxima-running-xemacs
-        (progn
-          (setq maxima-minor-mode-highlight
-                (make-extent 
-                 maxima-minor-mode-region-begin
-                 maxima-minor-mode-region-end))
-          (set-extent-property maxima-minor-mode-highlight 'face 'highlight))
       (setq maxima-minor-mode-highlight
             (make-overlay
              maxima-minor-mode-region-begin
              maxima-minor-mode-region-end))
-      (overlay-put maxima-minor-mode-highlight 'face 'highlight))
+      (overlay-put maxima-minor-mode-highlight 'face 'highlight)
     (setq maxima-minor-mode-region-begin nil)
     (setq maxima-minor-mode-region-end nil)))
 
 (defun maxima-minor-mode-remove-highlight ()
   (when maxima-minor-mode-highlight
-    (if maxima-running-xemacs
-        (delete-extent maxima-minor-mode-highlight)
-      (delete-overlay maxima-minor-mode-highlight))
+      (delete-overlay maxima-minor-mode-highlight)
     (setq maxima-minor-mode-highlight nil)))
 
 (defun maxima-minor-mode-add-remove-highlight ()
@@ -3664,11 +3614,8 @@ buffer, preceded by \" ==> \" (customizable with `maxima-minor-output').
     (maxima-minor-mode-remove-highlight)))
 
 (defun maxima-minor-mode-highlighting ()
-  (if maxima-running-xemacs
-      (add-local-hook 'post-command-hook
-                      'maxima-minor-mode-add-remove-highlight)
     (add-hook 'post-command-hook
-              'maxima-minor-mode-add-remove-highlight nil t)))
+              'maxima-minor-mode-add-remove-highlight nil t))
 
 (add-hook 'maxima-minor-mode-hook
           'maxima-minor-mode-highlighting)
