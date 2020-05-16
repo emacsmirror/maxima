@@ -502,14 +502,10 @@ in maxima minor mode."
 
 (defun maxima-remove-kill-buffer-hooks ()
   "Remove the kill-buffer-hooks locally"
-  (if (or (< emacs-major-version 21))
-      (progn
-        (make-local-hook 'kill-buffer-hook)
-        (setq kill-buffer-hook nil))
     (let ((hooks kill-buffer-hook))
       (while hooks
         (remove-hook 'kill-buffer-hook (car hooks) t)
-        (setq hooks (cdr hooks))))))
+        (setq hooks (cdr hooks)))))
 
 (defun maxima-make-temp-name ()
   "Return a unique filename."
@@ -2093,9 +2089,7 @@ which is in a comment which begins on a previous line."
 	 to-str)))
 
 ;;; The next functions are from comint.el in cvs emacs
-(if (or
-     (< emacs-major-version 21)
-     (< emacs-minor-version 3))
+(if (< emacs-minor-version 3)
     (defun comint-dynamic-list-completions (completions)
       "List in help buffer sorted COMPLETIONS.
 Typing SPC flushes the help buffer."
@@ -3251,8 +3245,6 @@ To scroll through previous commands,
   (setq mode-line-process '(": %s"))
   (maxima-mode-variables)
   (setq tab-width 8)
-  (if  (< emacs-major-version 21)
-      (make-local-hook 'kill-buffer-hook))
   (add-hook 'kill-buffer-hook
             (function
              (lambda ()
