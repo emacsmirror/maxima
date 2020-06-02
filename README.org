@@ -1,0 +1,274 @@
+* Maxima.el
+[[License: GPL v3][https://img.shields.io/badge/License-GPLv3-blue.svg]]
+[[https://github.com/quelpa/quelpa][file:https://img.shields.io/badge/quelpa-maxima.el-blue.svg]]
+
+ Quick intro
+
+** Install
+*** Source
+To install, put this file (as well as maxima-font-lock.el)
+somewhere in your Emacs load path.
+
+To make sure that  *maxima.el*  is loaded when necessary, whether to
+edit a file in maxima mode or interact with Maxima in an Emacs buffer,
+put the lines:
+ #+BEGIN_SRC emacs-lisp 
+  (autoload 'maxima-mode "maxima" "Maxima mode" t)
+  (autoload 'maxima "maxima" "Maxima interaction" t)
+  #+END_SRC
+In your `.emacs' file.  If you want any file ending in `.max' to begin
+in *maxima-mode*, for example, put the line:
+ #+BEGIN_SRC emacs-lisp 
+  (setq auto-mode-alist (cons '("\\.max" . maxima-mode) auto-mode-alist))
+  #+END_SRC
+to your `.emacs' file.
+
+** Usage
+
+ In any of the Maxima modes, to get help on a prompted for Maxima topic,
+use *C-c* *C-d* *h* or *f12*.
+
+ To get help with the symbol under point, use ("d" for describe): 
+ 
+ C-c C-d d 
+ 
+ C-c C-d C-d
+ 
+ 
+For apropos help, use:
+
+C-c C-d a 
+
+C-c C-d C-a
+
+ To get apropos with the symbol under point, use:
+ 
+ C-c C-d p
+ 
+ C-c C-d C-p
+ 
+M-f12.
+
+To read the Maxima info manual, use:
+
+ C-c C-d m
+ 
+ C-c C-d C-m
+ 
+ C-c C-d i
+ 
+ 
+ C-c C-d C-i
+ 
+ 
+ (For Maxima minor mode, replace C-cC-d by C-c=d.)
+
+** Maxima mode
+**** To put the current buffer into maxima-mode, type M-x maxima-mode
+
+Maxima mode provides the following motion commands:
+
+M-C-a: Move to the beginning of the form.
+ 
+M-C-e: Move to the end of the form.
+
+M-C-b: Move to the beginning of the list.
+
+M-C-f: Move to the end of the list.
+
+and the following miscellaneous commands.
+
+M-h: Mark the current form
+
+C-c): Check the current region for balanced parentheses.
+
+C-cC-): Check the current form for balanced parentheses.
+
+Maxima mode has the following completions command:
+
+M-TAB: Complete the Maxima symbol as much as possible, providing a completion buffer if there is more than one possible completion.
+
+Portions of the buffer can be sent to a Maxima process.  (If a process is  not running, one will be started.)
+
+C-cC-r: Send the region to Maxima.
+
+C-cC-b: Send the buffer to Maxima.
+
+C-cC-c: Send the line to Maxima.
+
+C-cC-e: Send the form to Maxima.
+
+C-RET: Send the smallest set of lines which contains the cursor and contains no incomplete forms, and go to the next form.
+
+M-RET:  As above, but with the region instead of the current line.
+
+C-cC-l: Prompt for a file name to load into Maxima.
+
+ When something is sent to Maxima, a buffer running an inferior Maxima 
+ process will appear.  
+ 
+ It can also be made to appear by using the command C-c C-p.
+ 
+ When a command is given to send information to Maxima, the region
+ (buffer, line, form) is first checked to make sure the parentheses
+ are balanced.  
+ 
+ With an argument, they will not be checked first.
+ 
+ The Maxima process can be killed, after asking for confirmation 
+ with C-cC-k.  
+ 
+ To kill without confirmation, give C-cC-k
+ an argument.
+
+ By default, indentation will be to the same level as the 
+ previous line, with an additional space added for open parentheses.
+ 
+ 
+ The behaviour of indent can be changed by the command M-x maxima-change-indent-style. 
+ 
+ The possibilities are:
+ Standard:      Simply indent
+ 
+ Perhaps smart: Tries to guess an appropriate indentation, based on pen parentheses, "do" loops, etc.
+ 
+ 
+ The default can be set by setting the value of the variable 
+ "maxima-indent-style" to either 'standard or 'perhaps-smart.
+ 
+
+ In both cases, M-x maxima-untab will remove a level of indentation.
+
+*** Maxima noweb mode 
+ maxima-noweb-mode is a modification of maxima-mode that will work
+ [[https://github.com/nrnrnr/noweb/blob/master/src/elisp/noweb-mode.el][noweb-mode]] nicely with ;
+ namely, it will limit any relevant searches  to the current chunk and treat <<...>> as word parts.
+ 
+
+*** Running Maxima interactively 
+ 
+ To run Maxima interactively in a buffer, type *M-x maxima*
+ 
+ In the Maxima process buffer,return will check the line for balanced parentheses, and send line as input.
+ 
+ Control return will send the line as input without checking for balanced parentheses.
+
+ <M-tab> will complete the Maxima symbol as much as possible, providing
+      a completion buffer if there is more than one possible completion.
+
+ <C-M-tab> will complete the input line, based on previous input lines.
+ C-c C-d will get help on a Maxima topic.
+ C-c C-m will bring up the Maxima info manual.
+ C-cC-k will kill the process and the buffer, after asking for
+   confirmation.  To kill without confirmation, give C-M-k an
+   argument.
+
+ To scroll through previous commands,
+ M-p will bring the previous input to the current prompt,
+ M-n will bring the next input to the prompt.
+ M-r will bring the previous input matching
+   a regular expression to the prompt,
+ M-s will bring the next input matching
+   a regular expression to the prompt.
+
+*** Running Maxima from the minibuffer **
+ The command M-x maxima-minibuffer
+ will allow you to interact with Maxima from the minibuffer.  
+ The arrows will allow you to scroll through previous inputs.
+ 
+ The line (autoload 'maxima-minibuffer "maxima" "Maxima in a minibuffer" t)
+ in your .emacs will make sure the function is available.
+ 
+ If the variable maxima-minibuffer-2d is non-nil, then the output
+ will be in Maxima's 2d output form, otherwise it will be in 
+ Maxima's 1d output form. 
+ 
+ The command maxima-insert-last-output will insert
+ the last maxima output into the current buffer; if the output is in 2d, 
+ this will look unpleasant.  The command  maxima-insert-last-output-tex
+ will insert the TeX form of the output.
+ 
+*** Reading Maxima results in the minibuffer 
+ The command `maxima-minibuffer-on-determined-region' 
+   will send the part of the current buffer containing the point and between 
+   the regexps `maxima-minor-prefix' and `maxima-minor-postfix' (currently
+   both blank lines) to the Maxima process and insert the result in the
+   minibuffer.  
+   
+   With an argument, `maxima-minibuffer-in-determined-region'
+   will also insert the output into the current buffer, after " ==> "
+   and before "//".  (The symbol ` ==> ' is the value of the customizable 
+   variable `maxima-minor-output' and "//" is the value of 
+   `maxima-minor-output-end'.  The new output is inserted, these strings 
+   will be used to delete the old output.
+   
+   
+   Outside of comments in maxima-mode, the opening and closing indicators 
+   are the values of `maxima-mode-minor-output' and 
+   `maxima-mode-minor-output-end', which by default are " /*==>" and 
+   " <==*/", respectively.
+ The commands `maxima-minibuffer-on-region', `maxima-minibuffer-on-line'
+ and `maxima-minibuffer-on-form' work similarly to 
+ `maxima-minibuffer-on-determined-region', but send the current region
+ (respectively, the current line, current form) to Maxima and display
+ the result in the minibuffer.
+ (The form is the region between the preceding ; or $ and the subsequent
+ ; or $)
+ 
+ Care must be taken when inserting the output into the current buffer
+ with `maxima-minibuffer-on-region' and `maxima-minibuffer-on-form'.
+ With `maxima-minibuffer-on-region', as with 
+ `maxima-minibuffer-on-determined-region' above, everything after any
+ "==>" in the region will be ignored.  
+ 
+ 
+ What will typically happen with `maxima-minibuffer-on-region' and
+ `maxima-minibuffer-on-form', however, is that new outputs will
+ be inserted without old output being deleted.
+
+ The commands for the Maxima-minibuffer interaction can be made
+ available by putting 
+  #+BEGIN_SRC emacs-lisp 
+ (autoload 'maxima-minibuffer "maxima" "Interact with Maxima from the minibuffer" t)
+  (autoload 'maxima-minibuffer-on-determined-region "maxima" 
+            "Send a information to Maxima, display the results in the minibuffer" t)
+  (autoload 'maxima-minibuffer-on-region "maxima" 
+            "Send a information to Maxima, display the results in the minibuffer" t)
+  (autoload 'maxima-minibuffer-on-line "maxima" 
+            "Send a information to Maxima, display the results in the minibuffer" t)
+  (autoload 'maxima-minibuffer-on-form "maxima" 
+            "Send a information to Maxima, display the results in the minibuffer" t)
+  #+END_SRC
+  
+ in your .emacs
+
+*** Maxima minor mode
+ maxima-minor-mode provides convenient keybindings for the various
+ interactions between Maxima and the minibuffer.
+ 
+ It can be made easily available by placing 
+  (autoload 'maxima-minor-mode "maxima" "Maxima minor mode" t)
+ in your .emacs, then M-x maxima-minor-mode will start the minor mode.
+ 
+ (The autoloads for the individual function will not then be necessary.)
+ 
+ C-c=e
+   `maxima-minibuffer-on-determined-region'
+   
+ C-c=l
+   `maxima-minibuffer-on-line'
+   
+ C-c=r
+   `maxima-minibuffer-on-region'
+   
+ C-c=f
+   `maxima-minibuffer-on-form'
+   
+ C-c=m
+   `maxima-minibuffer'
+   
+ C-c=o
+   `maxima-insert-last-output'
+   
+ C-c=t
+   `maxima-insert-last-output-tex'
