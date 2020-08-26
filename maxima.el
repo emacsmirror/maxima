@@ -106,8 +106,8 @@ This is used after `then', etc."
   :type '(integer))
 
 (defcustom maxima-dont-reindent-some-comments t
-  "*If non-nil, TAB will not change indentation of some comments,
-namely those with nothing on the starting line past the `/*'."
+  "*If non-nil, TAB will not change indentation of some comments.
+Namely those with nothing on the starting line past the `/*'."
   :group 'maxima
   :type 'boolean)
 
@@ -184,14 +184,14 @@ Choices are 'newline, 'newline-and-indent, and 'reindent-then-newline-and-indent
   :type 'integer)
 
 (defcustom maxima-minor-prefix "^[ \t]*$"
-  "*A regexp to indicate the beginning of a region to send to Maxima
-in maxima minor mode."
+  "*Regexp that indicate the beginning of a region to send to Maxima.
+Available with `maxima-minor-mode'."
   :group 'maxima
   :type 'string)
 
 (defcustom maxima-minor-postfix "^[ \t]*$"
-  "*A regexp to indicate the end of a region to send to Maxima
-in maxima minor mode."
+  "*Regexp to indicate the end of a region to send to Maxima.
+Available with `maxima-minor-mode'."
   :group 'maxima
   :type 'string)
 
@@ -266,7 +266,7 @@ in maxima minor mode."
   (concat "\\(^(" maxima-inchar 
           "[0-9]*) \\)\\|\\(^MAXIMA> \\)\\|\\(^(dbm:[0-9]*) \\)")
 					; \\(^[^#%)>]*[#%)>]+ *\\)"
-  "*Regexp to recognize prompts from the inferior Maxima") ; or lisp")
+  "*Regexp to recognize prompts from the inferior Maxima.") ; or lisp")
 
 
 (defvar maxima-mode-highlight nil)
@@ -286,6 +286,7 @@ in maxima minor mode."
 ;;;; Utility functions
 
 (defun maxima-string-equal (str1 str2)
+  "Check if STR1 and STR2 are equal,ignoring font case."
   (string= (downcase str1) (downcase str2)))
 
 ;; This was taken from `replace-regexp-in-string' from subr.el in GNU emacs.
@@ -313,7 +314,7 @@ in maxima minor mode."
       (apply #'concat (nreverse matches)))))
 
 (defun maxima-remove-kill-buffer-hooks ()
-  "Remove the kill-buffer-hooks locally"
+  "Remove the kill-buffer-hooks locally."
     (let ((hooks kill-buffer-hook))
       (while hooks
         (remove-hook 'kill-buffer-hook (car hooks) t)
@@ -512,6 +513,9 @@ Ignore matches found in comments and strings."
 
 
 (defun maxima-noweb-re-search-forward (regexp &optional pmax)
+  "Search forward for REGEXP, bounded by PMAX.
+Ignore matches found in comments and strings, and skip over
+parenthesized or bracketed blocks."
   (let ((match
          (maxima-standard-re-search-forward regexp pmax)))
     (while (maxima-noweb-in-ignore-bounds-p)
@@ -521,6 +525,9 @@ Ignore matches found in comments and strings."
     match))
 
 (defun maxima-re-search-forward (regexp &optional pmax)
+  "Search forward for REGEXP, bounded by PMAX.
+Ignore matches found in comments and strings, and skip over
+parenthesized or bracketed blocks."
   (cond
    ((eq maxima-mode-type 'maxima-noweb-mode)
     (maxima-noweb-re-search-forward regexp pmax))
@@ -579,6 +586,8 @@ Ignore matches found in comments and strings."
       match)))
 
 (defun maxima-noweb-re-search-backward (regexp &optional pmin)
+  "Search backward for REGEXP, bounded by PMIN.
+Ignore matches found in comments and strings."
   (let ((match
          (maxima-standard-re-search-backward regexp pmin)))
     (while (maxima-noweb-in-ignore-bounds-p)
@@ -588,6 +597,8 @@ Ignore matches found in comments and strings."
     match))
 
 (defun maxima-re-search-backward (regexp &optional pmin)
+  "Re-search backward for REGEXP, bounded by PMIN.
+Ignore matches found in comments and strings."
   (cond
    ((eq maxima-mode-type 'maxima-noweb-mode)
     (maxima-noweb-re-search-backward regexp pmin))
@@ -622,7 +633,7 @@ parenthesized and bracketed blocks."
       match)))
 
 (defun maxima-escaped-char-p ()
-  "Returns non-nil if the character after point is escaped"
+  "Return non-nil if the character after point is escaped."
   (let ((pm (point-min))
         (esc-chars 0))
     (when (> (point) pm)
@@ -716,6 +727,7 @@ If character is in a string or a list, ignore it."
      (looking-at "\\\\"))))
 
 (defun maxima-next-char-word-part-p ()
+  "Check and call the correct next-char-word function."
   (cond
    ((eq maxima-mode-type 'maxima-noweb-mode)
     (maxima-noweb-next-char-word-part-p))
@@ -758,6 +770,7 @@ If character is in a string or a list, ignore it."
         (setq keep-going nil))))))
 
 (defun maxima-forward-word ()
+  "Check and call the correct forward function."
   (cond
    ((eq maxima-mode-type 'maxima-noweb-mode)
     (maxima-noweb-forward-word))
@@ -814,6 +827,7 @@ If character is in a string or a list, ignore it."
         (setq keep-going nil))))))
 
 (defun maxima-backward-word ()
+  "Check and call the correct backward function."
   (cond
    ((eq maxima-mode-type 'maxima-noweb-mode)
     (maxima-noweb-backward-word))
@@ -823,6 +837,7 @@ If character is in a string or a list, ignore it."
 ;;;; Functions that return special positions
 
 (defun maxima-line-beginning-position ()
+  "Return line beginning position."
   (if (not (fboundp 'line-beginning-position))
       (save-excursion
 	(beginning-of-line)
@@ -830,6 +845,7 @@ If character is in a string or a list, ignore it."
     (line-beginning-position)))
 
 (defun maxima-line-end-position ()
+  "Return line end position."
   (if (not (fboundp 'line-end-position))
       (save-excursion
 	(end-of-line)
@@ -837,47 +853,52 @@ If character is in a string or a list, ignore it."
     (line-end-position)))
 
 (defun maxima-name-beginning ()
+  "Return the name of the position."
   (save-excursion
     (maxima-backward-word)
     (point)))
 
 (defun maxima-special-symbol-beginning ()
+  "Find the beginning of a special symbol."
   (save-excursion
     (skip-chars-backward maxima-special-symbol-letters)
     (point)))
 
 (defun maxima-special-symbol-end ()
+  "Find the end of a special symbol."
   (save-excursion
     (skip-chars-forward maxima-special-symbol-letters)
     (point)))
 
 (defun maxima-form-beginning-position ()
+  "Find the beginning of a form."
   (save-excursion
     (maxima-goto-beginning-of-form)
     (point)))
 
 (defun maxima-form-end-position ()
+  "Find the end of a form."
   (save-excursion
     (if (maxima-goto-end-of-form)
         (point)
       nil)))
 
 (defun maxima-form-end-position-or-point-max ()
+  "Find the end of a form or the end of the buffer."
   (let ((mfep (maxima-form-end-position)))
     (if mfep
         mfep
       (point-max))))
 
 (defun maxima-expression-end-position ()
-  "Return the point where the current expression ends,
-or nil."
+  "Return the point where the current expression ends, or nil."
   (save-excursion
     (if (maxima-goto-end-of-expression)
         (point)
       nil)))
 
 (defun maxima-begin-if-position (pmin)
-  "Find the point of the opening \"if\" for the current point."
+  "Find the point PMIN of the opening \"if\" for the current point."
   (let ((nest 0)
         (match)
         (keep-looking t)
@@ -898,7 +919,7 @@ or nil."
       pt)))
 
 (defun maxima-begin-then-position (pmin)
-  "Find the point of the opening \"then\" for the current \"else\"."
+  "Find the point PMIN of the opening \"then\" for the current \"else\"."
   (let ((keep-going t)
         (pt (point))
         (begin-then nil))
@@ -974,6 +995,8 @@ or nil."
   (maxima-forward-over-comment-whitespace))
 
 (defun maxima-goto-beginning-of-form ()
+  "Internal function, go to beginning end of the form.
+I behaves differently depending on the minor mode."
   (cond
    ((eq maxima-mode-type 'maxima-noweb-mode)
     (maxima-noweb-goto-beginning-of-form))
@@ -1008,6 +1031,8 @@ or nil."
     (maxima-back-over-comment-whitespace)))
 
 (defun maxima-goto-end-of-form ()
+  "Internal function, go to the end of the form.
+I behaves differently depending on the minor mode."
   (cond
    ((eq maxima-mode-type 'maxima-noweb-mode)
     (maxima-noweb-goto-end-of-form))
@@ -1036,7 +1061,7 @@ The expression is assumed to begin with \"if\", \"then\", \"do\"
          (maxima-find-next-nonnested-close-char))))
 
 (defun maxima-goto-beginning-of-construct (pmin)
-  "Go to the point the begins the current construct."
+  "Go to the point PMIN,the begins of the current construct."
   (let ((keep-looking t)
         (pt (point)))
     (while (and keep-looking 
@@ -1065,7 +1090,7 @@ Return t if possible, nil otherwise."
   (interactive)
   (if (maxima-goto-end-of-list)
       t
-    (error "No list to end.")))
+    (error "No list to end")))
 
 (defun maxima-goto-beginning-of-list ()
   "Go up a list backwards.
@@ -1082,7 +1107,7 @@ Return t if possible, nil otherwise."
   (interactive)
   (if (maxima-goto-beginning-of-list)
       t
-    (error "No list to begin.")))
+    (error "No list to begin")))
 
 (defun maxima-forward-list ()
   "Go forward a list.
@@ -1141,7 +1166,7 @@ is the same as the previous line."
     (skip-chars-forward " \t")))
 
 (defun maxima-untab ()
-  "Delete a level of indentation"
+  "Delete a level of indentation."
   (interactive)
   ;; Check to see if the previous maxima-indent-amount spaces are 
   ;; on the same line and blank
@@ -1163,8 +1188,8 @@ is the same as the previous line."
 ;;; Find the beginning of a function
 
 (defun maxima-open-paren-is-function ()
-  "Check to see if the point is before an opening paren,
-and if the previous character is a close paren or word part."
+  "Check to see if the point is before an opening paren.
+Also if the previous character is a close paren or word part."
   (and
    (looking-at "[ \t]*(")
    (save-excursion
@@ -1173,8 +1198,8 @@ and if the previous character is a close paren or word part."
      (looking-at ")\\|\\w"))))
 
 (defun maxima-close-paren-before-open-paren ()
-  "Return point of close paren before the current open paren,
-or nil if there is none."
+  "Return point of close paren before the current open paren.
+Otherwise nil if there is none."
   (save-excursion
     (maxima-back-over-comment-whitespace)
     (forward-char -1)
@@ -1194,7 +1219,7 @@ Assume point is at \"(\", as long as preceding character is
             (maxima-close-paren-before-open-paren)))))
 
 (defun maxima-word-on-previous-line ()
-  "Go to the previous word part, return nil if "
+  "Go to the previous word part."
   (let ((pt (point)))
     (save-excursion
       (skip-chars-backward " \t\n")
@@ -1205,7 +1230,7 @@ Assume point is at \"(\", as long as preceding character is
                      (buffer-substring-no-properties (point) pt))))))
 
 (defun maxima-string-on-previous-line ()
-  "Go to the previous word part, return nil if "
+  "Go to the previous string part."
   (let ((pt (point)))
     (save-excursion
       (skip-chars-backward " \t\n")
@@ -1261,7 +1286,7 @@ Assumes the point is right before the open parenthesis."
 ;;; 'perhaps-smart
 
 (defun maxima-after-lisp-expression-p ()
-  "Return non-nil if the point is right after a lisp expression."
+  "Return non-nil if the point is right after a Lisp expression."
   (let ((pm (point-min))
         (pt))
     (save-excursion
@@ -1663,7 +1688,8 @@ which is in a comment which begins on a previous line."
   (maxima-help t))
 
 (defun maxima-apropos (&optional arg)
-  "Get help on a certain subject"
+  "Get help on a certain subject.
+To call it with ARG use `maxima-apropos-at-point'"
   (interactive "P")
   (let* ((cw (current-word))
          (expr (if arg
@@ -1732,18 +1758,24 @@ which is in a comment which begins on a previous line."
       (message (concat "No help for \"" expr "\"")))))
 
 (defun maxima-apropos-at-point ()
+  "Call `maxima-apropos' with a true argument."
   (interactive)
   (maxima-apropos t))
 
 (defun maxima-apropos-help ()
+  "Call `maxima-help-dispatcher' with both arguments nil."
   (interactive)
   (maxima-help-dispatcher nil nil))
 
 (defun maxima-completion-help ()
+  "Call `maxima-help-dispatcher' with nil and t."
   (interactive)
   (maxima-help-dispatcher nil t))
 
 (defun maxima-help-dispatcher (&optional arg1 arg2)
+  "Show symbol help depending on ARG1 and ARG2.
+If ARG1 and ARG2 are nil, call `maxima-apropos-help'.  If ARG1 is
+nil and ARG2 non-nil call `maxima-completion-help'."
   (interactive)
   (cond
    ((or (looking-at "[a-zA-Z_]")
@@ -1770,10 +1802,10 @@ which is in a comment which begins on a previous line."
             (string= expr ":=") (string= expr "::=") 
             (string= expr "=") (string= expr "!") (string= expr "!!"))  
 	(maxima-get-info-on-subject (concat "\"" expr "\"")))
-       (t (error "no help for %s" expr)))))
+       (t (error "No help for %s" expr)))))
    (arg1
     (error "No help for %s" (char-to-string (char-after (point)))))
-   (t					; point is behind a name? 
+   (t					; point is behind a name? idk
     (save-excursion
       (progn
 	(backward-char 1)
@@ -1796,7 +1828,7 @@ which is in a comment which begins on a previous line."
 	   (maxima-help-variation completions)))))
 
 (defun maxima-help-variation (completions)
-  "Get help on certain subjects."
+  "Get help on certain subjects, with COMPLETIONS as a arg."
   (let* ((maxima-help-buffer 
 	  (get-buffer-create (concat "*Maxima Help*")))
 	 expr-line
@@ -3283,10 +3315,11 @@ followed by the output."
 
 (defun maxima-minibuffer-on-determined-region (&optional arg)
   "Send a determined region to Maxima; display the output in the minibuffer.
-The region is the region between `maxima-minor-prefix' and `maxima-minor-postfix'
-With an argument, insert \" ==> \" into the current buffer,
-followed by the output.  In this case, anything in the determined region
-after any occurrence of \" ==> \" will be deleted."
+The region is the region between `maxima-minor-prefix' and
+`maxima-minor-postfix' With an argument, insert \" ==> \" into
+the current buffer, followed by the output.  In this case,
+anything in the determined region after any occurrence of \" ==>
+\" will be deleted."
   (interactive "P")
   (let ((beg)
         (end)
