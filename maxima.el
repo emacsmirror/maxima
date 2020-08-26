@@ -2652,21 +2652,6 @@ To get apropos with the symbol under point, use:
   (setq inferior-maxima-waiting-for-output t)
   (comint-send-input))
 
-;;; This next function is a modified version of comint-strip-ctrl-m
-(defun inferior-maxima-remove-double-prompt (&optional string)
-  "Fix the double prompt that occasionally appears in XEmacs."
-  (let ((pmark (process-mark inferior-maxima-process))
-	(pos))
-    (set-buffer (process-buffer inferior-maxima-process))
-    (setq pos comint-last-output-start)
-    (if (marker-position pos)
-	(save-excursion
-	  (goto-char pos)
-          (beginning-of-line)
-	  (while (re-search-forward 
-                  (concat "(" maxima-inchar "[0-9]+).*\r") pmark t)
-	    (replace-match "" t t))))))
-
 (defun inferior-maxima-remove-double-input-prompt (&optional string)
   "Fix the double prompt that occasionally appears in Emacs."
   (let ((pmark (process-mark inferior-maxima-process))
@@ -2768,11 +2753,8 @@ The variable `tab-width' controls the spacing of tab stops."
                   'inferior-maxima-output-filter nil t)
         (add-hook 'comint-output-filter-functions
                   'inferior-maxima-replace-tabs-by-spaces nil t)
-					;        (add-hook 'comint-output-filter-functions
-					;                  'inferior-maxima-remove-double-input-prompt nil t)
-	(if maxima-fix-double-prompt
-            (add-hook 'comint-output-filter-functions
-                      'inferior-maxima-remove-double-prompt nil t))
+	(add-hook 'comint-output-filter-functions
+		  'inferior-maxima-remove-double-input-prompt nil t)
         (inferior-maxima-wait-for-output)
         (inferior-maxima-mode)))))
 
