@@ -2151,11 +2151,10 @@ Typing SPC flushes the help buffer."
   "Complete word from list of candidates.
 A completions listing will be shown in a help buffer 
 if completion is ambiguous."
-  (let* ((comint-completion-addsuffix nil)
-         (stub  (buffer-substring-no-properties 
+  (let* ((stub  (buffer-substring-no-properties 
                  (maxima-name-beginning) (point)))
 	 (completions (all-completions (downcase stub) maxima-symbols)))
-    (comint-dynamic-simple-complete stub completions)))
+    (completion-in-region (maxima-name-beginning) (point) completions)))
 
 (defun maxima-complete-filename ()
   "Complete the filename."
