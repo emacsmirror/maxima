@@ -1,10 +1,21 @@
-* Maxima.el
+* Maxima.el 
 [[License: GPL v3][https://img.shields.io/badge/License-GPLv3-blue.svg]]
-[[https://github.com/quelpa/quelpa][file:https://img.shields.io/badge/quelpa-maxima.el-blue.svg]]
+  - [[#install][Install]]
+    - [[#source][Source]]
+  - [[#usage][Usage]]
+  - [[#maxima-mode][Maxima mode]]
+    - [[#motion-commands][Motion commands:]]
+    - [[#completions-command][Completions command:]]
+    - [[#interaction-with-the-maxima-process][Interaction with the Maxima process]]
+    - [[#maxima-noweb-mode][Maxima noweb mode]]
+    - [[#running-maxima-interactively][Running Maxima interactively]]
+      - [[#scroll-through-previous-commands][Scroll through previous commands,]]
+    - [[#running-maxima-from-the-minibuffer-][Running Maxima from the minibuffer **]]
+    - [[#reading-maxima-results-in-the-minibuffer][Reading Maxima results in the minibuffer]]
+    - [[#maxima-minor-mode][Maxima minor mode]]
+      - [[#enabled-commands][Enabled commands]]
 
- Quick intro
-
-** Install
+** Install 
 *** Source
 To install, put this file (as well as maxima-font-lock.el)
 somewhere in your Emacs load path.
@@ -23,156 +34,145 @@ in *maxima-mode*, for example, put the line:
   #+END_SRC
 to your `.emacs' file.
 
+
 ** Usage
 
- In any of the Maxima modes, to get help on a prompted for Maxima topic,
+ In *any* of the Maxima modes, to get help on a prompted for Maxima topic,
 use *C-c* *C-d* *h* or *f12*.
 
- To get help with the symbol under point, use ("d" for describe): 
+  + Help with the symbol under point, use ("d" for describe): 
+    
+    | Key combination | Function name            |
+    |-----------------+--------------------------|
+    | C-c C-d d       | maxima-completion-help |
+    | C-c C-d C-d     | maxima-completion-help |
  
- C-c C-d d 
  
- C-c C-d C-d
- 
- 
-For apropos help, use:
+ + Apropos
+   
+    | Key combination | Function name  |
+    |-----------------+----------------|
+    | C-c C-d a       | maxima-apropos |
+    | C-C C-d C-a     | maxima-apropos |
+    | M-f12           | maxima-apropos |
 
-C-c C-d a 
+   To get apropos with the symbol under point, use:
 
-C-c C-d C-a
+    | Key combination | Function name       |
+    |-----------------+---------------------|
+    | C-c C-d p       | maxima-apropos-help |
+    | C-C C-d C-p     | maxima-apropos-help |
+ 
+ + Maxima info manual, use:
 
- To get apropos with the symbol under point, use:
- 
- C-c C-d p
- 
- C-c C-d C-p
- 
-M-f12.
+    | Key combination | Function name |
+    |-----------------+---------------|
+    | C-c C-d m       | maxima-info   |
+    | C-C C-d C-m     | maxima-info   |
+    | C-C C-d i       | maxima-info   |
+    | C-C C-d i       | maxima-info   |
+    | C-C C-d C-i     | maxima-info   |
 
-To read the Maxima info manual, use:
-
- C-c C-d m
- 
- C-c C-d C-m
- 
- C-c C-d i
- 
- 
- C-c C-d C-i
- 
  
  (For Maxima minor mode, replace C-cC-d by C-c=d.)
 
+
 ** Maxima mode
-**** To put the current buffer into maxima-mode, type M-x maxima-mode
-
-Maxima mode provides the following motion commands:
-
-M-C-a: Move to the beginning of the form.
+To put the current buffer into maxima-mode, type:
+=M-x maxima-mode=
  
-M-C-e: Move to the end of the form.
 
-M-C-b: Move to the beginning of the list.
+*** Motion commands:
+    | Key combination | Function name                             | Explanation                                        |
+    |-----------------+-------------------------------------------+----------------------------------------------------|
+    | M-C-a           | maxima-goto-beginning-of-form-interactive | Move to the beginning of the form.                 |
+    | M-C-e           | maxima-goto-end-of-form-interactive       | Move to the end of the form.                       |
+    | M-C-b           | maxima-goto-beginning-of-list-interactive | Move to the beginning of the list.                 |
+    | M-C-f           | maxima-goto-end-of-list-interactive       | Move to the end of the list.                       |
+    | M-h             | maxima-mark-form                          | Mark the current form                              |
+    | C-c )           | maxima-check-parens                       | Check the current region for balanced parentheses. |
+    | C-c C-)         | maxima-check-form-parens                  | Check the current form for balanced parentheses.   |
 
-M-C-f: Move to the end of the list.
 
-and the following miscellaneous commands.
+*** Completions command:
 
-M-h: Mark the current form
-
-C-c): Check the current region for balanced parentheses.
-
-C-cC-): Check the current form for balanced parentheses.
-
-Maxima mode has the following completions command:
-
-M-TAB: Complete the Maxima symbol as much as possible, providing a completion buffer if there is more than one possible completion.
+    | Key combination | Function name   | Explanation                                                                                                                  |
+    |-----------------+-----------------+------------------------------------------------------------------------------------------------------------------------------|
+    | M-TAB           | maxima-complete | Complete the Maxima symbol as much as possible, providing a completion buffer if there is more than one possible completion. |
 
 Portions of the buffer can be sent to a Maxima process.  (If a process is  not running, one will be started.)
 
-C-cC-r: Send the region to Maxima.
 
-C-cC-b: Send the buffer to Maxima.
-
-C-cC-c: Send the line to Maxima.
-
-C-cC-e: Send the form to Maxima.
-
-C-RET: Send the smallest set of lines which contains the cursor and contains no incomplete forms, and go to the next form.
-
-M-RET:  As above, but with the region instead of the current line.
-
-C-cC-l: Prompt for a file name to load into Maxima.
-
+*** Interaction with the Maxima process
  When something is sent to Maxima, a buffer running an inferior Maxima 
  process will appear.  
- 
- It can also be made to appear by using the command C-c C-p.
- 
+
+ It can also be made to appear by using the command =C-c C-p=.
+
  When a command is given to send information to Maxima, the region
  (buffer, line, form) is first checked to make sure the parentheses
  are balanced.  
  
- With an argument, they will not be checked first.
+ With an argument, they *will not* be checked first.
  
  The Maxima process can be killed, after asking for confirmation 
- with C-cC-k.  
+ with =C-c C-k=.  
  
- To kill without confirmation, give C-cC-k
- an argument.
+ To kill without confirmation, give =maxima-stop= an argument.
+
+
+    | Key combination | Function name                                   | Explanation                                                                                                         |
+    |-----------------+-------------------------------------------------+---------------------------------------------------------------------------------------------------------------------|
+    | C-c C-r         | maxima-send-region                              | Send the region to Maxima.                                                                                          |
+    | C-c C-b         | maxima-send-buffer                              | Send the buffer to Maxima.                                                                                          |
+    | C-c C-c         | maxima-send-line                                | Send the line to Maxima.                                                                                            |
+    | C-c C-e         | maxima-send-previous-form                       | Send the form to Maxima.                                                                                            |
+    | C-RET           | maxima-send-full-line-and-goto-next-form        | Send the smallest set of lines which contains the cursor and contains no incomplete forms, and go to the next form. |
+    | M-RET           | maxima-send-completed-region-and-goto-next-form | As above, but with the region instead of the current line.                                                          |
+    | C-c C-l         | maxima-load-file                                | Prompt for a file name to load into Maxima.                                                                         |
+
 
  By default, indentation will be to the same level as the 
  previous line, with an additional space added for open parentheses.
  
- 
- The behaviour of indent can be changed by the command M-x maxima-change-indent-style. 
+ The behaviour of indent can be changed by the command =M-x maxima-change-indent-style=.
  
  The possibilities are:
- Standard:      Simply indent
- 
- Perhaps smart: Tries to guess an appropriate indentation, based on pen parentheses, "do" loops, etc.
+
+ | Standard      | Simply indent                                                                         |
+ | Perhaps smart | Tries to guess an appropriate indentation, based on pen parentheses, "do" loops, etc. |
  
  
  The default can be set by setting the value of the variable 
- "maxima-indent-style" to either 'standard or 'perhaps-smart.
+ =maxima-indent-style= to either 'standard or 'perhaps-smart.
  
 
- In both cases, M-x maxima-untab will remove a level of indentation.
+ In both cases, =M-x maxima-untab= will remove a level of indentation.
+
 
 *** Maxima noweb mode 
- maxima-noweb-mode is a modification of maxima-mode that will work
- [[https://github.com/nrnrnr/noweb/blob/master/src/elisp/noweb-mode.el][noweb-mode]] nicely with ;
- namely, it will limit any relevant searches  to the current chunk and treat <<...>> as word parts.
+ maxima-noweb-mode is a modification of maxima-mode that will work with [[https://github.com/nrnrnr/noweb/blob/master/src/elisp/noweb-mode.el][noweb-mode]] nicely.
+ It will limit any relevant searches  to the current chunk and treat <<...>> as word parts.
  
 
 *** Running Maxima interactively 
  
- To run Maxima interactively in a buffer, type *M-x maxima*
- 
+ To run Maxima interactively in a buffer, type =M-x maxima=
  In the Maxima process buffer,return will check the line for balanced parentheses, and send line as input.
  
- Control return will send the line as input without checking for balanced parentheses.
+**** Scroll through previous commands,
 
- <M-tab> will complete the Maxima symbol as much as possible, providing
-      a completion buffer if there is more than one possible completion.
+     | Key combination | Explanation                                                           |
+     |-----------------+-----------------------------------------------------------------------|
+     | M-p             | Bring the previous input to the current prompt,                       |
+     | M-n             | Bring the next input to the prompt.                                   |
+     | M-r             | Bring the previous input matching a regular expression to the prompt, |
+     | M-s             | Bring the next input matching a regular expression to the prompt.     |
 
- <C-M-tab> will complete the input line, based on previous input lines.
- C-c C-d will get help on a Maxima topic.
- C-c C-m will bring up the Maxima info manual.
- C-cC-k will kill the process and the buffer, after asking for
-   confirmation.  To kill without confirmation, give C-M-k an
-   argument.
-
- To scroll through previous commands,
- M-p will bring the previous input to the current prompt,
- M-n will bring the next input to the prompt.
- M-r will bring the previous input matching
-   a regular expression to the prompt,
- M-s will bring the next input matching
-   a regular expression to the prompt.
 
 *** Running Maxima from the minibuffer **
- The command M-x maxima-minibuffer
+
+ The command =M-x maxima-minibuffer=
  will allow you to interact with Maxima from the minibuffer.  
  The arrows will allow you to scroll through previous inputs.
  
@@ -188,6 +188,7 @@ C-cC-l: Prompt for a file name to load into Maxima.
  this will look unpleasant.  The command  maxima-insert-last-output-tex
  will insert the TeX form of the output.
  
+
 *** Reading Maxima results in the minibuffer 
  The command `maxima-minibuffer-on-determined-region' 
    will send the part of the current buffer containing the point and between 
@@ -207,6 +208,7 @@ C-cC-l: Prompt for a file name to load into Maxima.
    are the values of `maxima-mode-minor-output' and 
    `maxima-mode-minor-output-end', which by default are " /*==>" and 
    " <==*/", respectively.
+
  The commands `maxima-minibuffer-on-region', `maxima-minibuffer-on-line'
  and `maxima-minibuffer-on-form' work similarly to 
  `maxima-minibuffer-on-determined-region', but send the current region
@@ -228,6 +230,7 @@ C-cC-l: Prompt for a file name to load into Maxima.
 
  The commands for the Maxima-minibuffer interaction can be made
  available by putting 
+
   #+BEGIN_SRC emacs-lisp 
  (autoload 'maxima-minibuffer "maxima" "Interact with Maxima from the minibuffer" t)
   (autoload 'maxima-minibuffer-on-determined-region "maxima" 
@@ -242,33 +245,27 @@ C-cC-l: Prompt for a file name to load into Maxima.
   
  in your .emacs
 
+
 *** Maxima minor mode
  maxima-minor-mode provides convenient keybindings for the various
  interactions between Maxima and the minibuffer.
  
- It can be made easily available by placing 
+ It can be made easily available by placing this code in your .emacs,
+ then =M-x maxima-minor-mode= will start the minor mode.
+
+ #+begin_src emacs-lisp
   (autoload 'maxima-minor-mode "maxima" "Maxima minor mode" t)
- in your .emacs, then M-x maxima-minor-mode will start the minor mode.
+ #+end_src
  
  (The autoloads for the individual function will not then be necessary.)
  
- C-c=e
-   `maxima-minibuffer-on-determined-region'
-   
- C-c=l
-   `maxima-minibuffer-on-line'
-   
- C-c=r
-   `maxima-minibuffer-on-region'
-   
- C-c=f
-   `maxima-minibuffer-on-form'
-   
- C-c=m
-   `maxima-minibuffer'
-   
- C-c=o
-   `maxima-insert-last-output'
-   
- C-c=t
-   `maxima-insert-last-output-tex'
+**** Enabled commands
+     | Key combination | Function                                |
+     |-----------------+-----------------------------------------|
+     | C-c=e           | maxima-minibuffer-on-determined-region' |
+     | C-c=l           | maxima-minibuffer-on-line'              |
+     | C-c=r           | maxima-minibuffer-on-region'            |
+     | C-c=f           | maxima-minibuffer-on-form'              |
+     | C-c=m           | maxima-minibuffer'                      |
+     | C-c=o           | maxima-insert-last-output'              |
+     | C-c=t           | maxima-insert-last-output-tex'          |
