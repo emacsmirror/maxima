@@ -2241,7 +2241,7 @@ It uses BEG and END as a parameters."
   (make-local-variable 'comment-column)
   (setq comment-column 40)
   (make-local-variable 'comment-indent-function)
-  (setq comment-indent-function 'maxima-comment-indent)
+  (setq comment-indent-function 'comment-indent-default)
   (setq imenu-generic-expression
         (list '(nil "^ *\\([a-zA-Z0-9_]*\\) *(.*) *:=" 1))))
 
@@ -2492,7 +2492,10 @@ If ARG is t, it doesn't ask confirmation."
   (save-current-buffer
     (set-buffer (process-buffer inferior-maxima-process))
     (goto-char (point-max))
-    (insert string)
+    (let ((start (point)))
+      (insert string)
+      (untabify start (point)))
+    (goto-char (point-max))
     (inferior-maxima-comint-send-input)
     (goto-char (point-max))))
 
