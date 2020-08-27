@@ -51,8 +51,8 @@
 (require 'comint)
 (require 'easymenu)
 (require 'cl-lib)
-(require 'dash)
-(require 's)
+(require 'subr-x)
+(require 'seq)
 
 (require 'maxima-font-lock)
 
@@ -1880,14 +1880,14 @@ prefix filter."
 	(progn
 	  (maxima-send-block (concat "apropos(\""prefix"\");"))
 	  (setq command-output (maxima-last-output-noprompt))
-	  (setq command-list-raw (-map (lambda (string)
-					 (s-chop-suffix "]"
-							(s-chop-prefix "[" (s-trim string))))
-				       (s-split "," command-output)))
+	  (setq command-list-raw (seq-map (lambda (string)
+					    (string-remove-suffix "]"
+								  (string-remove-prefix "[" (s-trim string))))
+					  (split-string command-output ",")))
 	  (if fuzzy
 	      command-list-raw
-	    (-filter (lambda (str) (s-starts-with? prefix str))
-		     command-list-raw)))
+	    (seq-filter (lambda (str) (s-starts-with? prefix str))
+			command-list-raw)))
       '())))
 
 (defun maxima-complete-symbol ()
