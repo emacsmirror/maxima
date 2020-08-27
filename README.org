@@ -4,13 +4,14 @@
     - [[#source][Source]]
   - [[#usage][Usage]]
   - [[#maxima-mode][Maxima mode]]
-    - [[#motion-commands][Motion commands:]]
-    - [[#completions-command][Completions command:]]
+    - [[#motion-commands][Motion commands]]
+    - [[#completions-command][Completions command]]
+    - [[#company-integration][Company integration]]
     - [[#interaction-with-the-maxima-process][Interaction with the Maxima process]]
     - [[#maxima-noweb-mode][Maxima noweb mode]]
     - [[#running-maxima-interactively][Running Maxima interactively]]
       - [[#scroll-through-previous-commands][Scroll through previous commands,]]
-    - [[#running-maxima-from-the-minibuffer-][Running Maxima from the minibuffer **]]
+    - [[#running-maxima-from-the-minibuffer][Running Maxima from the minibuffer]]
     - [[#reading-maxima-results-in-the-minibuffer][Reading Maxima results in the minibuffer]]
     - [[#maxima-minor-mode][Maxima minor mode]]
       - [[#enabled-commands][Enabled commands]]
@@ -82,7 +83,7 @@ To put the current buffer into maxima-mode, type:
 =M-x maxima-mode=
  
 
-*** Motion commands:
+*** Motion commands
     | Key combination | Function name                             | Explanation                                        |
     |-----------------+-------------------------------------------+----------------------------------------------------|
     | M-C-a           | maxima-goto-beginning-of-form-interactive | Move to the beginning of the form.                 |
@@ -93,14 +94,24 @@ To put the current buffer into maxima-mode, type:
     | C-c )           | maxima-check-parens                       | Check the current region for balanced parentheses. |
     | C-c C-)         | maxima-check-form-parens                  | Check the current form for balanced parentheses.   |
 
-
-*** Completions command:
+    
+*** Completions command
 
     | Key combination | Function name   | Explanation                                                                                                                  |
     |-----------------+-----------------+------------------------------------------------------------------------------------------------------------------------------|
     | M-TAB           | maxima-complete | Complete the Maxima symbol as much as possible, providing a completion buffer if there is more than one possible completion. |
 
 Portions of the buffer can be sent to a Maxima process.  (If a process is  not running, one will be started.)
+
+
+*** Company integration
+    Maxima.el have a company backend for people who use [[https://melpa.org/#/company][company-mode]], to enable it add this to your .emacs/init.el file:
+    #+begin_src emacs-lisp :tangle yes
+    (setq maxima-use-company t)
+    #+end_src
+    
+    This will create the backend and add it to the =company-backends= list.
+
 
 
 *** Interaction with the Maxima process
@@ -170,7 +181,7 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
      | M-s             | Bring the next input matching a regular expression to the prompt.     |
 
 
-*** Running Maxima from the minibuffer **
+*** Running Maxima from the minibuffer
 
  The command =M-x maxima-minibuffer=
  will allow you to interact with Maxima from the minibuffer.  

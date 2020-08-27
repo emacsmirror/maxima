@@ -50,6 +50,7 @@
 
 (require 'comint)
 (require 'easymenu)
+(require 'cl-lib)
 (require 'maxima-font-lock)
 
 ;;;; The variables that the user may wish to change
@@ -116,10 +117,11 @@ Namely those with nothing on the starting line past the `/*'."
   :group 'maxima
   :type 'integer)
 
-					;(defcustom maxima-use-dynamic-complete nil
-					;  "*If non-nil, then M-TAB will complete words dynamically."
-					;  :group 'maxima
-					;  :type 'boolean)
+(defcustom maxima-use-company nil
+  "*If non-nil, use company for completion.
+Adding `company-maxima' as a backend."
+  :group 'maxima
+  :type 'boolean)
 
 (defcustom maxima-indent-style 'standard
   "*Determines how `maxima-mode' will handle tabs.
@@ -2017,32 +2019,18 @@ if completion is ambiguous."
      (t
       (maxima-complete-symbol)))))
 
-;; ;;; Use hippie-expand to help with completions
-;; (require 'hippie-exp)
 
-;; (defun maxima-he-try (old)
-;;   (interactive)
-;;   (if (not old)
-;;       ;;; let beg be the beginning of the word
-;;       (progn
-;;         (he-init-string (maxima-name-beginning) (point))
-;;         (setq he-expand-list 
-;;               (all-completions (downcase he-search-string) maxima-symbols))
-;;         (setq he-expand-list 
-;;               (mapcar (function 
-;;                       (lambda (x) (he-transfer-case he-search-string x)))
-;;                       he-expand-list))
-;;         (if he-expand-list
-;;             (he-substitute-string (car he-expand-list))
-;;           nil))
-;;     (setq he-expand-list (cdr he-expand-list))
-;;     (if he-expand-list
-;;         (he-substitute-string (car he-expand-list))
-;;       (he-reset-string)
-;;       nil)))
-
-;; (fset 'maxima-dynamic-complete
-;;       (make-hippie-expand-function '(maxima-he-try)))
+(when maxima-use-company
+  (if (featurep 'company)
+      (progn (defun company-maxima (command &optional arg &rest ignored)
+	       (interactive (list 'interactive))
+	       (cl-case command
+		 (interactive (company-begin-backend 'company-maxima-backend))
+		 (prefix (and (eq major-mode 'maxima-mode)
+			      (company-grab-symbol)))
+		 (candidates  (all-completions (company-grab-symbol) maxima-symbols))))
+	     (add-to-list 'company-backends 'company-maxima))
+    (error "Company is not loaded")))
 
 ;;;; Miscellaneous
 
