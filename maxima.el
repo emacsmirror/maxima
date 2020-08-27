@@ -51,6 +51,9 @@
 (require 'comint)
 (require 'easymenu)
 (require 'cl-lib)
+(require 'dash)
+(require 's)
+
 (require 'maxima-font-lock)
 
 ;;;; The variables that the user may wish to change
@@ -1866,13 +1869,29 @@ Typing SPC flushes the help buffer."
 	      (set-window-configuration comint-dynamic-list-completions-config)))))))
 
 ;;;
+
+(defun maxima-get-completions (prefix &optional fuzzy)
+  "Using apropos, return a list of completions with PREFIX.
+If FUZZY is non-nil, it return all the apropos without the
+prefix filter."
+  (let* ((command-output nil))
+    (if (>= (length prefix) 1)
+	(progn
+	  (maxima-send-block (concat "apropos(\""prefix"\");"))
+	  (setq command-output (maxima-last-output-noprompt))
+	  (if fuzzy
+	      (-map 's-trim (s-split "," command-output))
+	    (-filter (lambda (str) (s-starts-with? prefix str))
+		     (-map 's-trim (s-split "," command-output)))))
+      '())))
+
 (defun maxima-complete-symbol ()
   "Complete word from list of candidates.
 A completions listing will be shown in a help buffer
 if completion is ambiguous."
   (let* ((stub  (buffer-substring-no-properties
                  (maxima-name-beginning) (point)))
-	 (completions (all-completions (downcase stub) maxima-symbols)))
+	 (completions (maxima-get-completions stub t)))
     (completion-in-region (maxima-name-beginning) (point) completions)))
 
 (defun maxima-complete-filename ()
@@ -1892,17 +1911,18 @@ if completion is ambiguous."
      (t
       (maxima-complete-symbol)))))
 
-
 (when maxima-use-company
   (if (featurep 'company)
-      (progn (defun company-maxima (command &optional arg &rest ignored)
-	       (interactive (list 'interactive))
-	       (cl-case command
-		 (interactive (company-begin-backend 'company-maxima-backend))
-		 (prefix (and (eq major-mode 'maxima-mode)
-			      (company-grab-symbol)))
-		 (candidates  (all-completions (company-grab-symbol) maxima-symbols))))
-	     (add-to-list 'company-backends 'company-maxima))
+      (progn
+	(defun company-maxima (command &optional arg &rest ignored)
+	  (interactive (list 'interactive))
+	  (cl-case command
+	    (interactive (company-begin-backend 'company-maxima-backend))
+	    (prefix (and (eq major-mode 'maxima-mode)
+			 (company-grab-symbol)))
+	    (candidates  (maxima-get-completions (company-grab-symbol)))))
+
+	(add-to-list 'company-backends 'company-maxima))
     (error "Company is not loaded")))
 
 ;;;; Miscellaneous
