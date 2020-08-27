@@ -164,6 +164,13 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
 *** Maxima noweb mode 
  maxima-noweb-mode is a modification of maxima-mode that will work with [[https://github.com/nrnrnr/noweb/blob/master/src/elisp/noweb-mode.el][noweb-mode]] nicely.
  It will limit any relevant searches  to the current chunk and treat <<...>> as word parts.
+ To enable it, you have to require it, like this:
+
+ #+begin_src emacs-lisp :tangle yes
+
+ (require 'maxima-noweb)
+
+ #+end_src
  
 
 *** Running Maxima interactively 
