@@ -327,7 +327,7 @@ Available with `maxima-minor-mode'."
   (setq maxima-temp-suffix (+ maxima-temp-suffix 1))
   (concat (concat (make-temp-name "#mz") "-")
           (int-to-string maxima-temp-suffix)
-          ".max"))
+          ".mac"))
 
 (defun maxima-strip-string-beginning (string)
   "Return STRING with whitespace and comments removed from the beginning."
@@ -1493,7 +1493,7 @@ Which it is in a comment which begins on a previous line."
     (newline-and-indent)))
 
 (defun maxima-insert-long-comment ()
-  "Insert a comment enviroment."
+  "Insert a comment environment."
   (interactive)
   (indent-for-tab-command)
   (insert "/*")
