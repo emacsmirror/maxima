@@ -1880,10 +1880,10 @@ prefix filter."
 	(progn
 	  (maxima-send-block (concat "apropos(\""prefix"\");"))
 	  (setq command-output (maxima-last-output-noprompt))
-	  (setq command-list-raw (-distinct (-map (lambda (string)
-						    (s-chop-suffix "]"
-								   (s-chop-prefix "[" (s-trim string))))
-						  (s-split "," command-output))))
+	  (setq command-list-raw (-map (lambda (string)
+					 (s-chop-suffix "]"
+							(s-chop-prefix "[" (s-trim string))))
+				       (s-split "," command-output)))
 	  (if fuzzy
 	      command-list-raw
 	    (-filter (lambda (str) (s-starts-with? prefix str))
@@ -1926,6 +1926,7 @@ if completion is ambiguous."
 	    (prefix (and (eq major-mode 'maxima-mode)
 			 (not (company-in-string-or-comment))
 			 (company-grab-symbol)))
+	    (duplicates t)
 	    (candidates  (maxima-get-completions (company-grab-symbol)))))
 
 	(add-to-list 'company-backends 'company-maxima))
