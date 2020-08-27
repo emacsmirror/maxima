@@ -2835,30 +2835,6 @@ Then go to the beginning of the next form."
      (t
       (maxima-complete-symbol)))))
 
-;; (defun maxima-input-he-try (old)
-;;   (interactive)
-;;   (if (not old)
-;;       ;;; let beg be the beginning of the word
-;;       (progn
-;;         (he-init-string (inferior-maxima-bol-position) (point))
-;;         (setq he-expand-list
-;;               (all-completions (downcase he-search-string) (maxima-previous-inputs)))
-;;         (setq he-expand-list
-;;               (mapcar (function
-;;                       (lambda (x) (he-transfer-case he-search-string x)))
-;;                       he-expand-list))
-;;         (if he-expand-list
-;;             (he-substitute-string (car he-expand-list))
-;;           nil))
-;;     (setq he-expand-list (cdr he-expand-list))
-;;     (if he-expand-list
-;;         (he-substitute-string (car he-expand-list))
-;;       (he-reset-string)
-;;       nil)))
-
-;; (fset 'maxima-dynamic-input-complete
-;;       (make-hippie-expand-function '(maxima-input-he-try)))
-
 ;;; Sending a line to the process while in the process buffer
 
 (defun inferior-maxima-check-and-send-line ()
