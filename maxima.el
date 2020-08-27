@@ -1924,6 +1924,7 @@ if completion is ambiguous."
 	  (cl-case command
 	    (interactive (company-begin-backend 'company-maxima-backend))
 	    (prefix (and (eq major-mode 'maxima-mode)
+			 (not (company-in-string-or-comment))
 			 (company-grab-symbol)))
 	    (candidates  (maxima-get-completions (company-grab-symbol)))))
 
