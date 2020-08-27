@@ -127,7 +127,7 @@ Choices are 'standard, 'perhaps-smart"
   :group 'maxima
   :type '(choice :menu-tag "Indent style"
                  :tag      "Indent style"
-                 (const standard) 
+                 (const standard)
                  (const perhaps-smart)))
 
 (defcustom maxima-return-style 'newline-and-indent
@@ -136,7 +136,7 @@ Choices are 'newline, 'newline-and-indent, and 'reindent-then-newline-and-indent
   :group 'maxima
   :type '(choice :menu-tag "Return style"
                  :tag      "Return style"
-                 (const newline) 
+                 (const newline)
                  (const newline-and-indent)
                  (const reindent-then-newline-and-indent)))
 
@@ -2053,7 +2053,8 @@ if completion is ambiguous."
   (set-mark (maxima-form-end-position-or-point-max)))
 
 (defun maxima-check-commas (beg end)
-  "Check to see if there is a stray comma at the beginning or end."
+  "Check for a stray comma at the beginning or end.
+It uses BEG and END as a parameters."
   (let ((commapt nil))
     (save-excursion
       (goto-char beg)
@@ -2078,7 +2079,8 @@ if completion is ambiguous."
       t)))
 
 (defun maxima-check-parens (beg end)
-  "Check to make sure that the parentheses are balanced in the region."
+  "Make sure that the parentheses are balanced in the region.
+It uses BEG and END as a parameters."
   (interactive "r")
   (let* ((tmpfile (maxima-make-temp-name))
          (tmpbuf (get-buffer-create tmpfile))
@@ -2154,7 +2156,7 @@ if completion is ambiguous."
                        (maxima-form-end-position-or-point-max)))
 
 (defun maxima-load-file (file)
-  "Prompt for a Maxima file to load."
+  "Prompt for a Maxima FILE to load."
   (interactive "fMaxima file: ")
   (maxima-string (concat "load(\"" (expand-file-name file) "\");")))
 
