@@ -167,9 +167,7 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
  To enable it, you have to require it, like this:
 
  #+begin_src emacs-lisp :tangle yes
-
  (require 'maxima-noweb)
-
  #+end_src
  
 
