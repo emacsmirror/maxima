@@ -1466,7 +1466,7 @@ Which it is in a comment which begins on a previous line."
   "Change the newline style, it requires NEW-STYLE."
   (interactive "sNewline style (insert \"b\" for basic, \"s\" for standard, or \"p\" for perhaps-smart): ")
   (cond
-   ((strin)
+   ((string= new-style "b")
     (setq maxima-indent-style 'basic))
    ((string= new-style "s")
     (setq maxima-indent-style 'standard))
@@ -2194,8 +2194,8 @@ It uses BEG and END as a parameters."
      "----"
      ["Kill process" maxima-stop t])
     ("Indentation"
-					;     ["Change to basic" (maxima-change-indent-style "b")
-					;      (not (eq maxima-newline-style 'basic))]
+     ["Change to basic" (maxima-change-indent-style "b")
+      (not (eq maxima-indent-style 'basic))]
      ["Change to standard" (maxima-change-indent-style "s")
       (not (eq maxima-indent-style 'standard))]
      ["Change to smart" (maxima-change-indent-style "p")
