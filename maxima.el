@@ -1874,15 +1874,20 @@ Typing SPC flushes the help buffer."
   "Using apropos, return a list of completions with PREFIX.
 If FUZZY is non-nil, it return all the apropos without the
 prefix filter."
-  (let* ((command-output nil))
+  (let* ((command-output nil)
+	 (command-list-raw))
     (if (>= (length prefix) 1)
 	(progn
 	  (maxima-send-block (concat "apropos(\""prefix"\");"))
 	  (setq command-output (maxima-last-output-noprompt))
+	  (setq command-list-raw (-distinct (-map (lambda (string)
+						    (s-chop-suffix "]"
+								   (s-chop-prefix "[" (s-trim string))))
+						  (s-split "," command-output))))
 	  (if fuzzy
-	      (-map 's-trim (s-split "," command-output))
+	      command-list-raw
 	    (-filter (lambda (str) (s-starts-with? prefix str))
-		     (-map 's-trim (s-split "," command-output)))))
+		     command-list-raw)))
       '())))
 
 (defun maxima-complete-symbol ()
