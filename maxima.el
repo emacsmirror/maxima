@@ -1877,8 +1877,6 @@ Typing SPC flushes the help buffer."
 	    (unless (eq first ?\t)
 	      (set-window-configuration comint-dynamic-list-completions-config)))))))
 
-;;;
-
 (defun maxima-get-completions (prefix &optional fuzzy)
   "Using apropos, return a list of completions with PREFIX.
 If FUZZY is non-nil, it return all the apropos without the
@@ -1895,9 +1893,22 @@ prefix filter."
 					  (split-string command-output ",")))
 	  (if fuzzy
 	      command-list-raw
-	    (seq-filter (lambda (str) (s-starts-with? prefix str))
+	    (seq-filter (lambda (str) (string-prefix-p prefix str))
 			command-list-raw)))
       '())))
+
+(defun maxima-get-libraries (prefix &optional fuzzy)
+  "Return a list of libraries in `maxima-libraries-directory' with PREFIX.
+It also have an option for FUZZY search."
+  (let* ((libraries-list (seq-map (lambda (file) (file-name-base file))
+				  (directory-files-recursively
+				   maxima-libraries-directory
+				   (rx (literal ".") (or (literal "lisp") (literal "mac")))))))
+    (seq-filter (lambda (file-name)
+		  (if fuzzy
+		      (string-match-p prefix file-name)
+		    (string-prefix-p prefix file-name)))
+		libraries-list)))
 
 (defun maxima-complete-symbol ()
   "Complete word from list of candidates.
@@ -1925,10 +1936,24 @@ if completion is ambiguous."
      (t
       (maxima-complete-symbol)))))
 
+
+
 (when maxima-use-company
   (if (featurep 'company)
       (progn
-	(defun company-maxima (command &optional arg &rest ignored)
+	(defun company-maxima-libraries (command &optional arg &rest ignored)
+	  (interactive (list 'interactive))
+	  (cl-case command
+	    (interactive (company-begin-backend 'company-maxima-backend))
+	    (prefix (and (eq major-mode 'maxima-mode)
+			 (company-in-string-or-comment)
+			 ;; FIXME this could be improve, if the load string is in other line, it doesn't work
+			 (string-match (rx (literal "load")(syntax open-parenthesis)(syntax string-quote)) (thing-at-point 'line t))
+			 (company-grab-symbol)))
+	    (duplicates t)
+	    (candidates  (maxima-get-libraries (company-grab-symbol)))))
+
+	(defun company-maxima-symbols (command &optional arg &rest ignored)
 	  (interactive (list 'interactive))
 	  (cl-case command
 	    (interactive (company-begin-backend 'company-maxima-backend))
@@ -1938,9 +1963,8 @@ if completion is ambiguous."
 	    (duplicates t)
 	    (candidates  (maxima-get-completions (company-grab-symbol)))))
 
-	(add-to-list 'company-backends 'company-maxima))
+	(add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries)))
     (error "Company is not loaded")))
-
 ;;;; Miscellaneous
 
 (defun maxima-mark-form ()
