@@ -2586,7 +2586,7 @@ With ARG, use maxima-block-wait instead of maxima-block."
     command))
 
 (defun maxima-send-block (stuff)
-  "Send a block of code to Maxima."
+  "Send a STUFF block of code to Maxima."
   (maxima-start)
   (setq stuff (maxima-strip-string-add-semicolon stuff))
 					;  (unless (string-match (substring stuff -1) ";$")
@@ -2598,7 +2598,7 @@ With ARG, use maxima-block-wait instead of maxima-block."
     (setq maxima-block (concat maxima-block stuff))))
 
 (defun maxima-send-block-wait (stuff)
-  "Send a block of code to Maxima; wait for it to finish.
+  "Send a STUFF block of code to Maxima; wait for it to finish.
 Return the last string sent."
   (maxima-start)
   (if (not (string= maxima-block ""))
