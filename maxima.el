@@ -61,7 +61,8 @@
 (defgroup maxima nil
   "Maxima mode"
   :prefix "maxima-"
-  :tag    "Maxima")
+  :tag    "Maxima"
+  :link '(url-link :tag "Repository" "https://gitlab.com/sasanidas/maxima"))
 
 (defcustom maxima-inchar "\\(C\\|%i\\)"
   "*The character used for an input prompt."
@@ -144,6 +145,14 @@ Choices are 'newline, 'newline-and-indent, and 'reindent-then-newline-and-indent
                  (const newline)
                  (const newline-and-indent)
                  (const reindent-then-newline-and-indent)))
+
+;; FIXME Use maxima --version as a default version
+
+(defcustom maxima-libraries-directory
+  "/usr/share/maxima/5.42.1/share/"
+  "Maxima libraries directory."
+  :group 'maxima
+  :type 'string)
 
 (defvar maxima-newline-style nil
   "For compatibility.")
