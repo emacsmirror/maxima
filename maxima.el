@@ -56,12 +56,14 @@
 
 (require 'maxima-font-lock)
 
+
 ;;;; The variables that the user may wish to change
 
 (defgroup maxima nil
-  "Maxima mode"
+  "Maxima mode group."
   :prefix "maxima-"
   :tag    "Maxima"
+  :group 'maxima-mode
   :link '(url-link :tag "Repository" "https://gitlab.com/sasanidas/maxima"))
 
 (defcustom maxima-inchar "\\(C\\|%i\\)"
@@ -235,6 +237,8 @@ Available with `maxima-minor-mode'."
   :type 'boolean)
 
 (defun maxima-minor-output-mark ()
+  "Internal function, check if point is in a comment.
+And call the correct function."
   (if (and
        (eq major-mode 'maxima-mode)
        (not (maxima-in-comment-p)))
@@ -242,6 +246,8 @@ Available with `maxima-minor-mode'."
     maxima-minor-output))
 
 (defun maxima-minor-output-mark-end ()
+  "Internal function, check if point is in a comment.
+And insert the correct end output."
   (if (and
        (eq major-mode 'maxima-mode)
        (not (maxima-in-comment-p)))
@@ -305,7 +311,7 @@ Available with `maxima-minor-mode'."
 
 ;; This was taken from `replace-regexp-in-string' from subr.el in GNU emacs.
 (defun maxima-replace-in-string (regexp rep string)
-  "Replace all matches for REGEXP with REP in STRING."
+  "Replace all ocurrences for REGEXP with REP in STRING."
   (let ((l (length string))
 	(start 0)
 	matches str mb me)
@@ -1387,6 +1393,7 @@ Returns an integer: the column to indent to."
     indent))
 
 (defun maxima-perhaps-smart-calculate-indent ()
+  "Check for maxima-noweb-mode and adjust the indentation."
   (cond
    ((eq maxima-mode-type 'maxima-mode)
     (maxima-standard-perhaps-smart-calculate-indent))
@@ -1486,6 +1493,7 @@ Which it is in a comment which begins on a previous line."
     (setq maxima-indent-style 'perhaps-smart))))
 
 (defun maxima-return ()
+  "Check return function call,dictated by `maxima-return-style'."
   (interactive)
   (cond
    ((eq maxima-return-style 'newline)
@@ -1699,6 +1707,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 	(maxima-help-dispatcher t arg2))))))
 
 (defun maxima-context-help ()
+  "Internal function."
   (interactive)
   (let* ((stub  (current-word))
 	 (completions (all-completions (downcase stub) maxima-symbols)))
@@ -1787,6 +1796,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 
 ;;; This next functions are from hippie-expand.el
 (defun maxima-he-capitalize-first (str)
+  "Capitalize STR."
   (save-match-data
     (if (string-match "\\Sw*\\(\\sw\\).*" str)
 	(let ((res (downcase str))
@@ -1796,6 +1806,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
       str)))
 
 (defun maxima-he-ordinary-case-p (str)
+  "Check if STR start with a character."
   (or (string= str (downcase str))
       (string= str (upcase str))
       (string= str (capitalize str))
@@ -1803,6 +1814,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 
 
 (defun maxima-he-transfer-case (from-str to-str)
+  "Transform FROM-STR to TO-STR."
   (cond ((string= from-str (substring to-str 0 (min (length from-str)
 						    (length to-str))))
 	 to-str)
@@ -1963,7 +1975,8 @@ if completion is ambiguous."
 	    (duplicates t)
 	    (candidates  (maxima-get-completions (company-grab-symbol)))))
 
-	(add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries)))
+	;; (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
+	)
     (error "Company is not loaded")))
 ;;;; Miscellaneous
 
@@ -2089,6 +2102,7 @@ It uses BEG and END as a parameters."
 ;;; For highlighting the region being sent
 
 (defun maxima-mode-add-highlight ()
+  "Add highlight to a `maxima-mode' buffer."
   (maxima-mode-remove-highlight)
   (if (and maxima-mode-region-begin maxima-mode-region-end)
       (setq maxima-mode-highlight
@@ -2100,11 +2114,13 @@ It uses BEG and END as a parameters."
   (setq maxima-mode-region-end nil))
 
 (defun maxima-mode-remove-highlight ()
+  "Remove highlight to a `maxima-mode' buffer."
   (when maxima-mode-highlight
     (delete-overlay maxima-mode-highlight)
     (setq maxima-mode-highlight nil)))
 
 (defun maxima-mode-add-remove-highlight ()
+  "Check whether or not add or remove highlight."
   (if (or
        (eq this-command 'maxima-send-region)
        (eq this-command 'maxima-send-buffer)
@@ -2396,6 +2412,7 @@ To get apropos with the symbol under point, use:
 
 ;;; Sending the information
 (defun inferior-maxima-get-old-input ()
+  "Get last output from a `inferior-maxima-mode' buffer."
   (let (pt pt1)
     (save-excursion
       (if (re-search-forward
@@ -2410,7 +2427,8 @@ To get apropos with the symbol under point, use:
     (buffer-substring-no-properties pt1 pt)))
 
 (defun inferior-maxima-comint-send-input (&optional query)
-  "Take note of position, then send the input."
+  "Take note of position, then send the input.
+If QUERY is not nil, it takes the input in point."
   (unless query
     (setq inferior-maxima-input-end (point)))
   (setq inferior-maxima-waiting-for-output t)
@@ -2937,6 +2955,7 @@ Then go to the beginning of the next form."
 	(goto-char (match-end 0)))))
 
 (defun inferior-maxima-bol-position ()
+  "Internal function, go to the beginning and save the point."
   (save-excursion
     (inferior-maxima-bol)
     (point)))
@@ -3059,6 +3078,7 @@ To scroll through previous commands,
     (message output)))
 
 (defun maxima-minibuffer-delete-output (beg end)
+  "Delete the minibuffer output from BEG to END."
   (let ((mmom (maxima-minor-output-mark))
         (mmoe (maxima-minor-output-mark-end)))
     (if (or
@@ -3242,6 +3262,7 @@ anything in the determined region after any occurrence of \" ==>
     (maxima-minibuffer-on-region beg end arg)))
 
 (defun maxima-insert-last-output ()
+  "Insert last output to inferior-maxima to the current buffer."
   (interactive)
   (maxima-single-string-wait
    "block(emacsdisplay:display2d,display2d:false,linenum:linenum-1,%);")
@@ -3250,6 +3271,7 @@ anything in the determined region after any occurrence of \" ==>
     (insert (maxima-remove-whitespace-from-ends output))))
 
 (defun maxima-insert-last-output-tex ()
+  "Insert the last output in tex format."
   (interactive)
   (maxima-single-string-wait "tex(%);")
   (let ((output (substring (maxima-last-output-tex-noprompt) 2 -3)))
@@ -3314,6 +3336,7 @@ buffer, preceded by \" ==> \" (customizable with `maxima-minor-output').
 ;;; For highlighting the region being sent
 
 (defun maxima-minor-mode-add-highlight ()
+  "Add highlight to `maxima-minor-mode'."
   (maxima-minor-mode-remove-highlight)
   (when (and maxima-minor-mode-region-begin
              maxima-minor-mode-region-end)
@@ -3326,11 +3349,13 @@ buffer, preceded by \" ==> \" (customizable with `maxima-minor-output').
     (setq maxima-minor-mode-region-end nil)))
 
 (defun maxima-minor-mode-remove-highlight ()
+  "Remove highlight to `maxima-minor-mode'."
   (when maxima-minor-mode-highlight
     (delete-overlay maxima-minor-mode-highlight)
     (setq maxima-minor-mode-highlight nil)))
 
 (defun maxima-minor-mode-add-remove-highlight ()
+  "Check to add or remove highlight to `maxima-minor-mode'."
   (if (or
        (eq this-command 'maxima-minibuffer-on-region)
        (eq this-command 'maxima-minibuffer-on-determined-region)
@@ -3340,6 +3365,7 @@ buffer, preceded by \" ==> \" (customizable with `maxima-minor-output').
     (maxima-minor-mode-remove-highlight)))
 
 (defun maxima-minor-mode-highlighting ()
+  "Add a function to `post-command-hook'."
   (add-hook 'post-command-hook
             'maxima-minor-mode-add-remove-highlight nil t))
 
