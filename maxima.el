@@ -1975,8 +1975,7 @@ if completion is ambiguous."
 	    (duplicates t)
 	    (candidates  (maxima-get-completions (company-grab-symbol)))))
 
-	;; (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
-	)
+	(add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries)))
     (error "Company is not loaded")))
 ;;;; Miscellaneous
 
@@ -3277,6 +3276,26 @@ anything in the determined region after any occurrence of \" ==>
   (let ((output (substring (maxima-last-output-tex-noprompt) 2 -3)))
     (maxima-single-string "block(linenum:linenum-2,%th(2));")
     (insert output)))
+
+;;; Latex and org-mode interaction
+
+(defun maxima-insert-tex-form ()
+  "Insert the current form in text formated output."
+  (interactive)
+  (maxima-send-form)
+  (maxima-send-block "tex(''%,false);")
+  (let* ((command-output (maxima-last-output-tex-noprompt))
+	 (beg-position nil)
+	 (end-position nil)
+	 (current-pos (point)))
+    (end-of-line)
+    (setq beg-position (point))
+    (insert
+     "\n"
+     command-output)
+    (setq end-position (point))
+    (org-latex-preview)
+    (goto-char current-pos)))
 
 ;;; The Maxima minor mode
 

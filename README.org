@@ -1,4 +1,4 @@
-* Maxima.el 
+* Maxima.el
 [[License: GPL v3][https://img.shields.io/badge/License-GPLv3-blue.svg]]
   - [[#install][Install]]
     - [[#source][Source]]
@@ -7,6 +7,7 @@
     - [[#motion-commands][Motion commands]]
     - [[#completions-command][Completions command]]
     - [[#company-integration][Company integration]]
+    - [[#org-mode-and-tex-integration][Org-mode and Tex integration]]
     - [[#interaction-with-the-maxima-process][Interaction with the Maxima process]]
     - [[#maxima-noweb-mode][Maxima noweb mode]]
     - [[#running-maxima-interactively][Running Maxima interactively]]
@@ -111,6 +112,37 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
     #+end_src
     
     This will create the backend and add it to the =company-backends= list.
+
+
+
+*** Org-mode and Tex integration
+    By default, [[https://orgmode.org/][org-mode]] supports maxima syntax highlight, export results and plot integration.
+    To enable it, you have add it to =org-babel-load-languages= :
+
+    #+begin_src emacs-lisp :tangle yes
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((maxima . t))) 
+    #+end_src
+    More information in [[https://www.orgmode.org/worg/org-contrib/babel/languages/ob-doc-maxima.html][here]].
+    
+    With tex integration, we use org-mode latex functionalities, to use it you must have:
+
+    + [[HTTPS://www.latex-project.org/get/][LATEX]] 
+    + One of the =org-preview-latex= software in order to convert latex to image
+      + dvipng
+      + dvisvgm
+      + imagemagic
+
+    The variable =org-preview-latex-process-alist= show more extend information about it, the default
+    one is defined in =org-preview-latex-default-process=.
+    
+    Available functions:
+
+| Function name           | Explanation                                   |
+|-------------------------+-----------------------------------------------|
+| maxima-insert-text-form | Insert the latex image below the current form |
+
 
 
 
