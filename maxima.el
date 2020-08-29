@@ -45,6 +45,21 @@
 ;; to your `.emacs' file.
 
 ;;; Code:
+;;
+;;
+;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+;; 
+;; (org-format-latex "-px"
+;; 		  nil nil
+;; 		  temporary-file-directory
+;; 		  'overlays
+;; 		  "Creating images...%s"
+;; 		  'forbuffer
+;; 		  org-latex-create-formula-image-program)
+;; tex(''%);
+;;
+;;
+;; 
 
 ;;;; The requires
 

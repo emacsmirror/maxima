@@ -238,42 +238,43 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
  
 
 *** Reading Maxima results in the minibuffer 
- The command `maxima-minibuffer-on-determined-region' 
+
+ The command =maxima-minibuffer-on-determined-region= 
    will send the part of the current buffer containing the point and between 
-   the regexps `maxima-minor-prefix' and `maxima-minor-postfix' (currently
+   the regexps =maxima-minor-prefix= and =maxima-minor-postfix= (currently
    both blank lines) to the Maxima process and insert the result in the
    minibuffer.  
    
-   With an argument, `maxima-minibuffer-in-determined-region'
+   With an argument, =maxima-minibuffer-in-determined-region=
    will also insert the output into the current buffer, after " ==> "
    and before "//".  (The symbol ` ==> ' is the value of the customizable 
    variable `maxima-minor-output' and "//" is the value of 
-   `maxima-minor-output-end'.  The new output is inserted, these strings 
+   =maxima-minor-output-end=.  The new output is inserted, these strings 
    will be used to delete the old output.
    
    
    Outside of comments in maxima-mode, the opening and closing indicators 
-   are the values of `maxima-mode-minor-output' and 
-   `maxima-mode-minor-output-end', which by default are " /*==>" and 
+   are the values of =maxima-mode-minor-output= and 
+   =maxima-mode-minor-output-end=, which by default are " /*==>" and 
    " <==*/", respectively.
 
- The commands `maxima-minibuffer-on-region', `maxima-minibuffer-on-line'
- and `maxima-minibuffer-on-form' work similarly to 
- `maxima-minibuffer-on-determined-region', but send the current region
+ The commands =maxima-minibuffer-on-region=, =maxima-minibuffer-on-line=
+ and =maxima-minibuffer-on-form= work similarly to 
+ =maxima-minibuffer-on-determined-region=, but send the current region
  (respectively, the current line, current form) to Maxima and display
  the result in the minibuffer.
  (The form is the region between the preceding ; or $ and the subsequent
  ; or $)
  
  Care must be taken when inserting the output into the current buffer
- with `maxima-minibuffer-on-region' and `maxima-minibuffer-on-form'.
- With `maxima-minibuffer-on-region', as with 
- `maxima-minibuffer-on-determined-region' above, everything after any
+ with =maxima-minibuffer-on-region= and =maxima-minibuffer-on-form=.
+ With =maxima-minibuffer-on-region=, as with 
+ =maxima-minibuffer-on-determined-region= above, everything after any
  "==>" in the region will be ignored.  
  
  
- What will typically happen with `maxima-minibuffer-on-region' and
- `maxima-minibuffer-on-form', however, is that new outputs will
+ What will typically happen with =maxima-minibuffer-on-region= and
+ =maxima-minibuffer-on-form=, however, is that new outputs will
  be inserted without old output being deleted.
 
  The commands for the Maxima-minibuffer interaction can be made
@@ -293,7 +294,7 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
   
  in your .emacs
 
-
+ 
 *** Maxima minor mode
  maxima-minor-mode provides convenient keybindings for the various
  interactions between Maxima and the minibuffer.
@@ -308,12 +309,12 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
  (The autoloads for the individual function will not then be necessary.)
  
 **** Enabled commands
-     | Key combination | Function                                |
-     |-----------------+-----------------------------------------|
-     | C-c=e           | maxima-minibuffer-on-determined-region' |
-     | C-c=l           | maxima-minibuffer-on-line'              |
-     | C-c=r           | maxima-minibuffer-on-region'            |
-     | C-c=f           | maxima-minibuffer-on-form'              |
-     | C-c=m           | maxima-minibuffer'                      |
-     | C-c=o           | maxima-insert-last-output'              |
-     | C-c=t           | maxima-insert-last-output-tex'          |
+     | Key combination | Function                               |
+     |-----------------+----------------------------------------|
+     | C-c=e           | maxima-minibuffer-on-determined-region |
+     | C-c=l           | maxima-minibuffer-on-line              |
+     | C-c=r           | maxima-minibuffer-on-region            |
+     | C-c=f           | maxima-minibuffer-on-form              |
+     | C-c=m           | maxima-minibuffer                      |
+     | C-c=o           | maxima-insert-last-output              |
+     | C-c=t           | maxima-insert-last-output-tex          |
