@@ -137,7 +137,7 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
     The variable =org-preview-latex-process-alist= show more extend information about it, the default
     one is defined in =org-preview-latex-default-process=.
 
-    It is recommended to increase the latex format font, te default one is quite small:
+    It is recommended to increase the latex format font, the default one is quite small:
     #+begin_src emacs-lisp :tangle yes
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
     #+end_src
