@@ -144,9 +144,9 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
     
     Available functions:
 
-| Function name           | Explanation                                   |
-|-------------------------+-----------------------------------------------|
-| maxima-insert-text-form | Insert the latex image below the current form |
+| Function name                  | Explanation                                         |
+|--------------------------------+-----------------------------------------------------|
+| maxima-tex-insert-preview-form | Insert the preview tex image below the current form |
 
 
 

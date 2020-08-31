@@ -3286,21 +3286,35 @@ anything in the determined region after any occurrence of \" ==>
 
 ;;; Latex and org-mode interaction
 
-(defun maxima-insert-tex-form ()
-  "Insert the current form in text formated output."
+(defun maxima-tex-insert-preview-form ()
+  "Send and insert the current form in text formated output."
   (interactive)
-  (maxima-send-form)
-  (maxima-send-block "tex(''%,false);")
-  (let* ((command-output (maxima-last-output-tex-noprompt))
-	 (beg-position nil)
-	 (end-position nil)
+  (let* ((keep-looking t)
+	 (beg-point nil)
+         (end-point nil)
+	 (form-text nil)
+	 (command-output nil)
 	 (current-pos (point)))
+    (maxima-goto-beginning-of-form)
+    (setq beg-point (point))
+    (while (and keep-looking
+                (maxima-re-search-forward "[;$]" nil))
+      (forward-char -2)
+      (unless (looking-at "\\\\\\$")
+        (setq keep-looking nil))
+      (forward-char 2))
+
+    (if (not keep-looking)
+	(setq end-point (point))
+      (error "End of the form not found"))
+    (setq form-text (string-remove-suffix ";" (buffer-substring beg-point end-point)))
+    (maxima-send-block (concat "tex(''" form-text ",false);"))
+    (setq command-output (maxima-last-output-tex-noprompt))
+    (backward-char 3)
     (end-of-line)
-    (setq beg-position (point))
     (insert
      "\n"
      command-output)
-    (setq end-position (point))
     (org-latex-preview)
     (goto-char current-pos)))
 
