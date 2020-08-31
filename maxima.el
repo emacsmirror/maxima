@@ -45,21 +45,6 @@
 ;; to your `.emacs' file.
 
 ;;; Code:
-;;
-;;
-;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-;; 
-;; (org-format-latex "-px"
-;; 		  nil nil
-;; 		  temporary-file-directory
-;; 		  'overlays
-;; 		  "Creating images...%s"
-;; 		  'forbuffer
-;; 		  org-latex-create-formula-image-program)
-;; tex(''%);
-;;
-;;
-;; 
 
 ;;;; The requires
 
@@ -137,6 +122,12 @@ Namely those with nothing on the starting line past the `/*'."
   "*The amount of extra indentation to give a \"then\" following an \"if\"."
   :group 'maxima
   :type 'integer)
+
+(defcustom maxima-display-maxima-buffer t
+  "*If non-nil, display maxima buffer.
+It shows the buffer every time `maxima-send-buffer' is called."
+  :group 'maxima
+  :type 'boolean)
 
 (defcustom maxima-use-company nil
   "*If non-nil, use company for completion.
@@ -2766,7 +2757,8 @@ With ARG , don't check the parentheses first."
       (maxima-region beg end)
     (if (maxima-check-parens beg end)
         (maxima-region beg end)))
-  (maxima-display-buffer))
+  (when maxima-display-maxima-buffer
+    (maxima-display-buffer)))
 
 (defun maxima-send-buffer (&optional arg)
   "Send the buffer to the Maxima process, after checking the parentheses.
