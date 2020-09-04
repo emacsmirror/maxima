@@ -2456,29 +2456,6 @@ Optionally it requires STRING."
       (if (looking-at "")
           (delete-char 1)))))
 
-;;; This next function will replace tabs in the output by spaces
-;; untabify isn't defined in xemacs
-(unless (fboundp 'untabify)
-  (defun untabify (start end)
-    "Convert all tabs in region to multiple spaces, preserving columns.
-Called non-interactively, the region is specified by arguments
-START and END, rather than by the position of point and mark.
-The variable `tab-width' controls the spacing of tab stops."
-    (interactive "r")
-    (save-excursion
-      (save-restriction
-	(narrow-to-region (point-min) end)
-	(goto-char start)
-	(while (search-forward "\t" nil t)	; faster than re-search
-	  (forward-char -1)
-	  (let ((tab-beg (point))
-		(indent-tabs-mode nil)
-		column)
-	    (skip-chars-forward "\t")
-	    (setq column (current-column))
-	    (delete-region tab-beg (point))
-	    (indent-to column)))))))
-
 (defun inferior-maxima-replace-tabs-by-spaces (&optional string)
   "Replace tabs in the Maxima output by spaces.
 Optionally it requires STRING."
