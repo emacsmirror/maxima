@@ -1,4 +1,4 @@
-;;; maxima.el --- Major modes for writing Maxima code
+;;; maxima.el --- Major modes for writing Maxima code              -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 1998,1999 William F. Schelter
 ;; Copyright (C) 2001-2007 Jay Belanger
@@ -6,8 +6,13 @@
 
 ;; Author: William F. Schelter
 ;;         Jay Belanger
-;;
-;; Keywords: maxima
+;;         Fermin Munoz<fmfs@posteo.net>
+;; Created: 30 April 2020
+;; Version: 0.5.0
+;; Keywords: maxima,tools,math
+;; URL: https://gitlab.com/sasanidas/maxima
+;; Package-Requires: ((emacs "25.1") (seq "2.20"))
+;; License: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -28,8 +33,6 @@
 
 ;;; Commentary:
 
-;; This is a branch of William Schelter's maxima-mode.el
-;;
 ;; Quick intro
 ;;
 ;; To install, put this file (as well as maxima-font-lock.el)
