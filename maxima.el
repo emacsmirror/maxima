@@ -175,7 +175,7 @@ Choices are 'newline, 'newline-and-indent, and 'reindent-then-newline-and-indent
   :type 'string)
 
 (defcustom maxima-args nil
-  "*Extra arguments to pass to the maxima-command."
+  "*Extra arguments to pass to the `maxima-command'."
   :group 'maxima
   :type 'string)
 
@@ -185,7 +185,7 @@ Choices are 'newline, 'newline-and-indent, and 'reindent-then-newline-and-indent
   :type 'boolean)
 
 (defcustom maxima-minibuffer-2d nil
-  "*If non-nil, use 2D output for maxima-minibuffer."
+  "*If non-nil, use 2D output for `maxima-minibuffer'."
   :group 'maxima
   :type 'boolean)
 
@@ -211,13 +211,13 @@ Choices are 'newline, 'newline-and-indent, and 'reindent-then-newline-and-indent
 
 (defcustom maxima-minor-prefix "^[ \t]*$"
   "*Regexp that indicate the beginning of a region to send to Maxima.
-Available with `maxima-minor-mode'."
+Available with function `maxima-minor-mode'."
   :group 'maxima
   :type 'string)
 
 (defcustom maxima-minor-postfix "^[ \t]*$"
   "*Regexp to indicate the end of a region to send to Maxima.
-Available with `maxima-minor-mode'."
+Available with function `maxima-minor-mode'."
   :group 'maxima
   :type 'string)
 
@@ -2304,7 +2304,7 @@ It uses BEG and END as a parameters."
   "Abbreviation table for `maxima-mode'.")
 
 (defun maxima-mode-variables ()
-  "Set all the necessary variables for maxima-mode."
+  "Set all the necessary variables for `maxima-mode'."
   (set-syntax-table maxima-mode-syntax-table)
   (setq local-abbrev-table maxima-mode-abbrev-table)
   (make-local-variable 'paragraph-start)
@@ -2579,9 +2579,9 @@ If ARG is t, it doesn't ask confirmation."
       (goto-char (point-max)))))
 
 (defun maxima-get-command (&optional arg)
-  "Return the maxima command that's at the front of maxima-block.
-Remove it from the front of maxima-block.
-With ARG, use maxima-block-wait instead of maxima-block."
+  "Return the maxima command that's at the front of `maxima-block'.
+Remove it from the front of `maxima-block'.
+With ARG, use `maxima-block-wait' instead of `maxima-block'."
   (let* ((tmpfile (maxima-make-temp-name))
          (tmpbuf (get-buffer-create tmpfile))
          (pt)
@@ -2837,7 +2837,7 @@ Then go to the beginning of the next form."
   (maxima-goto-beginning-of-form))
 
 (defun maxima-display-buffer ()
-  "Display the inferior-maxima-process buffer so the recent output is visible."
+  "Display the `inferior-maxima-process' buffer so the recent output is visible."
   (interactive)
   (let ((origbuffer (current-buffer)))
     (if (not (processp inferior-maxima-process))
@@ -3303,7 +3303,7 @@ anything in the determined region after any occurrence of \" ==>
 ;;; The Maxima minor mode
 
 (defvar maxima-minor-mode-map nil
-  "The keymap for maxima-minor-mode.")
+  "The keymap for function `maxima-minor-mode'.")
 
 (if maxima-minor-mode-map
     nil
@@ -3358,7 +3358,7 @@ buffer, preceded by \" ==> \" (customizable with `maxima-minor-output').
 ;;; For highlighting the region being sent
 
 (defun maxima-minor-mode-add-highlight ()
-  "Add highlight to `maxima-minor-mode'."
+  "Add highlight to function `maxima-minor-mode'."
   (maxima-minor-mode-remove-highlight)
   (when (and maxima-minor-mode-region-begin
              maxima-minor-mode-region-end)
@@ -3371,13 +3371,13 @@ buffer, preceded by \" ==> \" (customizable with `maxima-minor-output').
     (setq maxima-minor-mode-region-end nil)))
 
 (defun maxima-minor-mode-remove-highlight ()
-  "Remove highlight to `maxima-minor-mode'."
+  "Remove highlight to function `maxima-minor-mode'."
   (when maxima-minor-mode-highlight
     (delete-overlay maxima-minor-mode-highlight)
     (setq maxima-minor-mode-highlight nil)))
 
 (defun maxima-minor-mode-add-remove-highlight ()
-  "Check to add or remove highlight to `maxima-minor-mode'."
+  "Check to add or remove highlight to function `maxima-minor-mode'."
   (if (or
        (eq this-command 'maxima-minibuffer-on-region)
        (eq this-command 'maxima-minibuffer-on-determined-region)
