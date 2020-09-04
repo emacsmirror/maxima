@@ -1,12 +1,15 @@
-;;; maxima-font-lock.el --- syntax highlighting for maxima.el
+;;; maxima-font-lock.el --- syntax highlighting for maxima.el              -*- lexical-binding: t; -*-
 
 ;; Copyright: (C) 2001 Jay Belanger
+;; Copyright: (C) 2020 Fermin Munoz
 
 ;; Author: Jay Belanger <belanger@truman.edu>
-;; $Name: version-5_19_2 $
-;; $Revision: 1.16 $
-;; $Date: 2009/01/08 04:47:51 $
+;;         Fermin Munoz<fmfs@posteo.net>
+;; Revision: 1.16
+;; Date: 30 April 2020
 ;; Keywords: maxima, font-lock
+;; URL: https://gitlab.com/sasanidas/maxima
+;; License: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -22,16 +25,12 @@
 ;; along with GNU Emacs; see the file COPYING.  If not, write to the
 ;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
-;;
-;; Please send suggestions and bug reports to <belanger@truman.edu>
-;; The latest version of this package should be available at
-;; ftp://vh213601.truman.edu/pub/Maxima
 
-;;; Commentary
+;;; Commentary:
 
 ;;; This file is used for font-lock for maxima.el
 ;;
-;; The keywords are divided into the following groups, following the 
+;; The keywords are divided into the following groups, following the
 ;; Maxima info files:
 ;; Functions (font-lock-builtin-face or font-lock-keyword-face)
 ;; Variables (font-lock-keyword-face)
@@ -48,7 +47,6 @@
 ;;; Code
 
 (require 'font-lock)
-(provide 'maxima-font-lock)
 
 
 ;;; The faces
@@ -82,6 +80,8 @@
 ;; (defvar maxima-specsymb-face 'maxima-specsymb-face
 ;;   "The face to use for the special symbols.")
 
+;;; Code:
+
 ;;; the regexps
 (defvar maxima-vars-1
   (list
@@ -92,10 +92,10 @@
 
 
 (defvar maxima-match-variables-1
-  (concat "\\<\\(" 
+  (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-vars-1))
           "\\)\\>")
-  "regexp to match the maxima variables.")
+  "Regexp to match the maxima variables.")
 
 (defvar maxima-vars-2
   (list
@@ -151,13 +151,13 @@
    "tr_warn_undefined_variable"
    "tr_windy"
    "use_fast_arrays"))
-   
-   
+
+
 (defvar maxima-match-variables-2
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-vars-2))
           "\\)\\>")
-  "regexp to match the maxima variables.")
+  "Regexp to match the maxima variables.")
 
 (defvar maxima-vars-3
   (list
@@ -278,13 +278,13 @@
    "logexpand"
    "lognegint"
    "lognumer"
-   "logsimp"))   
+   "logsimp"))
 
 (defvar maxima-match-variables-3
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-vars-3))
           "\\)\\>")
-  "regexp to match the maxima variables.")
+  "Regexp to match the maxima variables.")
 
 (defvar maxima-vars-4
   (list
@@ -387,13 +387,13 @@
    "zerobern"
    "zeta%pi"
    "zunderflow"))
-   
+
 
 (defvar maxima-match-variables-4
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-vars-4))
           "\\)\\>")
-  "regexp to match the maxima variables.")
+  "Regexp to match the maxima variables.")
 
 (defvar maxima-fns-1
   (list
@@ -403,13 +403,13 @@
    "%k"
    "?round"
    "?truncate"))
-                        
+
 
 (defvar maxima-match-functions-1
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-fns-1))
           "\\)\\>" )
-  "regexp to match the maxima functions.")
+  "Regexp to match the maxima functions.")
 
 (defvar maxima-fns-2
   (list
@@ -591,7 +591,7 @@
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-fns-2))
           "\\)\\>")
-  "regexp to match the maxima functions.")
+  "Regexp to match the maxima functions.")
 
 (defvar maxima-fns-3
   (list
@@ -664,13 +664,13 @@
    "funcsolve"
    "fundef"
    "funmake"))
-   
+
 
 (defvar maxima-match-functions-3
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-fns-3))
           "\\)\\>")
-  "regexp to match the maxima functions.")
+  "Regexp to match the maxima functions.")
 
 (defvar maxima-fns-4
   (list
@@ -757,13 +757,13 @@
    "lratsubst"
    "lriccicom"
    "ltreillis"))
-   
+
 
 (defvar maxima-match-functions-4
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-fns-4))
           "\\)\\>")
-  "regexp to match the maxima functions.")
+  "Regexp to match the maxima functions.")
 
 (defvar maxima-fns-5
   (list
@@ -897,7 +897,7 @@
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-fns-5))
           "\\)\\>")
-  "regexp to match the maxima functions.")
+  "Regexp to match the maxima functions.")
 
 (defvar maxima-fns-6
   (list
@@ -1081,7 +1081,7 @@
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-fns-6))
           "\\)\\>")
-  "regexp to match the maxima functions.")
+  "Regexp to match the maxima functions.")
 
 (defvar maxima-const-1
   (list
@@ -1093,7 +1093,7 @@
   (concat "\\<"
           (eval-when-compile (regexp-opt maxima-const-1))
           "\\>")
-  "regexp to match the maxima constants.")
+  "Regexp to match the maxima constants.")
 
 (defvar maxima-const-2
   (list
@@ -1107,28 +1107,28 @@
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-const-2))
           "\\)\\>")
-  "regexp to match the maxima constants.")
+  "Regexp to match the maxima constants.")
 
 (defvar maxima-match-constants-3
   "\\<\\([0-9]+\\)\\>"
-  "regexp to match the maxima constants.")
+  "Regexp to match the maxima constants.")
 
 (defvar maxima-match-constants-4
   "\\<\\([0-9]+\.\\)?\\([0-9]+b[+-]?[0-9]\\)\\>"
-  "regexp to match the maxima constants.")
+  "Regexp to match the maxima constants.")
 
 (defvar maxima-keywds
   (list
-   "allbut"))   
+   "allbut"))
 
 (defvar maxima-match-keywords
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-keywds))
           "\\)\\>")
-  "regexp to match the maxima keywords.")
+  "Regexp to match the maxima keywords.")
 
 (defvar maxima-match-operators
-  (eval-when-compile 
+  (eval-when-compile
     (regexp-opt '(
                   "'"
                   "''"
@@ -1147,9 +1147,8 @@
                   "-"
                   "*"
                   "/"
-                  "^"
-                  ) t))
-  "regexp to match the maxima operators.")
+                  "^") t))
+  "Regexp to match the maxima operators.")
 
 (defvar maxima-props
   (list
@@ -1160,7 +1159,7 @@
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-props))
           "\\)\\>")
-  "regexp to match maxima properties.")
+  "Regexp to match maxima properties.")
 
 (defvar maxima-macros
   (list
@@ -1172,7 +1171,7 @@
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-macros))
           "\\)\\>")
-  "regexp to match maxima macros.")
+  "Regexp to match maxima macros.")
 
 (defvar maxima-specops
   (list
@@ -1186,13 +1185,13 @@
    "thru"
    "unless"
    "while"))
-                        
+
 
 (defvar maxima-match-specops
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-specops))
           "\\)\\>")
-  "regexp to match maxima special operators.")
+  "Regexp to match maxima special operators.")
 
 (defvar maxima-decs
   (list
@@ -1217,7 +1216,7 @@
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-decs))
           "\\)\\>")
-  "regexp to match maxima declarations.")
+  "Regexp to match maxima declarations.")
 
 (defvar maxima-spsymbs-1
   (list
@@ -1235,11 +1234,11 @@
   (concat "\\<\\("
           (eval-when-compile (regexp-opt maxima-spsymbs-1))
           "\\)\\>")
-  "regexp to match maxima special symbols.")
+  "Regexp to match maxima special symbols.")
 
 (defvar maxima-match-specsymbs-2
   "\\(\\<\\?\\sw+\\>\\)"
-  "regexp to match maxima special symbols.")
+  "Regexp to match maxima special symbols.")
 
 ;;; now, create the faces.
 
@@ -1380,21 +1379,22 @@
 
 (defvar maxima-font-lock-keywords-3
   (append maxima-font-lock-keywords-2
-    (list 
-     (list "^\\(.*\\)(\\(.*\\)) *:="
-           '(1 font-lock-function-name-face))
-     (list "^.*(\\(.*\\)):="
-           '(1 font-lock-variable-name-face))))
+	  (list
+	   (list "^\\(.*\\)(\\(.*\\)) *:="
+		 '(1 font-lock-function-name-face))
+	   (list "^.*(\\(.*\\)):="
+		 '(1 font-lock-variable-name-face))))
   "Gaudy level highlighting for Maxima mode.")
 
 (defvar maxima-font-lock-keywords maxima-font-lock-keywords-1
   "Default expressions to highlight in Maxima mode.")
 
 (defun maxima-font-setup ()
+  "Set up maxima font."
   (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults 
-        '((maxima-font-lock-keywords maxima-font-lock-keywords-1 
-           maxima-font-lock-keywords-2 maxima-font-lock-keywords-3)
+  (setq font-lock-defaults
+        '((maxima-font-lock-keywords maxima-font-lock-keywords-1
+		     maxima-font-lock-keywords-2 maxima-font-lock-keywords-3)
           nil t)))
 
 (add-hook 'maxima-mode-hook 'maxima-font-setup)
@@ -1403,11 +1403,11 @@
 (defvar maxima-preamble-fontlock t)
 
 (defun maxima-match-preamble (limit)
-  "Used to fontify the preamble."
+  "Used to fontify the preamble with LIMIT as a parameter."
   (if maxima-preamble-fontlock
       (progn
         (setq maxima-preamble-fontlock nil)
-        (let ((beg (point-min)) 
+        (let ((beg (point-min))
               (end))
           (if (search-forward "(C1)" limit)
               (progn
@@ -1433,10 +1433,11 @@
   "Default expressions to highlight in Maxima mode.")
 
 (defun inferior-maxima-font-setup ()
+  "Set up inferior-maxima font."
   (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults 
-        '((inferior-maxima-font-lock-keywords inferior-maxima-font-lock-keywords-1 
-           inferior-maxima-font-lock-keywords-2 inferior-maxima-font-lock-keywords-3)
+  (setq font-lock-defaults
+        '((inferior-maxima-font-lock-keywords inferior-maxima-font-lock-keywords-1
+					      inferior-maxima-font-lock-keywords-2 inferior-maxima-font-lock-keywords-3)
           nil t)))
 
 ;;; now for the symbols
@@ -1463,5 +1464,6 @@
     maxima-specops
     maxima-decs
     maxima-spsymbs-1)))
-    
-;;; end of maxima-font-lock.el
+
+(provide 'maxima-font-lock)
+;;; maxima-font-lock.el ends here
