@@ -1573,6 +1573,7 @@ It requires SUBJECT and optionally SAME-WINDOW."
       (setq name (buffer-substring-no-properties pt (point))))
     (maxima-get-info-on-subject name t)))
 
+;; FIXME Change maxima-symbol to  a true autocomplete
 (defun maxima-help (&optional arg)
   "Get help of the desired symbol.
 If ARG is t it get the symbol at point."
@@ -1716,10 +1717,10 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 	(maxima-help-dispatcher t arg2))))))
 
 (defun maxima-context-help ()
-  "Internal function."
+  "Provide completion help base on the context."
   (interactive)
   (let* ((stub  (current-word))
-	 (completions (all-completions (downcase stub) maxima-symbols)))
+	 (completions  (maxima-get-completions (downcase stub)  t)))
     (setq completions
 	  (mapcar
 	   (function upcase) completions))
@@ -3011,7 +3012,7 @@ To scroll through previous commands,
   'inferior-maxima-send-line)
 (define-key inferior-maxima-mode-map [(meta control tab)]
   'inferior-maxima-input-complete)
-(define-key inferior-maxima-mode-map "\e\t" 'inferior-maxima-complete)
+(define-key inferior-maxima-mode-map "\C-c\C-s" 'inferior-maxima-complete)
 (define-key inferior-maxima-mode-map "\177" 'backward-delete-char-untabify)
 (define-key inferior-maxima-mode-map "\C-c\C-k" 'maxima-stop)
 (define-key inferior-maxima-mode-map "\C-c\C-d" maxima-help-map)
