@@ -3,8 +3,10 @@
 ;; Copyright: (C) 2001 Jay Belanger
 ;; Copyright: (C) 2020 Fermin Munoz
 
-;; Author: Jay Belanger <belanger@truman.edu>
-;;         Fermin Munoz<fmfs@posteo.net>
+;; Author: William F. Schelter
+;;         Jay Belanger
+;;         Fermin Munoz
+;; Maintainer: Fermin Munoz <fmfs@posteo.net>
 ;; Revision: 1.16
 ;; Date: 30 April 2020
 ;; Keywords: maxima, font-lock

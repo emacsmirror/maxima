@@ -6,7 +6,8 @@
 
 ;; Author: William F. Schelter
 ;;         Jay Belanger
-;;         Fermin Munoz<fmfs@posteo.net>
+;;         Fermin Munoz
+;; Maintainer: Fermin Munoz <fmfs@posteo.net>
 ;; Created: 30 April 2020
 ;; Version: 0.5.0
 ;; Keywords: maxima,tools,math
