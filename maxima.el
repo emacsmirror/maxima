@@ -436,8 +436,7 @@ And insert the correct end output."
          (tmpbuf (get-buffer-create tmpfile))
          (out)
          (str string)
-         (beg)
-         (end))
+         (beg))
     (save-excursion
       (set-buffer tmpbuf)
       (maxima-remove-kill-buffer-hooks)
@@ -1377,8 +1376,7 @@ Returns an integer: the column to indent to."
         ;; previous line was the beginning of the construct containing
         ;; the point or only an open parenthesis.
         (if comma-line
-            (let ((bol-pt (point))
-                  comma-pt
+            (let (comma-pt
                   diff)
               (skip-chars-forward " \t")
               (setq comma-pt (point))
@@ -1563,8 +1561,7 @@ It requires SUBJECT and optionally SAME-WINDOW."
 
 (defun maxima-get-help ()
   "Get help on a given subject."
-  (let ((pt)
-        (place))
+  (let ((pt))
     (save-excursion
       (beginning-of-line)
       (skip-chars-forward "* ")
@@ -1605,8 +1602,7 @@ To call it with ARG use `maxima-apropos-at-point'"
          (maxima-help-buffer
 	  (get-buffer-create (concat "*Maxima Help*")))
 	 (have-info nil)
-	 expr-line
-	 (lmark))
+	 expr-line)
     (set-buffer maxima-help-buffer)
     (maxima-remove-kill-buffer-hooks)
     (setq buffer-read-only nil)
@@ -1723,7 +1719,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
   (let* ((stub  (current-word))
 	 (completions  (maxima-get-completions (downcase stub)  t)))
     (setq completions
-	  (mapcar
+	  (mapc
 	   (function upcase) completions))
     (if (member (upcase stub) completions)
 	(setq completions (list (upcase stub))))
@@ -1738,8 +1734,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
   "Get help on certain subjects, with COMPLETIONS as a arg."
   (let* ((maxima-help-buffer
 	  (get-buffer-create (concat "*Maxima Help*")))
-	 expr-line
-	 (lmark))
+	 expr-line)
     (set-buffer maxima-help-buffer)
     (erase-buffer)
     (insert "Maxima help\n")
@@ -1762,7 +1757,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
       (search-forward "Menu:")
       (forward-line 1)
       (beginning-of-line)
-      (mapcar (function maxima-help-insert-line) completions))
+      (mapc (function maxima-help-insert-line) completions))
     (goto-char (point-min))
     (defun maxima-help-subject ()
       (interactive)
@@ -1893,7 +1888,7 @@ Typing SPC flushes the help buffer."
 	      ;; If the user does mouse-choose-completion with the mouse,
 	      ;; execute the command, then delete the completion window.
 	      (progn
-		(mouse-choose-completion first)
+		(choose-completion first)
 		(set-window-configuration comint-dynamic-list-completions-config))
 	    (unless (eq first ?\ )
 	      (setq unread-command-events (listify-key-sequence key)))
@@ -1964,7 +1959,7 @@ if completion is ambiguous."
 (when maxima-use-company
   (if (featurep 'company)
       (progn
-	(defun company-maxima-libraries (command &optional arg &rest ignored)
+	(defun company-maxima-libraries (command &optional _arg &rest ignored)
 	  (interactive (list 'interactive))
 	  (cl-case command
 	    (interactive (company-begin-backend 'company-maxima-backend))
@@ -1976,7 +1971,7 @@ if completion is ambiguous."
 	    (duplicates t)
 	    (candidates  (maxima-get-libraries (company-grab-symbol)))))
 
-	(defun company-maxima-symbols (command &optional arg &rest ignored)
+	(defun company-maxima-symbols (command &optional _arg &rest ignored)
 	  (interactive (list 'interactive))
 	  (cl-case command
 	    (interactive (company-begin-backend 'company-maxima-backend))
@@ -2876,7 +2871,7 @@ Then go to the beginning of the next form."
 	 (completions (all-completions (downcase stub)
                                        (inferior-maxima-previous-inputs))))
     (setq completions
-          (mapcar
+          (mapc
            (function (lambda (x) (maxima-he-transfer-case stub x))) completions))
     (cond ((null completions)
 	   (message "No completions of %s" stub))
@@ -3101,7 +3096,6 @@ into the current buffer, followed by the output, followed by
         (input)
         (realend nil)
         (realbeg)
-        (outputbeg)
         (delreg)
         (delregbeg)
         (delregend)
