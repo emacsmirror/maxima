@@ -1286,10 +1286,10 @@ Returns an integer: the column to indent to."
                     (setq indent 0))
                 (setq indent (- indent diff))))
           (maxima-back-over-comment-whitespace)
-          (when (not (looking-at "^"))
+          (unless (looking-at "^")
             (forward-char -1)
             (if (not (or le (looking-at "[,;$]")))
-                (setq indent (+ maxima-continuation-indent-amount indent))))))))
+		(setq indent (+ maxima-continuation-indent-amount indent))))))))
     indent))
 
 (defun maxima-perhaps-smart-in-comment-p (incomment pmin pt)
@@ -2918,31 +2918,31 @@ into the current buffer, followed by the output, followed by
 					;(delete-region realend end)
             (goto-char realend)
             (skip-chars-backward " \t\n")
-            (when (not (= (point) realend))
+            (unless (= (point) realend)
               (setq delreg (buffer-substring-no-properties (point) realend))
               (kill-region (point) realend)
               (cond
                ((< (length delreg) 15)
-                (setq delreg (maxima-replace-in-string "\n" " " delreg))
-                (message (concat "\"" delreg "\" killed")))
+		(setq delreg (maxima-replace-in-string "\n" " " delreg))
+		(message (concat "\"" delreg "\" killed")))
                (t
-                (setq delregbeg
+		(setq delregbeg
                       (maxima-replace-in-string "\n" " "(substring delreg 0 5)))
-                (setq delregend
+		(setq delregend
                       (maxima-replace-in-string "\n" " "(substring delreg -5)))
-                (message (concat "\"" delregbeg " ... " delregend "\"  killed")))))
+		(message (concat "\"" delregbeg " ... " delregend "\"  killed")))))
             (let ((ind (save-excursion
-                         (goto-char realbeg)
-                         (current-column)))
-                  (here (point))
-                  (there (make-marker)))
+			 (goto-char realbeg)
+			 (current-column)))
+		  (here (point))
+		  (there (make-marker)))
               (if (or
-                   (string-match "\n" output)
-                   (> (+ (current-column) (length output)) fill-column))
-                  (progn
+		   (string-match "\n" output)
+		   (> (+ (current-column) (length output)) fill-column))
+		  (progn
                     (insert "\n")
                     (setq here (point)))
-                (insert " "))
+		(insert " "))
               (insert (maxima-minor-output-mark) " " output
                       (maxima-minor-output-mark-end))
               (set-marker there (point))
@@ -2950,22 +2950,22 @@ into the current buffer, followed by the output, followed by
               (goto-char (line-end-position))
 					;              (fill-region (line-beginning-position) (point))
               (if (string-match
-                   "\n"
-                   (buffer-substring-no-properties here (point)))
-                  (forward-line -1)
-                (forward-line 1))
+		   "\n"
+		   (buffer-substring-no-properties here (point)))
+		  (forward-line -1)
+		(forward-line 1))
               (indent-region (point) there ind)))
-        (if (and arg twod)
+	(if (and arg twod)
             (let ((ind (save-excursion
-                         (goto-char realbeg)
-                         (current-column)))
+			 (goto-char realbeg)
+			 (current-column)))
                   (here))
               (save-excursion
-                (goto-char realend)
-                (insert (maxima-minor-output-mark) "\n")
-                (setq here (point))
-                (insert output (maxima-minor-output-mark-end))
-                (indent-region here (point) ind))))))))
+		(goto-char realend)
+		(insert (maxima-minor-output-mark) "\n")
+		(setq here (point))
+		(insert output (maxima-minor-output-mark-end))
+		(indent-region here (point) ind))))))))
 
 (defun maxima-minibuffer-on-line (&optional arg)
   "Send the current line to Maxima; display last output in minibuffer.
