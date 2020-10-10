@@ -1470,6 +1470,7 @@ Which it is in a comment which begins on a previous line."
   "Go to the info NODE."
   (info-other-window (concat "(Maxima)" node)))
 
+;; FIXME Maxima has a great function called describe, better than this.
 (defun maxima-get-info-on-subject (subject &optional same-window)
   "Get info of the maxima subject.
 It requires SUBJECT and optionally SAME-WINDOW."
