@@ -1918,8 +1918,8 @@ It uses BEG and END as a parameters."
 (defun maxima-check-form-parens ()
   "Check to see if the parentheses in the current form are balanced."
   (interactive)
-  (maxima-check-parens (maxima-form-beginning-position)
-                       (maxima-form-end-position-or-point-max)))
+  (maxima-check-parens-region (maxima-form-beginning-position)
+			      (maxima-form-end-position-or-point-max)))
 
 (defun maxima-load-file (file)
   "Prompt for a Maxima FILE to load."
@@ -1972,54 +1972,38 @@ It uses BEG and END as a parameters."
 
 ;;;; Syntax table
 
+;; FIXME check this functionality
 (defvar maxima-mode-syntax-table nil
   "Maxima-mode syntax table.")
 
 (if (not maxima-mode-syntax-table)
-    (let ((i 0))
-      (setq maxima-mode-syntax-table (make-syntax-table))
-      (modify-syntax-entry ?_ "w" maxima-mode-syntax-table)
-      (modify-syntax-entry ?% "w" maxima-mode-syntax-table)
-      (modify-syntax-entry ?? "w" maxima-mode-syntax-table)
-					;      (modify-syntax-entry ?\_ "w" maxima-mode-syntax-table)
-      ;;       (while (< i ?0)
-      ;; 	(modify-syntax-entry i "_   " maxima-mode-syntax-table)
-      ;; 	(setq i (1+ i)))
-      ;;       (setq i (1+ ?9))
-      ;;       (while (< i ?A)
-      ;; 	(modify-syntax-entry i "_   " maxima-mode-syntax-table)
-      ;; 	(setq i (1+ i)))
-      ;;       (setq i (1+ ?Z))
-      ;;       (while (< i ?a)
-      ;; 	(modify-syntax-entry i "_   " maxima-mode-syntax-table)
-      ;; 	(setq i (1+ i)))
-      ;;       (setq i (1+ ?z))
-      ;;       (while (< i 128)
-      ;; 	(modify-syntax-entry i "_   " maxima-mode-syntax-table)
-      ;; 	(setq i (1+ i)))
-      (modify-syntax-entry ?  "    " maxima-mode-syntax-table)
-      (modify-syntax-entry ?\t "   " maxima-mode-syntax-table)
-      (modify-syntax-entry ?` "'   " maxima-mode-syntax-table)
-      (modify-syntax-entry ?' "'   " maxima-mode-syntax-table)
-      (modify-syntax-entry ?, "'   " maxima-mode-syntax-table)
-      (modify-syntax-entry ?. "w" maxima-mode-syntax-table)
-      (modify-syntax-entry ?# "'   " maxima-mode-syntax-table)
-      (modify-syntax-entry ?\\ "\\" maxima-mode-syntax-table)
-      (modify-syntax-entry ?/ ". 14" maxima-mode-syntax-table)
-      (modify-syntax-entry ?* ". 23" maxima-mode-syntax-table)
-      (modify-syntax-entry ?+ "." maxima-mode-syntax-table)
-      (modify-syntax-entry ?- "." maxima-mode-syntax-table)
-      (modify-syntax-entry ?= "." maxima-mode-syntax-table)
-      (modify-syntax-entry ?< "." maxima-mode-syntax-table)
-      (modify-syntax-entry ?> "." maxima-mode-syntax-table)
-      (modify-syntax-entry ?& "." maxima-mode-syntax-table)
-      (modify-syntax-entry ?| "." maxima-mode-syntax-table)
-      (modify-syntax-entry ?\" "\"    " maxima-mode-syntax-table)
-      (modify-syntax-entry ?\\ "\\   " maxima-mode-syntax-table)
-      (modify-syntax-entry ?\( "()  " maxima-mode-syntax-table)
-      (modify-syntax-entry ?\) ")(  " maxima-mode-syntax-table)
-      (modify-syntax-entry ?\[ "(]  " maxima-mode-syntax-table)
-      (modify-syntax-entry ?\] ")[  " maxima-mode-syntax-table)))
+    (setq maxima-mode-syntax-table (make-syntax-table))
+  (modify-syntax-entry ?_ "w" maxima-mode-syntax-table)
+  (modify-syntax-entry ?% "w" maxima-mode-syntax-table)
+  (modify-syntax-entry ?? "w" maxima-mode-syntax-table)
+  (modify-syntax-entry ?  "    " maxima-mode-syntax-table)
+  (modify-syntax-entry ?\t "   " maxima-mode-syntax-table)
+  (modify-syntax-entry ?` "'   " maxima-mode-syntax-table)
+  (modify-syntax-entry ?' "'   " maxima-mode-syntax-table)
+  (modify-syntax-entry ?, "'   " maxima-mode-syntax-table)
+  (modify-syntax-entry ?. "w" maxima-mode-syntax-table)
+  (modify-syntax-entry ?# "'   " maxima-mode-syntax-table)
+  (modify-syntax-entry ?\\ "\\" maxima-mode-syntax-table)
+  (modify-syntax-entry ?/ ". 14" maxima-mode-syntax-table)
+  (modify-syntax-entry ?* ". 23" maxima-mode-syntax-table)
+  (modify-syntax-entry ?+ "." maxima-mode-syntax-table)
+  (modify-syntax-entry ?- "." maxima-mode-syntax-table)
+  (modify-syntax-entry ?= "." maxima-mode-syntax-table)
+  (modify-syntax-entry ?< "." maxima-mode-syntax-table)
+  (modify-syntax-entry ?> "." maxima-mode-syntax-table)
+  (modify-syntax-entry ?& "." maxima-mode-syntax-table)
+  (modify-syntax-entry ?| "." maxima-mode-syntax-table)
+  (modify-syntax-entry ?\" "\"    " maxima-mode-syntax-table)
+  (modify-syntax-entry ?\\ "\\   " maxima-mode-syntax-table)
+  (modify-syntax-entry ?\( "()  " maxima-mode-syntax-table)
+  (modify-syntax-entry ?\) ")(  " maxima-mode-syntax-table)
+  (modify-syntax-entry ?\[ "(]  " maxima-mode-syntax-table)
+  (modify-syntax-entry ?\] ")[  " maxima-mode-syntax-table))
 
 
 ;;;; Keymap
@@ -2028,58 +2012,58 @@ It uses BEG and END as a parameters."
   "The keymap for `maxima-mode'.")
 
 (if maxima-mode-map
-    nil
-  (let ((map (make-sparse-keymap)))
-    ;; Motion
-    (define-key map "\M-\C-a" 'maxima-goto-beginning-of-form-interactive)
-    (define-key map "\M-\C-e" 'maxima-goto-end-of-form-interactive)
-    (define-key map "\M-\C-b" 'maxima-goto-beginning-of-list-interactive)
-    (define-key map "\M-\C-f" 'maxima-goto-end-of-list-interactive)
-    ;; Process
-    (define-key map "\C-c\C-p" 'maxima-display-buffer)
-    (define-key map "\C-c\C-r" 'maxima-send-region)
-    (define-key map "\C-c\C-b" 'maxima-send-buffer)
-    (define-key map "\C-c\C-c" 'maxima-send-line)
-    (define-key map "\C-c\C-e" 'maxima-send-previous-form)
-    (define-key map "\C-c\C-s" 'maxima-send-previous-form-and-goto-end-of-form)
-    (define-key map [(control return)]
-      'maxima-send-full-line-and-goto-next-form)
-    (define-key map [(meta return)]
-      'maxima-send-completed-region-and-goto-next-form)
-    (define-key map [(control meta return)] 'maxima-send-buffer)
-    (define-key map "\C-c\C-k" 'maxima-stop)
-    (define-key map "\C-c\C-q" 'maxima-clear-queue)
-    (define-key map "\C-c\C-l" 'maxima-load-file)
-    (define-key map "\C-c\C-f" 'maxima-load-current-file)
-    ;; Completion
+nil
+(let ((map (make-sparse-keymap)))
+  ;; Motion
+  (define-key map "\M-\C-a" 'maxima-goto-beginning-of-form-interactive)
+  (define-key map "\M-\C-e" 'maxima-goto-end-of-form-interactive)
+  (define-key map "\M-\C-b" 'maxima-goto-beginning-of-list-interactive)
+  (define-key map "\M-\C-f" 'maxima-goto-end-of-list-interactive)
+  ;; Process
+  (define-key map "\C-c\C-p" 'maxima-display-buffer)
+  (define-key map "\C-c\C-r" 'maxima-send-region)
+  (define-key map "\C-c\C-b" 'maxima-send-buffer)
+  (define-key map "\C-c\C-c" 'maxima-send-line)
+  (define-key map "\C-c\C-e" 'maxima-send-previous-form)
+  (define-key map "\C-c\C-s" 'maxima-send-previous-form-and-goto-end-of-form)
+  (define-key map [(control return)]
+    'maxima-send-full-line-and-goto-next-form)
+  (define-key map [(meta return)]
+    'maxima-send-completed-region-and-goto-next-form)
+  (define-key map [(control meta return)] 'maxima-send-buffer)
+  (define-key map "\C-c\C-k" 'maxima-stop)
+  (define-key map "\C-c\C-q" 'maxima-clear-queue)
+  (define-key map "\C-c\C-l" 'maxima-load-file)
+  (define-key map "\C-c\C-f" 'maxima-load-current-file)
+  ;; Completion
 					;(if maxima-use-dynamic-complete
 					;    (define-key map (kbd "M-TAB") 'maxima-dynamic-complete)
-    (define-key map (kbd "M-TAB") 'maxima-complete)
-    ;; Commenting
-    (define-key map "\C-c;" 'comment-region)
-    (define-key map "\C-c:" 'maxima-uncomment-region)
-    (define-key map "\M-;" 'maxima-insert-short-comment)
-    (define-key map "\C-c*" 'maxima-insert-long-comment)
-    ;; Indentation
+  (define-key map (kbd "M-TAB") 'maxima-complete)
+  ;; Commenting
+  (define-key map "\C-c;" 'comment-region)
+  (define-key map "\C-c:" 'maxima-uncomment-region)
+  (define-key map "\M-;" 'maxima-insert-short-comment)
+  (define-key map "\C-c*" 'maxima-insert-long-comment)
+  ;; Indentation
 					;    (define-key map "\t" 'maxima-reindent-line)
-    (define-key map "\C-m" 'maxima-return)
-    (define-key map "\M-\C-q" 'maxima-indent-form)
+  (define-key map "\C-m" 'maxima-return)
+  (define-key map "\M-\C-q" 'maxima-indent-form)
 					;    (define-key map [(control tab)] 'maxima-untab)
-    ;; Help
-    (define-key map "\C-c\C-d" maxima-help-map)
-    (define-key map [(f12)] 'maxima-help)
-    (define-key map [(meta f12)] 'maxima-apropos)
-    ;; Minibuffer
-    (define-key map "\C-c\C-nr" 'maxima-minibuffer-on-region)
-    (define-key map "\C-c\C-nl" 'maxima-minibuffer-on-line)
-    (define-key map "\C-c\C-nf" 'maxima-minibuffer-on-form)
-    ;; Misc
-    (define-key map "\M-h" 'maxima-mark-form)
-    (define-key map "\C-c\)" 'maxima-check-parens)
-    (define-key map [(control c) (control \))] 'maxima-check-form-parens)
+  ;; Help
+  (define-key map "\C-c\C-d" maxima-help-map)
+  (define-key map [(f12)] 'maxima-help)
+  (define-key map [(meta f12)] 'maxima-apropos)
+  ;; Minibuffer
+  (define-key map "\C-c\C-nr" 'maxima-minibuffer-on-region)
+  (define-key map "\C-c\C-nl" 'maxima-minibuffer-on-line)
+  (define-key map "\C-c\C-nf" 'maxima-minibuffer-on-form)
+  ;; Misc
+  (define-key map "\M-h" 'maxima-mark-form)
+  (define-key map "\C-c\)" 'maxima-check-parens-region)
+  (define-key map [(control c) (control \))] 'maxima-check-form-parens)
 					;    (define-key map "\C-cC-\)" 'maxima-check-form-parens)
-    (define-key map "\177" 'backward-delete-char-untabify)
-    (setq maxima-mode-map map)))
+  (define-key map "\177" 'backward-delete-char-untabify)
+  (setq maxima-mode-map map)))
 
 ;;;; Menu
 
@@ -2110,7 +2094,7 @@ It uses BEG and END as a parameters."
       (not (eq maxima-indent-style 'perhaps-smart))])
     ("Misc"
      ["Mark form" maxima-mark-form t]
-     ["Check parens in region" maxima-check-parens t]
+     ["Check parens in region" maxima-check-parens-region t]
      ["Check parens in form" maxima-check-form-parens t]
      ["Comment region" comment-region t]
      ["Uncomment region" maxima-uncomment-region t])
@@ -2167,7 +2151,7 @@ Maxima mode provides the following motion commands:
 
 and the following miscellaneous commands.
 \\[maxima-mark-form]: Mark the current form
-\\[maxima-check-parens]: Check the current region for balanced parentheses.
+\\[maxima-check-parens-region]: Check the current region for balanced parentheses.
 \\[maxima-check-form-parens]: Check the current form for balanced parentheses.
 
 Maxima mode has the following completions commands:
@@ -2550,7 +2534,7 @@ With ARG , don't check the parentheses first."
   (interactive "r\nP")
   (if arg
       (maxima-region beg end)
-    (if (maxima-check-parens beg end)
+    (if (maxima-check-parens-region beg end)
         (maxima-region beg end)))
   (when maxima-display-maxima-buffer
     (maxima-display-buffer)))
@@ -2681,6 +2665,7 @@ Then go to the beginning of the next form."
       (setq i (1+ i)))
     (reverse inputs)))
 
+;; FIXME this doesn't work at all.
 (defun inferior-maxima-input-complete ()
   "Complete line from list of previous input."
   (interactive)
@@ -2737,7 +2722,7 @@ Then go to the beginning of the next form."
 	  (save-excursion
 	    (re-search-backward inferior-maxima-prompt)
 	    (setq pt1 (match-end 0)))
-	  (if (maxima-check-parens pt1 pt)
+	  (if (maxima-check-parens-region pt1 pt)
               (inferior-maxima-comint-send-input)))
       (inferior-maxima-comint-send-input))))
 
@@ -2938,7 +2923,7 @@ into the current buffer, followed by the output, followed by
     (setq maxima-minor-mode-region-end realend)
     (when (or (not maxima-minor-mode-check-input)
               (and
-               (maxima-check-parens realbeg realend)
+               (maxima-check-parens-region realbeg realend)
                (maxima-check-commas realbeg realend)))
       (maxima-start)
       (if twod
@@ -3080,37 +3065,39 @@ anything in the determined region after any occurrence of \" ==>
 
 ;;; Latex and org-mode interaction
 
-(defun maxima-tex-insert-preview-form ()
-  "Send and insert the current form in text formated output."
-  (interactive)
-  (let* ((keep-looking t)
-	 (beg-point nil)
-         (end-point nil)
-	 (form-text nil)
-	 (command-output nil)
-	 (current-pos (point)))
-    (maxima-goto-beginning-of-form)
-    (setq beg-point (point))
-    (while (and keep-looking
-                (maxima-re-search-forward "[;$]" nil))
-      (forward-char -2)
-      (unless (looking-at "\\\\\\$")
-        (setq keep-looking nil))
-      (forward-char 2))
+(if (fboundp 'org-latex-preview)
+    (defun maxima-tex-insert-preview-form ()
+      "Send and insert the current form in text formated output."
+      (interactive)
+      (let* ((keep-looking t)
+	     (beg-point nil)
+             (end-point nil)
+	     (form-text nil)
+	     (command-output nil)
+	     (current-pos (point)))
+	(maxima-goto-beginning-of-form)
+	(setq beg-point (point))
+	(while (and keep-looking
+                    (maxima-re-search-forward "[;$]" nil))
+	  (forward-char -2)
+	  (unless (looking-at "\\\\\\$")
+            (setq keep-looking nil))
+	  (forward-char 2))
 
-    (if (not keep-looking)
-	(setq end-point (point))
-      (error "End of the form not found"))
-    (setq form-text (string-remove-suffix ";" (buffer-substring beg-point end-point)))
-    (maxima-send-block (concat "tex(''" form-text ",false);"))
-    (setq command-output (maxima-last-output-tex-noprompt))
-    (backward-char 3)
-    (end-of-line)
-    (insert
-     "\n"
-     command-output)
-    (org-latex-preview)
-    (goto-char current-pos)))
+	(if (not keep-looking)
+	    (setq end-point (point))
+	  (error "End of the form not found"))
+	(setq form-text (string-remove-suffix ";" (buffer-substring beg-point end-point)))
+	(maxima-send-block (concat "tex(''" form-text ",false);"))
+	(setq command-output (maxima-last-output-tex-noprompt))
+	(backward-char 3)
+	(end-of-line)
+	(insert
+	 "\n"
+	 command-output)
+	(org-latex-preview)
+	(goto-char current-pos))))
+
 
 ;;; The Maxima minor mode
 
