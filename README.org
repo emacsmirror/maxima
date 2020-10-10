@@ -92,7 +92,7 @@ To put the current buffer into maxima-mode, type:
     | M-C-b           | maxima-goto-beginning-of-list-interactive | Move to the beginning of the list.                 |
     | M-C-f           | maxima-goto-end-of-list-interactive       | Move to the end of the list.                       |
     | M-h             | maxima-mark-form                          | Mark the current form                              |
-    | C-c )           | maxima-check-parens                       | Check the current region for balanced parentheses. |
+    | C-c )           | maxima-check-parens-region                | Check the current region for balanced parentheses. |
     | C-c C-)         | maxima-check-form-parens                  | Check the current form for balanced parentheses.   |
 
     
