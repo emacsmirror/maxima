@@ -1442,30 +1442,5 @@
 					      inferior-maxima-font-lock-keywords-2 inferior-maxima-font-lock-keywords-3)
           nil t)))
 
-;;; now for the symbols
-
-(defvar maxima-symbols
-  (mapcar
-   (lambda (x) (list x))
-   (append
-    maxima-vars-1
-    maxima-vars-2
-    maxima-vars-3
-    maxima-vars-4
-    maxima-fns-1
-    maxima-fns-2
-    maxima-fns-3
-    maxima-fns-4
-    maxima-fns-5
-    maxima-fns-6
-    maxima-const-1
-    maxima-const-2
-    maxima-keywds
-    maxima-props
-    maxima-macros
-    maxima-specops
-    maxima-decs
-    maxima-spsymbs-1)))
-
 (provide 'maxima-font-lock)
 ;;; maxima-font-lock.el ends here
