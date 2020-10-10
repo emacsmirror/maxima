@@ -359,37 +359,24 @@ And insert the correct end output."
 
 (defun maxima-strip-string-beginning (string)
   "Return STRING with whitespace and comments removed from the beginning."
-  (let* ((tmpfile (maxima-make-temp-name))
-         (tmpbuf (get-buffer-create tmpfile))
-         (out))
-    (save-excursion
-      (set-buffer tmpbuf)
-      (maxima-remove-kill-buffer-hooks)
-      (modify-syntax-entry ?/ ". 14")
-      (modify-syntax-entry ?* ". 23")
-      (insert string)
-      (goto-char (point-min))
-      (maxima-forward-over-comment-whitespace)
-      (setq out (buffer-substring-no-properties (point) (point-max))))
-    (kill-buffer tmpbuf)
-    out))
+  (with-temp-buffer
+    (modify-syntax-entry ?/ ". 14")
+    (modify-syntax-entry ?* ". 23")
+    (insert string)
+    (goto-char (point-min))
+    (maxima-forward-over-comment-whitespace)
+    (buffer-substring-no-properties (point) (point-max))))
+  
 
 (defun maxima-strip-string-end (string)
   "Return STRING with whitespace and comments removed from the end."
-  (let* ((tmpfile (maxima-make-temp-name))
-         (tmpbuf (get-buffer-create tmpfile))
-         (out))
-    (save-excursion
-      (set-buffer tmpbuf)
-      (maxima-remove-kill-buffer-hooks)
-      (modify-syntax-entry ?/ ". 14")
-      (modify-syntax-entry ?* ". 23")
-      (insert string)
-      (goto-char (point-max))
-      (maxima-back-over-comment-whitespace)
-      (setq out (buffer-substring-no-properties (point-min) (point))))
-    (kill-buffer tmpbuf)
-    out))
+  (with-temp-buffer
+    (modify-syntax-entry ?/ ". 14")
+    (modify-syntax-entry ?* ". 23")
+    (insert string)
+    (goto-char (point-max))
+    (maxima-back-over-comment-whitespace)
+    (buffer-substring-no-properties (point-min) (point))))
 
 (defun maxima-strip-string (string)
   "Return STRING with whitespace and comments removed from the ends."
@@ -410,62 +397,37 @@ And insert the correct end output."
 
 (defun maxima-remove-whitespace-from-ends (string)
   "Return STRING with whitespace from the ends."
-  (let* ((tmpfile (maxima-make-temp-name))
-         (tmpbuf (get-buffer-create tmpfile))
-         (str string)
-         (out)
-         (beg)
+  (let* ((beg)
          (end))
-    (save-excursion
-      (set-buffer tmpbuf)
-      (maxima-remove-kill-buffer-hooks)
-      (insert str)
+    (with-temp-buffer
+      (insert string)
       (goto-char (point-min))
       (skip-chars-forward " \t\n")
       (setq beg (point))
       (goto-char (point-max))
       (skip-chars-backward " \t\n")
       (setq end (point))
-      (setq out (buffer-substring-no-properties beg end)))
-    (kill-buffer tmpbuf)
-    out))
+      (buffer-substring-no-properties beg end))))
 
 (defun maxima-remove-whitespace-from-beg (string)
   "Return STRING with whitespace removed from the beginning."
-  (let* ((tmpfile (maxima-make-temp-name))
-         (tmpbuf (get-buffer-create tmpfile))
-         (out)
-         (str string)
-         (beg))
-    (save-excursion
-      (set-buffer tmpbuf)
-      (maxima-remove-kill-buffer-hooks)
-      (insert str)
+  (let* ((beg))
+    (with-temp-buffer
+      (insert string)
       (goto-char (point-min))
       (skip-chars-forward " \t\n")
       (setq beg (point))
-      (setq out (buffer-substring-no-properties beg (point-max))))
-    (kill-buffer tmpbuf)
-    out))
+      (buffer-substring-no-properties beg (point-max)))))
 
 (defun maxima-remove-whitespace-from-end (string)
   "Return STRING with whitespace removed from the end."
-  (let* ((tmpfile (maxima-make-temp-name))
-         (tmpbuf (get-buffer-create tmpfile))
-         (out)
-         (str string)
-         (beg)
-         (end))
-    (save-excursion
-      (set-buffer tmpbuf)
-      (maxima-remove-kill-buffer-hooks)
-      (insert str)
+  (let* ((end))
+    (with-temp-buffer
+      (insert string)
       (goto-char (point-max))
       (skip-chars-backward " \t\n")
       (setq end (point))
-      (setq out (buffer-substring-no-properties (point-min) end)))
-    (kill-buffer tmpbuf)
-    out))
+      (buffer-substring-no-properties (point-min) end))))
 
 ;;;; Functions that query position
 (defun maxima-in-comment-p ()
@@ -1556,8 +1518,7 @@ To call it with ARG use `maxima-apropos-at-point'"
         (setq expr-line  (buffer-substring-no-properties
                           (maxima-line-beginning-position)
                           (maxima-line-end-position)))
-        (save-excursion
-          (set-buffer maxima-help-buffer)
+        (with-current-buffer maxima-help-buffer
           (insert expr-line "\n"))))
     (if have-info
 	(progn
@@ -1678,9 +1639,8 @@ nil and ARG2 non-nil call `maxima-completion-help'."
       (setq expr-line  (buffer-substring-no-properties
                         (maxima-line-beginning-position)
                         (maxima-line-end-position)))
-      (save-excursion
-        (set-buffer maxima-help-buffer)
-        (insert expr-line "\n")))
+      (with-current-buffer maxima-help-buffer
+	(insert expr-line "\n")))
     (with-temp-buffer
       (require 'info nil t)
       (Info-mode)
@@ -1949,29 +1909,24 @@ It uses BEG and END as a parameters."
           nil)
       t)))
 
-(defun maxima-check-parens (beg end)
+(defun maxima-check-parens-region (beg end)
   "Make sure that the parentheses are balanced in the region.
 It uses BEG and END as a parameters."
   (interactive "r")
-  (let* ((tmpfile (maxima-make-temp-name))
-         (tmpbuf (get-buffer-create tmpfile))
-         (string (buffer-substring-no-properties beg end))
-         (keep-going t)
+  (let* ((string (buffer-substring-no-properties beg end))
          (match)
          (pt)
          (errmessage nil)
          (parenstack nil))
-    (save-excursion
-      (set-buffer tmpbuf)
+    (with-temp-buffer
       (maxima-mode)
-      (maxima-remove-kill-buffer-hooks)
       (modify-syntax-entry ?/ ". 14")
       (modify-syntax-entry ?* ". 23")
       (insert string)
       (goto-char (point-min))
       (while (and (not errmessage)
                   (setq match (maxima-re-search-forward "[][()]" end)))
-        (unless (save-excursion
+	(unless (save-excursion
                   (forward-char -1)
                   (maxima-escaped-char-p))
           (cond
@@ -1999,10 +1954,8 @@ It uses BEG and END as a parameters."
              ((= (caar parenstack) 1)
               (setq errmessage "Open parenthesis closed by bracket")
               (setq pt (1- (point))))))))))
-    (kill-buffer tmpbuf)
     (cond
      ((not (or parenstack errmessage))
-					;      (message "Parenthesis and brackets match")
       t)
      (errmessage
       (message errmessage)
@@ -2374,10 +2327,8 @@ If QUERY is not nil, it takes the input in point."
 (defun inferior-maxima-remove-double-input-prompt (&optional string)
   "Fix the double prompt that occasionally appears in Emacs.
 Optionally it requires STRING."
-  (let ((pmark (process-mark inferior-maxima-process))
-	(pos))
-    (save-excursion
-      (set-buffer (process-buffer inferior-maxima-process))
+  (let ((current-buffer (process-buffer inferior-maxima-process)))
+    (with-current-buffer current-buffer
       (goto-char inferior-maxima-input-end)
       (forward-line 1)
       (if (looking-at (concat "(" maxima-inchar "[0-9]+)"))
@@ -2446,17 +2397,16 @@ It requires PROC and STATE."
                               nil) (split-string maxima-args)))
         (setq cmd (list 'make-comint "maxima" maxima-command)))
       (setq mbuf (eval cmd))
-      (save-excursion
-        (set-buffer mbuf)
-        (setq inferior-maxima-process (get-buffer-process mbuf))
-        (add-hook 'comint-output-filter-functions
+      (with-current-buffer mbuf
+	(setq inferior-maxima-process (get-buffer-process mbuf))
+	(add-hook 'comint-output-filter-functions
                   'inferior-maxima-output-filter nil t)
-        (add-hook 'comint-output-filter-functions
+	(add-hook 'comint-output-filter-functions
                   'inferior-maxima-replace-tabs-by-spaces nil t)
 	(add-hook 'comint-output-filter-functions
 		  'inferior-maxima-remove-double-input-prompt nil t)
-        (inferior-maxima-wait-for-output)
-        (inferior-maxima-mode)))))
+	(inferior-maxima-wait-for-output)
+	(inferior-maxima-mode)))))
 
 (defun maxima-stop (&optional arg)
   "Kill the currently running Maxima process.
@@ -2509,24 +2459,20 @@ If ARG is t, it doesn't ask confirmation."
   "Return the maxima command that's at the front of `maxima-block'.
 Remove it from the front of `maxima-block'.
 With ARG, use `maxima-block-wait' instead of `maxima-block'."
-  (let* ((tmpfile (maxima-make-temp-name))
-         (tmpbuf (get-buffer-create tmpfile))
-         (pt)
+  (let* ((pt)
          (command))
-    (save-excursion
-      (set-buffer tmpbuf)
-      (maxima-remove-kill-buffer-hooks)
+    (with-temp-buffer
       (if arg
           (insert maxima-block-wait)
-        (insert maxima-block))
+	(insert maxima-block))
       (goto-char (point-min))
       (maxima-forward-over-comment-whitespace)
       (setq pt (point))
       (if (string-match "[$;]\\|:lisp"
-                        (buffer-substring-no-properties (point) (point-max)))
+			(buffer-substring-no-properties (point) (point-max)))
           (progn
             (if (looking-at ":lisp")
-                (progn
+		(progn
                   (search-forward ":lisp")
                   (forward-sexp)
                   (setq command (buffer-substring-no-properties pt (point))))
@@ -2534,20 +2480,19 @@ With ARG, use `maxima-block-wait' instead of `maxima-block'."
               (setq command (buffer-substring-no-properties pt (point))))
             (maxima-forward-over-comment-whitespace)
             (if arg
-                (setq maxima-block-wait
+		(setq maxima-block-wait
                       (maxima-strip-string-add-semicolon
                        (buffer-substring-no-properties (point) (point-max))))
               (setq maxima-block
                     (maxima-strip-string-add-semicolon
                      (buffer-substring-no-properties (point) (point-max)))))
             (setq command (buffer-substring-no-properties pt (point))))
-        (if arg
+	(if arg
             (setq maxima-block-wait "")
           (setq maxima-block "")))
       (if arg
           (if (string= maxima-block-wait ";") (setq maxima-block-wait ""))
-        (if (string= maxima-block ";") (setq maxima-block "")))
-      (kill-buffer tmpbuf))
+	(if (string= maxima-block ";") (setq maxima-block ""))))
     command))
 
 (defun maxima-send-block (stuff)
@@ -2584,8 +2529,7 @@ Return the last string sent."
   "Get the most recent output from Maxima."
   (interactive)
   (inferior-maxima-wait-for-output)
-  (save-excursion
-    (set-buffer (process-buffer inferior-maxima-process))
+  (with-current-buffer (process-buffer inferior-maxima-process)
     (let* ((pt (point))
            (pmark (progn (goto-char (process-mark inferior-maxima-process))
                          (forward-line 0)
