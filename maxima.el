@@ -3117,9 +3117,6 @@ anything in the determined region after any occurrence of \" ==>
     (define-key map "\C-c=d" maxima-help-map)
     (setq maxima-minor-mode-map map)))
 
-(unless (fboundp 'define-minor-mode)
-  (defalias 'define-minor-mode 'easy-mmode-define-minor-mode))
-
 (define-minor-mode maxima-minor-mode
   "Toggle Maxima minor mode.
 With no argument, this command toggles the mode.
