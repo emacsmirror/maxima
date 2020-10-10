@@ -108,11 +108,11 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
 *** Company integration
     Maxima.el have a company backend for people who use [[https://melpa.org/#/company][company-mode]], to enable it add this to your .emacs/init.el file:
     #+begin_src emacs-lisp :tangle yes
-    (setq maxima-use-company t)
+    (require 'company-maxima)
+    (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
     #+end_src
     
     This will create the backend and add it to the =company-backends= list.
-
 
 
 *** Org-mode and Tex integration

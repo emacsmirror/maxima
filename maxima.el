@@ -133,12 +133,6 @@ It shows the buffer every time `maxima-send-buffer' is called."
   :group 'maxima
   :type 'boolean)
 
-(defcustom maxima-use-company nil
-  "*If non-nil, use company for completion.
-Adding `company-maxima' as a backend."
-  :group 'maxima
-  :type 'boolean)
-
 (defcustom maxima-indent-style 'standard
   "*Determines how `maxima-mode' will handle tabs.
 Choices are 'standard, 'perhaps-smart"
@@ -1788,35 +1782,6 @@ if completion is ambiguous."
      (t
       (maxima-complete-symbol)))))
 
-
-
-(when maxima-use-company
-  (if (featurep 'company)
-      (progn
-	(defun company-maxima-libraries (command &optional _arg &rest ignored)
-	  (interactive (list 'interactive))
-	  (cl-case command
-	    (interactive (company-begin-backend 'company-maxima-backend))
-	    (prefix (and (eq major-mode 'maxima-mode)
-			 (company-in-string-or-comment)
-			 ;; FIXME this could be improve, if the load string is in other line, it doesn't work
-			 (string-match (rx (literal "load")(syntax open-parenthesis)(syntax string-quote)) (thing-at-point 'line t))
-			 (company-grab-symbol)))
-	    (duplicates t)
-	    (candidates  (maxima-get-libraries (company-grab-symbol)))))
-
-	(defun company-maxima-symbols (command &optional _arg &rest ignored)
-	  (interactive (list 'interactive))
-	  (cl-case command
-	    (interactive (company-begin-backend 'company-maxima-backend))
-	    (prefix (and (eq major-mode 'maxima-mode)
-			 (not (company-in-string-or-comment))
-			 (company-grab-symbol)))
-	    (duplicates t)
-	    (candidates  (maxima-get-completions (company-grab-symbol)))))
-
-	(add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries)))
-    (error "Company is not loaded")))
 ;;;; Miscellaneous
 
 (defun maxima-mark-form ()
