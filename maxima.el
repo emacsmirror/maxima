@@ -1451,7 +1451,8 @@ It requires SUBJECT and optionally SAME-WINDOW."
 
 (defun maxima-get-help ()
   "Get help on a given subject."
-  (let ((pt))
+  (let ((pt)
+	(name))
     (save-excursion
       (beginning-of-line)
       (skip-chars-forward "* ")
@@ -1476,8 +1477,7 @@ If ARG is t it get the symbol at point."
 		  (completing-read (format "Maxima help(%s): " cw)
 				   completion-list)))
 	  (maxima-get-info-on-subject subj))
-      (message (format "No help for \" %s \"" cw))
-      )))
+      (message (format "No help for \" %s \"" cw)))))
 
 (defun maxima-help-at-point ()
   "Get help at point, calling `maxima-help' with t argument."
@@ -1728,64 +1728,6 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 	 (capitalize to-str))
 	(t
 	 to-str)))
-
-;;; The next functions are from comint.el in cvs emacs
-(if (< emacs-minor-version 3)
-    (defun comint-dynamic-list-completions (completions)
-      "List in help buffer sorted COMPLETIONS.
-Typing SPC flushes the help buffer."
-      (let ((window (get-buffer-window "*Completions*")))
-	(setq completions (sort completions 'string-lessp))
-	(if (and (eq last-command this-command)
-		 window (window-live-p window) (window-buffer window)
-		 (buffer-name (window-buffer window))
-		 ;; The above tests are not sufficient to detect the case where we
-		 ;; should scroll, because the top-level interactive command may
-		 ;; not have displayed a completions window the last time it was
-		 ;; invoked, and there may be such a window left over from a
-		 ;; previous completion command with a different set of
-		 ;; completions.  To detect that case, we also test that the set
-		 ;; of displayed completions is in fact the same as the previously
-		 ;; displayed set.
-		 (equal completions
-			(buffer-local-value 'comint-displayed-dynamic-completions
-					    (window-buffer window))))
-	    ;; If this command was repeated, and
-	    ;; there's a fresh completion window with a live buffer,
-	    ;; and this command is repeated, scroll that window.
-	    (with-current-buffer (window-buffer window)
-	      (if (pos-visible-in-window-p (point-max) window)
-		  (set-window-start window (point-min))
-		(save-selected-window
-		  (select-window window)
-		  (scroll-up))))
-	  ;; Display a completion list for the first time.
-	  (setq comint-dynamic-list-completions-config
-		(current-window-configuration))
-	  (with-output-to-temp-buffer "*Completions*"
-	    (display-completion-list completions))
-	  (message "Type space to flush; repeat completion command to scroll"))
-
-	;; Read the next key, to process SPC.
-	(let (key first)
-	  (if (with-current-buffer (get-buffer "*Completions*")
-		(set (make-local-variable 'comint-displayed-dynamic-completions)
-		     completions)
-		(setq key (read-key-sequence nil)
-		      first (aref key 0))
-		(and (consp first) (consp (event-start first))
-		     (eq (window-buffer (posn-window (event-start first)))
-			 (get-buffer "*Completions*"))
-		     (eq (key-binding key) 'mouse-choose-completion)))
-	      ;; If the user does mouse-choose-completion with the mouse,
-	      ;; execute the command, then delete the completion window.
-	      (progn
-		(choose-completion first)
-		(set-window-configuration comint-dynamic-list-completions-config))
-	    (unless (eq first ?\ )
-	      (setq unread-command-events (listify-key-sequence key)))
-	    (unless (eq first ?\t)
-	      (set-window-configuration comint-dynamic-list-completions-config)))))))
 
 (defun maxima-get-completions (prefix &optional fuzzy)
   "Using apropos, return a list of completions with PREFIX.
