@@ -1498,19 +1498,23 @@ It requires SUBJECT and optionally SAME-WINDOW."
       (setq name (buffer-substring-no-properties pt (point))))
     (maxima-get-info-on-subject name t)))
 
-;; FIXME Change maxima-symbol to  a true autocomplete
 (defun maxima-help (&optional arg)
   "Get help of the desired symbol.
 If ARG is t it get the symbol at point."
   (interactive "P")
   (let* ((cw (current-word))
-         (subj (if arg
-                   cw
-                 (completing-read (concat "Maxima help (" cw "): ")
-                                  maxima-symbols nil nil nil nil cw))))
-    (if (member (list subj) maxima-symbols)
-        (maxima-get-info-on-subject subj)
-      (message (concat "No help for \"" subj "\"")))))
+	 (completion-list (maxima-get-completions cw t))
+	 (subj nil))
+    (if (not(seq-empty-p completion-list))
+	(progn
+	  (setq subj
+		(if arg
+                    cw
+		  (completing-read (format "Maxima help(%s): " cw)
+				   completion-list)))
+	  (maxima-get-info-on-subject subj))
+      (message (format "No help for \" %s \"" cw))
+      )))
 
 (defun maxima-help-at-point ()
   "Get help at point, calling `maxima-help' with t argument."
@@ -1829,17 +1833,17 @@ prefix filter."
   (let* ((command-output nil)
 	 (command-list-raw))
     (if (>= (length prefix) 1)
-	(progn
-	  (maxima-send-block (concat "apropos(\""prefix"\");"))
-	  (setq command-output (maxima-last-output-noprompt))
-	  (setq command-list-raw (seq-map (lambda (string)
-					    (string-remove-suffix "]"
-								  (string-remove-prefix "[" (s-trim string))))
-					  (split-string command-output ",")))
-	  (if fuzzy
-	      command-list-raw
-	    (seq-filter (lambda (str) (string-prefix-p prefix str))
-			command-list-raw)))
+	(remove "" (progn
+		     (maxima-send-block (concat "apropos(\""prefix"\");"))
+		     (setq command-output (maxima-last-output-noprompt))
+		     (setq command-list-raw (seq-map (lambda (string)
+						       (string-remove-suffix "]"
+									     (string-remove-prefix "[" (s-trim string))))
+						     (split-string command-output ",")))
+		     (if fuzzy
+			 command-list-raw
+		       (seq-filter (lambda (str) (string-prefix-p prefix str))
+				   command-list-raw))))
       '())))
 
 (defun maxima-get-libraries (prefix &optional fuzzy)
