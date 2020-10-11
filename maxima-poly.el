@@ -7,7 +7,7 @@
 ;; Created: 8 Oct 2020
 ;; Version: 0.5.0
 ;; Keywords: languages, maxima,lisp
-;; URL: 
+;; URL: https://gitlab.com/sasanidas/maxima
 ;; Package-Requires: ((emacs "25") (polymode "0.1.5") (maxima "0.5.0") )
 ;; License: GPL-3.0-or-later
 
