@@ -2263,8 +2263,7 @@ It requires PROC and STATE."
       (unless (eq (process-status inferior-maxima-process) 'run)
         (delete-process inferior-maxima-process)
         (if (get-buffer "*maxima*")
-            (save-excursion
-              (set-buffer "*maxima*")
+            (with-current-buffer "*maxima*"
               (erase-buffer)))
         (setq inferior-maxima-process nil)))
   (unless (processp inferior-maxima-process)
