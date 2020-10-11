@@ -1282,8 +1282,7 @@ Returns an integer: the column to indent to."
                            (forward-line 0)
                            (1+ (count-lines (point-min) (point))))))
                     (message
-                     (format "Leading comma prevents proper indentation on line %d"
-                             lineno))
+                     "Leading comma prevents proper indentation on line %d" lineno)
                     (setq indent 0))
                 (setq indent (- indent diff))))
           (maxima-back-over-comment-whitespace)
@@ -1472,7 +1471,7 @@ If ARG is t it get the symbol at point."
 		  (completing-read (format "Maxima help(%s): " cw)
 				   completion-list)))
 	  (maxima-get-info-on-subject subj))
-      (message (format "No help for \" %s \"" cw)))))
+      (message "No help for \" %s \"" cw))))
 
 (defun maxima-help-at-point ()
   "Get help at point, calling `maxima-help' with t argument."
