@@ -1628,13 +1628,6 @@ nil and ARG2 non-nil call `maxima-completion-help'."
     (insert "[RET] will get help on the subject on the given line\n")
     (insert "q in the *info* buffer will return you here.\n")
     (insert "q in this buffer will exit Maxima help\n\n")
-    (defun maxima-help-insert-line (expr)
-      (re-search-forward (concat "\\* " expr ":") nil t)
-      (setq expr-line  (buffer-substring-no-properties
-                        (maxima-line-beginning-position)
-                        (maxima-line-end-position)))
-      (with-current-buffer maxima-help-buffer
-	(insert expr-line "\n")))
     (with-temp-buffer
       (require 'info nil t)
       (Info-mode)
@@ -1643,7 +1636,14 @@ nil and ARG2 non-nil call `maxima-completion-help'."
       (search-forward "Menu:")
       (forward-line 1)
       (beginning-of-line)
-      (mapc (function maxima-help-insert-line) completions))
+      (mapc (lambda (expr)
+	      (re-search-forward (concat "\\* " expr ":") nil t)
+	      (setq expr-line  (buffer-substring-no-properties
+				(maxima-line-beginning-position)
+				(maxima-line-end-position)))
+	      (with-current-buffer maxima-help-buffer
+		(insert expr-line "\n")))
+	    completions))
     (goto-char (point-min))
     (defun maxima-help-subject ()
       (interactive)
