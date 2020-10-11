@@ -2215,7 +2215,7 @@ If QUERY is not nil, it takes the input in point."
   (setq inferior-maxima-waiting-for-output t)
   (comint-send-input))
 
-(defun inferior-maxima-remove-double-input-prompt (&optional string)
+(defun inferior-maxima-remove-double-input-prompt (&optional _string)
   "Fix the double prompt that occasionally appears in Emacs.
 Optionally it requires STRING."
   (let ((current-buffer (process-buffer inferior-maxima-process)))
@@ -2227,7 +2227,7 @@ Optionally it requires STRING."
       (if (looking-at "")
           (delete-char 1)))))
 
-(defun inferior-maxima-replace-tabs-by-spaces (&optional string)
+(defun inferior-maxima-replace-tabs-by-spaces (&optional _string)
   "Replace tabs in the Maxima output by spaces.
 Optionally it requires STRING."
   (let ((beg))
