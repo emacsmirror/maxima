@@ -2077,30 +2077,20 @@ nil
 (defun maxima-mode-variables ()
   "Set all the necessary variables for `maxima-mode'."
   (set-syntax-table maxima-mode-syntax-table)
-  (setq local-abbrev-table maxima-mode-abbrev-table)
-  (make-local-variable 'paragraph-start)
-  (setq paragraph-start (concat "^$\\|" page-delimiter))
-  (make-local-variable 'paragraph-separate)
-  (setq paragraph-separate paragraph-start)
-  (make-local-variable 'indent-line-function)
-  (setq indent-line-function 'maxima-indent-line)
-  (make-local-variable 'indent-tabs-mode)
+  (setq-local local-abbrev-table maxima-mode-abbrev-table)
+  (setq-local paragraph-start (concat "^$\\|" page-delimiter)
+	      paragraph-separate paragraph-start
+	      indent-line-function #'maxima-indent-line
+	      case-fold-search t
+	      comment-start "/*"
+	      comment-end "*/"
+	      comment-start-skip "/\\*+ *"
+	      comment-column 40
+	      comment-indent-function #'comment-indent-default)
   (unless maxima-use-tabs
-    (setq indent-tabs-mode nil))
-  (make-local-variable 'case-fold-search)
-  (setq case-fold-search t)
-  (make-local-variable 'comment-start)
-  (setq comment-start "/*")
-  (make-local-variable 'comment-end)
-  (setq comment-end "*/")
-  (make-local-variable 'comment-start-skip)
-  (setq comment-start-skip "/\\*+ *")
-  (make-local-variable 'comment-column)
-  (setq comment-column 40)
-  (make-local-variable 'comment-indent-function)
-  (setq comment-indent-function 'comment-indent-default)
+    (setq-local indent-tabs-mode nil))
   (setq imenu-generic-expression
-        (list '(nil "^ *\\([a-zA-Z0-9_]*\\) *(.*) *:=" 1))))
+	(list '(nil "^ *\\([a-zA-Z0-9_]*\\) *(.*) *:=" 1))))
 
 
 ;;;; Maxima mode
@@ -2260,7 +2250,7 @@ Optionally it requires STR."
                (maxima-clear-queue))
            (setq inferior-maxima-waiting-for-output nil)))))
 
-(defun inferior-maxima-sentinel (proc state)
+(defun inferior-maxima-sentinel (_proc state)
   "Write the input history when the process ends.
 It requires PROC and STATE."
   (unless (string-match "^run" state)
@@ -2285,7 +2275,8 @@ It requires PROC and STATE."
       (if maxima-args
           (setq cmd
                 (append (list 'make-comint "maxima" maxima-command
-                              nil) (split-string maxima-args)))
+                              nil)
+			(split-string maxima-args)))
         (setq cmd (list 'make-comint "maxima" maxima-command)))
       (setq mbuf (eval cmd))
       (with-current-buffer mbuf
