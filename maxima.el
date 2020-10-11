@@ -1735,7 +1735,7 @@ prefix filter."
 		     (setq command-output (maxima-last-output-noprompt))
 		     (setq command-list-raw (seq-map (lambda (string)
 						       (string-remove-suffix "]"
-									     (string-remove-prefix "[" (s-trim string))))
+									     (string-remove-prefix "[" (string-trim string))))
 						     (split-string command-output ",")))
 		     (if fuzzy
 			 command-list-raw
