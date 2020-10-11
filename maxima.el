@@ -2095,7 +2095,7 @@ nil
 
 ;;;; Maxima mode
 
-(defun maxima-mode ()
+(define-derived-mode maxima-mode prog-mode "Maxima" ()
   "Major mode for editing Maxima code.
 
 Maxima mode provides the following motion commands:
