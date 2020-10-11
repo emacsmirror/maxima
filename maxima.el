@@ -57,6 +57,7 @@
 (require 'cl-lib)
 (require 'subr-x)
 (require 'seq)
+(require 'info)
 
 (require 'maxima-font-lock)
 
