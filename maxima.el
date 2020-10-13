@@ -12,7 +12,7 @@
 ;; Version: 0.5.0
 ;; Keywords: maxima,tools,math
 ;; URL: https://gitlab.com/sasanidas/maxima
-;; Package-Requires: ((emacs "25.1") (seq "2.20"))
+;; Package-Requires: ((emacs "25.1"))
 ;; License: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or
