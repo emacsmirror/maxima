@@ -1426,22 +1426,22 @@ Which it is in a comment which begins on a previous line."
   "Go to the info NODE."
   (info-other-window (concat "(Maxima)" node)))
 
-;; FIXME Maxima has a great function called describe, better than this.
-(defun maxima-get-info-on-subject (subject &optional same-window)
+(defun maxima-get-info-on-subject (subject)
   "Get info of the maxima subject.
 It requires SUBJECT and optionally SAME-WINDOW."
-  (if (or
-       same-window)
-      (progn
-        (info "Maxima")
-        (Info-menu "Function and Variable Index"))
-    (info-other-window "(Maxima)Function and Variable Index"))
-  (search-forward subject)
-  (Info-follow-nearest-node)
-  (re-search-forward (concat "-.*: *" subject "\\( \\|$\\)"))
-  (if (looking-at "^")
-      (forward-line -1)
-    (beginning-of-line)))
+  (let* ((command-output nil)
+	 (help-buffer (get-buffer-create "*maxima-help*")))
+    (maxima-send-block (format "describe(\"%s\");" subject))
+    (setq command-output (maxima-last-output-noprompt))
+    (with-current-buffer help-buffer
+      (erase-buffer)
+      (insert
+       command-output)
+      (beginning-of-buffer))
+    (display-buffer-in-side-window help-buffer
+				   `((side . right) (slot . 0)
+				     (window-width . fit-window-to-buffer)
+				     (preserve-size . (t . nil))))))
 
 (defun maxima-get-help ()
   "Get help on a given subject."
@@ -1454,7 +1454,7 @@ It requires SUBJECT and optionally SAME-WINDOW."
       (search-forward ":")
       (skip-chars-backward ": ")
       (setq name (buffer-substring-no-properties pt (point))))
-    (maxima-get-info-on-subject name t)))
+    (maxima-get-info-on-subject name)))
 
 (defun maxima-help (&optional arg)
   "Get help of the desired symbol.
