@@ -262,7 +262,7 @@ And insert the correct end output."
 ;;;; The other variables
 
 ;; This variable seems to be necessary ...
-(defvar inferior-maxima-after-output-wait 100)
+(defvar maxima-inferior-after-output-wait 100)
 
 (defvar maxima-temp-suffix 0
   "Temporary filename suffix.  Incremented by 1 for each filename.")
@@ -275,19 +275,19 @@ And insert the correct end output."
 
 (defvar maxima-block-wait "")
 
-(defvar inferior-maxima-process nil
+(defvar maxima-inferior-process nil
   "The Maxima process.")
 
-(defvar inferior-maxima-input-end 0
+(defvar maxima-inferior-input-end 0
   "The end of the latest input that was sent to Maxima.")
 
-(defvar inferior-maxima-output-end 0)
+(defvar maxima-inferior-output-end 0)
 
-(defvar inferior-maxima-waiting-for-output nil)
+(defvar maxima-inferior-waiting-for-output nil)
 
-(defvar inferior-maxima-exit-hook nil)
+(defvar maxima-inferior-exit-hook nil)
 
-(defvar inferior-maxima-prompt
+(defvar maxima-inferior-prompt
   (concat "\\(^(" maxima-inchar
           "[0-9]*) \\)\\|\\(^MAXIMA> \\)\\|\\(^(dbm:[0-9]*) \\)")
 					; \\(^[^#%)>]*[#%)>]+ *\\)"
@@ -2069,7 +2069,7 @@ nil
 
 
 ;;;; Variable setup
-;;;; (These are used in both maxima-mode and inferior-maxima-mode).
+;;;; (These are used in both maxima-mode and maxima-inferior-mode).
 
 (defvar maxima-mode-abbrev-table nil
   "Abbreviation table for `maxima-mode'.")
@@ -2176,14 +2176,14 @@ To get apropos with the symbol under point, use:
 ;;;; Interacting with the Maxima process
 
 ;;; Checking on the process
-(defun inferior-maxima-running ()
+(defun maxima-inferior-running ()
   "Check if the maxima process is running."
-  (and (processp inferior-maxima-process)
-       (eq (process-status inferior-maxima-process) 'run)))
+  (and (processp maxima-inferior-process)
+       (eq (process-status maxima-inferior-process) 'run)))
 
 ;;; Sending the information
-(defun inferior-maxima-get-old-input ()
-  "Get last output from a `inferior-maxima-mode' buffer."
+(defun maxima-inferior-get-old-input ()
+  "Get last output from a `maxima-inferior-mode' buffer."
   (let (pt pt1)
     (save-excursion
       (if (re-search-forward
@@ -2193,64 +2193,64 @@ To get apropos with the symbol under point, use:
       (skip-chars-backward " \t\n")
       (setq pt (point)))
     (save-excursion
-      (re-search-backward inferior-maxima-prompt)
+      (re-search-backward maxima-inferior-prompt)
       (setq pt1 (match-end 0)))
     (buffer-substring-no-properties pt1 pt)))
 
-(defun inferior-maxima-comint-send-input (&optional query)
+(defun maxima-inferior-comint-send-input (&optional query)
   "Take note of position, then send the input.
 If QUERY is not nil, it takes the input in point."
   (unless query
-    (setq inferior-maxima-input-end (point)))
-  (setq inferior-maxima-waiting-for-output t)
+    (setq maxima-inferior-input-end (point)))
+  (setq maxima-inferior-waiting-for-output t)
   (comint-send-input))
 
-(defun inferior-maxima-remove-double-input-prompt (&optional _string)
+(defun maxima-inferior-remove-double-input-prompt (&optional _string)
   "Fix the double prompt that occasionally appears in Emacs.
 Optionally it requires STRING."
-  (let ((current-buffer (process-buffer inferior-maxima-process)))
+  (let ((current-buffer (process-buffer maxima-inferior-process)))
     (with-current-buffer current-buffer
-      (goto-char inferior-maxima-input-end)
+      (goto-char maxima-inferior-input-end)
       (forward-line 1)
       (if (looking-at (concat "(" maxima-inchar "[0-9]+)"))
           (kill-line 1))
       (if (looking-at "")
           (delete-char 1)))))
 
-(defun inferior-maxima-replace-tabs-by-spaces (&optional _string)
+(defun maxima-inferior-replace-tabs-by-spaces (&optional _string)
   "Replace tabs in the Maxima output by spaces.
 Optionally it requires STRING."
   (let ((beg))
-    (set-buffer (process-buffer inferior-maxima-process))
+    (set-buffer (process-buffer maxima-inferior-process))
     (if (marker-position comint-last-output-start)
         (setq beg comint-last-output-start)
       (setq beg (point-min)))
     (untabify beg
-              (process-mark inferior-maxima-process))))
+              (process-mark maxima-inferior-process))))
 
-(defun inferior-maxima-wait-for-output ()
+(defun maxima-inferior-wait-for-output ()
   "Wait for output from the Maxima process."
   (when (and
-         inferior-maxima-waiting-for-output
-         (inferior-maxima-running))
-    (accept-process-output inferior-maxima-process))
-  (sit-for 0 inferior-maxima-after-output-wait))
+         maxima-inferior-waiting-for-output
+         (maxima-inferior-running))
+    (accept-process-output maxima-inferior-process))
+  (sit-for 0 maxima-inferior-after-output-wait))
 
-(defun inferior-maxima-output-filter (str)
+(defun maxima-inferior-output-filter (str)
   "Look for a new input prompt.
 Optionally it requires STR."
   (cond ((and
           (string-match "? *$" str)
           (not (string-match (concat "(" maxima-outchar "[0-9]+)") str)))
          (maxima-ask-question str))
-        ((string-match inferior-maxima-prompt str)
-         (if (and inferior-maxima-process (not (string= maxima-block "")))
+        ((string-match maxima-inferior-prompt str)
+         (if (and maxima-inferior-process (not (string= maxima-block "")))
              (maxima-single-string (maxima-get-command))
-           (if (not inferior-maxima-process)
+           (if (not maxima-inferior-process)
                (maxima-clear-queue))
-           (setq inferior-maxima-waiting-for-output nil)))))
+           (setq maxima-inferior-waiting-for-output nil)))))
 
-(defun inferior-maxima-sentinel (_proc state)
+(defun maxima-inferior-sentinel (_proc state)
   "Write the input history when the process ends.
 It requires PROC and STATE."
   (unless (string-match "^run" state)
@@ -2259,16 +2259,16 @@ It requires PROC and STATE."
 (defun maxima-start ()
   "Start the Maxima process."
   (interactive)
-  (if (processp inferior-maxima-process)
-      (unless (eq (process-status inferior-maxima-process) 'run)
-        (delete-process inferior-maxima-process)
+  (if (processp maxima-inferior-process)
+      (unless (eq (process-status maxima-inferior-process) 'run)
+        (delete-process maxima-inferior-process)
         (if (get-buffer "*maxima*")
             (with-current-buffer "*maxima*"
               (erase-buffer)))
-        (setq inferior-maxima-process nil)))
-  (unless (processp inferior-maxima-process)
-    (setq inferior-maxima-input-end 0)
-    (setq inferior-maxima-waiting-for-output t)
+        (setq maxima-inferior-process nil)))
+  (unless (processp maxima-inferior-process)
+    (setq maxima-inferior-input-end 0)
+    (setq maxima-inferior-waiting-for-output t)
     (let ((mbuf)
           (cmd))
       (if maxima-args
@@ -2279,31 +2279,31 @@ It requires PROC and STATE."
         (setq cmd (list 'make-comint "maxima" maxima-command)))
       (setq mbuf (eval cmd))
       (with-current-buffer mbuf
-	(setq inferior-maxima-process (get-buffer-process mbuf))
+	(setq maxima-inferior-process (get-buffer-process mbuf))
 	(add-hook 'comint-output-filter-functions
-                  'inferior-maxima-output-filter nil t)
+                  'maxima-inferior-output-filter nil t)
 	(add-hook 'comint-output-filter-functions
-                  'inferior-maxima-replace-tabs-by-spaces nil t)
+                  'maxima-inferior-replace-tabs-by-spaces nil t)
 	(add-hook 'comint-output-filter-functions
-		  'inferior-maxima-remove-double-input-prompt nil t)
-	(inferior-maxima-wait-for-output)
-	(inferior-maxima-mode)))))
+		  'maxima-inferior-remove-double-input-prompt nil t)
+	(maxima-inferior-wait-for-output)
+	(maxima-inferior-mode)))))
 
 (defun maxima-stop (&optional arg)
   "Kill the currently running Maxima process.
 If ARG is t, it doesn't ask confirmation."
   (interactive "P")
-  (if (processp inferior-maxima-process)
+  (if (processp maxima-inferior-process)
       (if arg
 	  (progn
-	    (delete-process inferior-maxima-process)
+	    (delete-process maxima-inferior-process)
 	    (kill-buffer "*maxima*")
-	    (setq inferior-maxima-process nil))
+	    (setq maxima-inferior-process nil))
 	(if (y-or-n-p "Really quit Maxima? ")
 	    (progn
-	      (delete-process inferior-maxima-process)
+	      (delete-process maxima-inferior-process)
 	      (kill-buffer "*maxima*")
-	      (setq inferior-maxima-process nil))))))
+	      (setq maxima-inferior-process nil))))))
 
 ;;; Sending information to the process
 
@@ -2311,15 +2311,15 @@ If ARG is t, it doesn't ask confirmation."
   "Send STRING to the Maxima process."
   (setq string (maxima-strip-string-add-semicolon string))
   (maxima-start)
-					;  (inferior-maxima-wait-for-output)
+					;  (maxima-inferior-wait-for-output)
   (save-current-buffer
-    (set-buffer (process-buffer inferior-maxima-process))
+    (set-buffer (process-buffer maxima-inferior-process))
     (goto-char (point-max))
     (let ((start (point)))
       (insert string)
       (untabify start (point)))
     (goto-char (point-max))
-    (inferior-maxima-comint-send-input)
+    (maxima-inferior-comint-send-input)
     (goto-char (point-max))))
 
 (defun maxima-ask-question (string)
@@ -2330,10 +2330,10 @@ If ARG is t, it doesn't ask confirmation."
       (setq ans (concat ans ";")))
     (setq ans (maxima-strip-string ans))
     (save-current-buffer
-      (set-buffer (process-buffer inferior-maxima-process))
+      (set-buffer (process-buffer maxima-inferior-process))
       (goto-char (point-max))
       (insert ans)
-      (inferior-maxima-comint-send-input t)
+      (maxima-inferior-comint-send-input t)
       (goto-char (point-max)))))
 
 (defun maxima-get-command (&optional arg)
@@ -2409,14 +2409,14 @@ Return the last string sent."
 (defun maxima-last-output ()
   "Get the most recent output from Maxima."
   (interactive)
-  (inferior-maxima-wait-for-output)
-  (with-current-buffer (process-buffer inferior-maxima-process)
+  (maxima-inferior-wait-for-output)
+  (with-current-buffer (process-buffer maxima-inferior-process)
     (let* ((pt (point))
-           (pmark (progn (goto-char (process-mark inferior-maxima-process))
+           (pmark (progn (goto-char (process-mark maxima-inferior-process))
                          (forward-line 0)
                          (point-marker)))
            (beg (progn
-                  (goto-char inferior-maxima-input-end)
+                  (goto-char maxima-inferior-input-end)
                   (forward-line 1)
                   (point)))
            (output (buffer-substring-no-properties beg pmark)))
@@ -2426,7 +2426,7 @@ Return the last string sent."
 (defun maxima-last-output-noprompt ()
   "Return the last Maxima output, without the prompts."
   (interactive)
-  (if (not (inferior-maxima-running))
+  (if (not (maxima-inferior-running))
       (maxima-last-output)
     (let* ((output (maxima-last-output))
            (newstring)
@@ -2466,9 +2466,9 @@ Return the last string sent."
 (defun maxima-single-string-wait (string)
   "Send a single STRING to the maxima process.
 Waiting for output after."
-  (inferior-maxima-wait-for-output)
+  (maxima-inferior-wait-for-output)
   (maxima-single-string string)
-  (inferior-maxima-wait-for-output))
+  (maxima-inferior-wait-for-output))
 
 (defun maxima-string (string)
   "Send a STRING to the Maxima process."
@@ -2589,12 +2589,12 @@ Then go to the beginning of the next form."
   (maxima-goto-beginning-of-form))
 
 (defun maxima-display-buffer ()
-  "Display the `inferior-maxima-process' buffer so the recent output is visible."
+  "Display the `maxima-inferior-process' buffer so the recent output is visible."
   (interactive)
   (let ((origbuffer (current-buffer)))
-    (if (not (processp inferior-maxima-process))
+    (if (not (processp maxima-inferior-process))
 	(maxima-start))
-    (pop-to-buffer (process-buffer inferior-maxima-process))
+    (pop-to-buffer (process-buffer maxima-inferior-process))
     (goto-char (point-max))
 					;    (recenter (universal-argument))
     (pop-to-buffer origbuffer)))
@@ -2607,7 +2607,7 @@ Then go to the beginning of the next form."
 ;; First, a function to take the comint-input-ring and return a
 ;; list of previous inputs
 
-(defun inferior-maxima-previous-inputs ()
+(defun maxima-inferior-previous-inputs ()
   "Return a list of previous inputs."
   (interactive)
   (let* ((inputs nil)
@@ -2621,13 +2621,13 @@ Then go to the beginning of the next form."
     (reverse inputs)))
 
 ;; FIXME this doesn't work at all.
-(defun inferior-maxima-input-complete ()
+(defun maxima-inferior-input-complete ()
   "Complete line from list of previous input."
   (interactive)
   (let* ((stub  (buffer-substring-no-properties
-                 (inferior-maxima-bol-position) (point)))
+                 (maxima-inferior-bol-position) (point)))
 	 (completions (all-completions (downcase stub)
-                                       (inferior-maxima-previous-inputs))))
+                                       (maxima-inferior-previous-inputs))))
     (setq completions
           (mapc
            (function (lambda (x) (maxima-he-transfer-case stub x))) completions))
@@ -2642,11 +2642,11 @@ Then go to the beginning of the next form."
 	  (t				; There's no unique completion.
            (comint-dynamic-list-completions completions)))))
 
-(defun inferior-maxima-complete ()
+(defun maxima-inferior-complete ()
   "Complete the current object, depending on context."
   (interactive)
   (let* ((pmin (save-excursion
-                 (re-search-backward inferior-maxima-prompt)
+                 (re-search-backward maxima-inferior-prompt)
                  (point)))
          (pps (parse-partial-sexp pmin (point))))
     (cond
@@ -2659,7 +2659,7 @@ Then go to the beginning of the next form."
 
 ;;; Sending a line to the process while in the process buffer
 
-(defun inferior-maxima-check-and-send-line ()
+(defun maxima-inferior-check-and-send-line ()
   "Check the lines for mis-matched parentheses, then send the line."
   (interactive)
   (let ((ok nil)
@@ -2675,36 +2675,36 @@ Then go to the beginning of the next form."
     (if ok
 	(progn
 	  (save-excursion
-	    (re-search-backward inferior-maxima-prompt)
+	    (re-search-backward maxima-inferior-prompt)
 	    (setq pt1 (match-end 0)))
 	  (if (maxima-check-parens-region pt1 pt)
-              (inferior-maxima-comint-send-input)))
-      (inferior-maxima-comint-send-input))))
+              (maxima-inferior-comint-send-input)))
+      (maxima-inferior-comint-send-input))))
 
-(defun inferior-maxima-send-line ()
+(defun maxima-inferior-send-line ()
   "Send the line to the Maxima process."
   (interactive)
-  (inferior-maxima-comint-send-input))
+  (maxima-inferior-comint-send-input))
 
-(defun inferior-maxima-bol ()
+(defun maxima-inferior-bol ()
   "Go to the beginning of the line, but past the prompt."
   (interactive)
   (let ((eol (save-excursion (end-of-line) (point))))
     (forward-line 0)
-    (if (and (looking-at inferior-maxima-prompt)
+    (if (and (looking-at maxima-inferior-prompt)
 	     (<= (match-end 0) eol))
 	(goto-char (match-end 0)))))
 
-(defun inferior-maxima-bol-position ()
+(defun maxima-inferior-bol-position ()
   "Internal function, go to the beginning and save the point."
   (save-excursion
-    (inferior-maxima-bol)
+    (maxima-inferior-bol)
     (point)))
 
 
 ;;;; Inferior Maxima mode
 
-(define-derived-mode inferior-maxima-mode
+(define-derived-mode maxima-inferior-mode
   comint-mode
   "Inferior Maxima"
   "Major mode for interacting with an inferior Maxima process.
@@ -2732,9 +2732,9 @@ To scroll through previous commands,
   a regular expression to the prompt.
 "
 					;  (if maxima-use-full-color-in-process-buffer
-					;      (inferior-maxima-font-setup))
-  (setq comint-prompt-regexp inferior-maxima-prompt)
-  (setq comint-get-old-input (function inferior-maxima-get-old-input))
+					;      (maxima-inferior-font-setup))
+  (setq comint-prompt-regexp maxima-inferior-prompt)
+  (setq comint-get-old-input (function maxima-inferior-get-old-input))
   (setq mode-line-process '(": %s"))
   (maxima-mode-variables)
   (setq tab-width 8)
@@ -2742,38 +2742,39 @@ To scroll through previous commands,
             (function
              (lambda ()
                (maxima-clear-queue)
-               (if (processp inferior-maxima-process)
-                   (delete-process inferior-maxima-process))
-               (setq inferior-maxima-process nil)
-               (run-hooks 'inferior-maxima-exit-hook))) t t)
+               (if (processp maxima-inferior-process)
+                   (delete-process maxima-inferior-process))
+               (setq maxima-inferior-process nil)
+               (run-hooks 'maxima-inferior-exit-hook))) t t)
   (setq comint-input-ring-size maxima-input-history-length)
   (if maxima-save-input-history
       (progn
         (setq comint-input-ring-file-name maxima-input-history-file)
         (comint-read-input-ring t)
-        (set-process-sentinel inferior-maxima-process
-                              'inferior-maxima-sentinel)))
+        (set-process-sentinel maxima-inferior-process
+                              'maxima-inferior-sentinel)))
   (set (make-local-variable 'comint-prompt-read-only) t)
-  (run-hooks 'inferior-maxima-mode-hook))
+  (run-hooks 'maxima-inferior-mode-hook))
 
 ;;;; Keymap
 
-(define-key inferior-maxima-mode-map "\C-a"
-  'inferior-maxima-bol)
-(define-key inferior-maxima-mode-map "\C-m"
-  'inferior-maxima-check-and-send-line)
-(define-key inferior-maxima-mode-map [(control return)]
-  'inferior-maxima-send-line)
-(define-key inferior-maxima-mode-map [(meta control tab)]
-  'inferior-maxima-input-complete)
-(define-key inferior-maxima-mode-map "\C-c\C-s" 'inferior-maxima-complete)
-(define-key inferior-maxima-mode-map "\177" 'backward-delete-char-untabify)
-(define-key inferior-maxima-mode-map "\C-c\C-k" 'maxima-stop)
-(define-key inferior-maxima-mode-map "\C-c\C-d" maxima-help-map)
+(define-key maxima-inferior-mode-map "\C-a"
+  'maxima-inferior-bol)
+(define-key maxima-inferior-mode-map "\C-m"
+  'maxima-inferior-check-and-send-line)
+(define-key maxima-inferior-mode-map [(control return)]
+  'maxima-inferior-send-line)
+(define-key maxima-inferior-mode-map [(meta control tab)]
+  'maxima-inferior-input-complete)
+(define-key maxima-inferior-mode-map "\C-c\C-s" 'maxima-inferior-complete)
+(define-key maxima-inferior-mode-map "\177" 'backward-delete-char-untabify)
+(define-key maxima-inferior-mode-map "\C-c\C-k" 'maxima-stop)
+(define-key maxima-inferior-mode-map "\C-c\C-d" maxima-help-map)
 
 ;;;; Menu
 
-(easy-menu-define inferior-maxima-mode-menu inferior-maxima-mode-map
+;; FIXME add more options to the inferior menu, like autocomplete
+(easy-menu-define maxima-inferior-mode-menu maxima-inferior-mode-map
   "Maxima mode menu"
   '("Maxima"
     ("Help"
@@ -2788,7 +2789,7 @@ To scroll through previous commands,
   "Run Maxima interactively inside a buffer."
   (interactive)
   (maxima-start)
-  (switch-to-buffer (process-buffer inferior-maxima-process)))
+  (switch-to-buffer (process-buffer maxima-inferior-process)))
 
 ;;; Interacting with Maxima outside of a maxima buffer
 
