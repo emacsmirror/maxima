@@ -1,3 +1,4 @@
+#+html: <p align="center"><img src="logo/maxima_emacs.png" /></p>
 * Maxima.el
 [[License: GPL v3][https://img.shields.io/badge/License-GPLv3-blue.svg]]
   - [[#install][Install]]
