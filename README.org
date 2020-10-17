@@ -289,37 +289,13 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
  =maxima-minibuffer-on-form=, however, is that new outputs will
  be inserted without old output being deleted.
 
- The commands for the Maxima-minibuffer interaction can be made
- available by putting 
-
-  #+BEGIN_SRC emacs-lisp 
- (autoload 'maxima-minibuffer "maxima" "Interact with Maxima from the minibuffer" t)
-  (autoload 'maxima-minibuffer-on-determined-region "maxima" 
-            "Send a information to Maxima, display the results in the minibuffer" t)
-  (autoload 'maxima-minibuffer-on-region "maxima" 
-            "Send a information to Maxima, display the results in the minibuffer" t)
-  (autoload 'maxima-minibuffer-on-line "maxima" 
-            "Send a information to Maxima, display the results in the minibuffer" t)
-  (autoload 'maxima-minibuffer-on-form "maxima" 
-            "Send a information to Maxima, display the results in the minibuffer" t)
-  #+END_SRC
-  
- in your .emacs
-
  
 *** Maxima minor mode
  maxima-minor-mode provides convenient keybindings for the various
  interactions between Maxima and the minibuffer.
  
- It can be made easily available by placing this code in your .emacs,
- then =M-x maxima-minor-mode= will start the minor mode.
+ It can be made easily available with =M-x maxima-minor-mode=, that will start the minor mode.
 
- #+begin_src emacs-lisp
-  (autoload 'maxima-minor-mode "maxima" "Maxima minor mode" t)
- #+end_src
- 
- (The autoloads for the individual function will not then be necessary.)
- 
 **** Enabled commands
      | Key combination | Function                               |
      |-----------------+----------------------------------------|
