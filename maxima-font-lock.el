@@ -12,7 +12,6 @@
 ;; Version: 0.5.0
 ;; Keywords: maxima, tools, math
 ;; URL: https://gitlab.com/sasanidas/maxima
-;; Package-Requires: ((emacs "25.1")(s "1.11.0")(test-simple "1.3.0"))
 ;; License: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or
@@ -50,6 +49,7 @@
 ;;; Code:
 
 (require 'font-lock)
+(require 's)
 
 (defvar maxima-font-lock-keywords-directory
   (format "%skeywords" (let* ((directory (file-name-directory load-file-name)))
@@ -83,7 +83,7 @@ Base on the types assigned by the maxima info manual.")
 
 (defvar maxima-font-lock-match-functions
   (concat "\\<\\("
-          (eval-when-compile (regexp-opt maxima-font-lock-functions))
+          (regexp-opt maxima-font-lock-functions)
 	  "\\)\\>" )
   "Regexp to match the maxima functions.")
 
@@ -94,7 +94,7 @@ Base on the types assigned by the maxima info manual.")
 
 (defvar maxima-font-lock-match-constants
   (concat "\\<\\("
-          (eval-when-compile (regexp-opt maxima-font-lock-constants))
+          (regexp-opt maxima-font-lock-constants)
 	  "\\)\\>" )
   "Regexp to match the maxima functions.")
 
@@ -104,7 +104,7 @@ Base on the types assigned by the maxima info manual.")
     (split-string (buffer-string) "\n" t)))
 
 (defvar maxima-font-lock-match-operators
-  (eval-when-compile (regexp-opt maxima-font-lock-operators t))
+  (regexp-opt maxima-font-lock-operators t)
   "Regexp to match the maxima functions.")
 
 (defvar maxima-font-lock-match-numbers
@@ -118,7 +118,7 @@ Base on the types assigned by the maxima info manual.")
 
 (defvar maxima-font-lock-match-system-variables
   (concat "\\<\\("
-          (eval-when-compile (regexp-opt maxima-font-lock-system-variables))
+          (regexp-opt maxima-font-lock-system-variables)
 	  "\\)\\>" )
   "Regexp to match the maxima functions.")
 
@@ -129,7 +129,7 @@ Base on the types assigned by the maxima info manual.")
 
 (defvar maxima-font-lock-match-properties
   (concat "\\<\\("
-          (eval-when-compile (regexp-opt maxima-font-lock-properties))
+          (regexp-opt maxima-font-lock-properties)
 	  "\\)\\>" )
   "Regexp to match the maxima functions.")
 
