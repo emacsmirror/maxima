@@ -3022,7 +3022,7 @@ anything in the determined region after any occurrence of \" ==>
 ;;; Latex and org-mode interaction
 
 (if (fboundp 'org-latex-preview)
-    (defun maxima-tex-insert-preview-form ()
+    (defun maxima-latex-insert-form ()
       "Send and insert the current form in text formated output."
       (interactive)
       (let* ((keep-looking t)
@@ -3044,7 +3044,8 @@ anything in the determined region after any occurrence of \" ==>
 	    (setq end-point (point))
 	  (error "End of the form not found"))
 	(setq form-text (string-remove-suffix ";" (buffer-substring beg-point end-point)))
-	(maxima-send-block (concat "tex("form-text",false);"))
+	(maxima-send-block (format "%s;" form-text))
+	(maxima-send-block "tex(%,false);")
 	(setq command-output (maxima-last-output-tex-noprompt))
 	(backward-char 3)
 	(end-of-line)

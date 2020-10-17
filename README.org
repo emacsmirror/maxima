@@ -115,7 +115,7 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
     This will create the backend and add it to the =company-backends= list.
 
 
-*** Org-mode and Tex integration
+*** Org-mode and Latex integration
     By default, [[https://orgmode.org/][org-mode]] supports maxima syntax highlight, export results and plot integration.
     To enable it, you have add it to =org-babel-load-languages= :
 
@@ -144,9 +144,9 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
     
     Available functions:
 
-| Function name                  | Explanation                                         |
-|--------------------------------+-----------------------------------------------------|
-| maxima-tex-insert-preview-form | Insert the preview tex image below the current form |
+| Function name            | Explanation                                         |
+|--------------------------+-----------------------------------------------------|
+| maxima-latex-insert-form | Insert the preview latex image below the current form |
 
 
 
