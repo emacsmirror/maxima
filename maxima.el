@@ -154,13 +154,7 @@ Choices are 'newline, 'newline-and-indent, and 'reindent-then-newline-and-indent
                  (const newline-and-indent)
                  (const reindent-then-newline-and-indent)))
 
-;; FIXME Use maxima --version as a default version
 
-(defcustom maxima-libraries-directory
-  "/usr/share/maxima/5.42.1/share/"
-  "Maxima libraries directory."
-  :group 'maxima
-  :type 'string)
 
 (defvar maxima-newline-style nil
   "For compatibility.")
@@ -260,9 +254,24 @@ And insert the correct end output."
       maxima-mode-minor-output-end
     maxima-minor-output-end))
 
+(defun maxima-get-version (command)
+  "Internal function, get the maxima version, with COMMAND."
+  (let* ((output (shell-command-to-string (format "%s --version" (eval command) ))))
+    (car (s-match "[[:digit:]]+\\.[[:digit:]]+\\.[[:digit:]]+" output))))
+
 ;;;; The other variables
 
-;; This variable seems to be necessary ...
+;; This variable seems to be necessary
+
+(defvar maxima-version (maxima-get-version 'maxima-command)
+  "Maxima version, it uses `maxima-command'.")
+
+(defcustom maxima-libraries-directory
+  (format "%s/%s/share/" "/usr/share/maxima" maxima-version)
+  "Maxima libraries directory."
+  :group 'maxima
+  :type 'string)
+
 (defvar maxima-inferior-after-output-wait 100)
 
 (defvar maxima-temp-suffix 0
