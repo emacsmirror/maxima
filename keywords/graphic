@@ -1,0 +1,390 @@
+adapt_depth
+allocation
+axis_3d
+axis_bottom
+axis_left
+axis_right
+axis_top
+background_color
+border
+capping
+cbrange
+cbtics
+color
+colorbox
+columns
+contour
+contour_levels
+data_file_name
+delay
+dimensions
+draw_realpart
+enhanced3d
+error_type
+file_name
+fill_color
+fill_density
+filled_func
+font
+font_size
+gnuplot_file_name
+grid
+head_angle
+head_both
+head_length
+head_type
+interpolate_color
+ip_grid
+ip_grid_in
+key
+key_pos
+label_alignment
+label_orientation
+line_type
+line_width
+logcb
+logx
+logx_secondary
+logy
+logy_secondary
+logz
+nticks
+palette
+point_size
+point_type
+points_joined
+proportional_axes
+surface_hide
+terminal
+title
+transform
+transparent
+unit_vectors
+user_preamble
+view
+wired_surface
+x_voxel
+xaxis
+xaxis_color
+xaxis_secondary
+xaxis_type
+xaxis_width
+xlabel
+xlabel_secondary
+xrange
+xrange_secondary
+xtics
+xtics_axis
+xtics_rotate
+xtics_rotate_secondary
+xtics_secondary
+xtics_secondary_axis
+xu_grid
+xy_file
+xyplane
+y_voxel
+yaxis
+yaxis_color
+yaxis_secondary
+yaxis_type
+yaxis_width
+ylabel
+ylabel_secondary
+yrange
+yrange_secondary
+ytics
+ytics_axis
+ytics_rotate
+ytics_rotate_secondary
+ytics_secondary
+ytics_secondary_axis
+yv_grid
+z_voxel
+zaxis
+zaxis_color
+zaxis_type
+zaxis_width
+zlabel
+zlabel_rotate
+zrange
+ztics
+ztics_axis
+ztics_rotate
+bars
+cylindrical
+elevation_grid
+ellipse
+errors
+explicit
+image
+implicit
+label
+mesh
+parametric
+parametric_surface
+points
+polar
+polygon
+quadrilateral
+rectangle
+region
+spherical
+triangle
+tube
+vector
+geomap
+adapt_depth
+allocation
+axis_3d
+axis_bottom
+axis_left
+axis_right
+axis_top
+background_color
+bars
+border
+capping
+cbrange
+cbtics
+color
+colorbox
+columns
+contour
+contour_levels
+cylindrical
+data_file_name
+delay
+dimensions
+draw_realpart
+elevation_grid
+ellipse
+enhanced3d
+errors
+error_type
+explicit
+file_name
+filled_func
+fill_color
+fill_density
+font
+font_size
+geomap
+gnuplot_file_name
+grid
+head_angle
+head_both
+head_length
+head_type
+image
+implicit
+interpolate_color
+ip_grid
+ip_grid_in
+key
+key_pos
+label
+label_alignment
+label_orientation
+line_type
+line_width
+logcb
+logx
+logx_secondary
+logy
+logy_secondary
+logz
+mesh
+nticks
+palette
+parametric
+parametric_surface
+points
+points_joined
+point_size
+point_type
+polar
+polygon
+proportional_axes
+quadrilateral
+rectangle
+region
+spherical
+surface_hide
+terminal
+title
+transform
+transparent
+triangle
+tube
+unit_vectors
+user_preamble
+vector
+view
+wired_surface
+xaxis
+xaxis_color
+xaxis_secondary
+xaxis_type
+xaxis_width
+xlabel
+xlabel_secondary
+xrange
+xrange_secondary
+xtics
+xtics_axis
+xtics_rotate
+xtics_rotate_secondary
+xtics_secondary
+xtics_secondary_axis
+xu_grid
+xyplane
+xy_file
+x_voxel
+yaxis
+yaxis_color
+yaxis_secondary
+yaxis_type
+yaxis_width
+ylabel
+ylabel_secondary
+yrange
+yrange_secondary
+ytics
+ytics_axis
+ytics_rotate
+ytics_rotate_secondary
+ytics_secondary
+ytics_secondary_axis
+yv_grid
+y_voxel
+zaxis
+zaxis_color
+zaxis_type
+zaxis_width
+zlabel
+zlabel_rotate
+zrange
+ztics
+ztics_axis
+ztics_rotate
+z_voxel
+ -- draw_graph option: show_id
+ -- draw_graph option: show_label
+ -- draw_graph option: label_alignment
+ -- draw_graph option: show_weight
+ -- draw_graph option: vertex_type
+ -- draw_graph option: vertex_size
+ -- draw_graph option: vertex_color
+ -- draw_graph option: show_vertices
+ -- draw_graph option: show_vertex_type
+ -- draw_graph option: show_vertex_size
+ -- draw_graph option: show_vertex_color
+ -- draw_graph option: vertex_partition
+ -- draw_graph option: vertex_coloring
+ -- draw_graph option: edge_color
+ -- draw_graph option: edge_width
+ -- draw_graph option: edge_type
+ -- draw_graph option: show_edges
+ -- draw_graph option: show_edge_color
+ -- draw_graph option: show_edge_width
+ -- draw_graph option: show_edge_type
+ -- draw_graph option: edge_partition
+ -- draw_graph option: edge_coloring
+ -- draw_graph option: redraw
+ -- draw_graph option: head_angle
+ -- draw_graph option: head_length
+ -- draw_graph option: spring_embedding_depth
+ -- draw_graph option: terminal
+ -- draw_graph option: file_name
+ -- draw_graph option: program
+ -- draw_graph option: fixed_vertices
+ -- draw_graph option: edge_color
+ -- draw_graph option: edge_coloring
+ -- draw_graph option: edge_partition
+ -- draw_graph option: edge_type
+ -- draw_graph option: edge_width
+ -- draw_graph option: file_name
+ -- draw_graph option: fixed_vertices
+ -- draw_graph option: head_angle
+ -- draw_graph option: head_length
+ -- draw_graph option: label_alignment
+ -- draw_graph option: program
+ -- draw_graph option: redraw
+ -- draw_graph option: show_edges
+ -- draw_graph option: show_edge_color
+ -- draw_graph option: show_edge_type
+ -- draw_graph option: show_edge_width
+ -- draw_graph option: show_id
+ -- draw_graph option: show_label
+ -- draw_graph option: show_vertex_color
+ -- draw_graph option: show_vertex_size
+ -- draw_graph option: show_vertex_type
+ -- draw_graph option: show_vertices
+ -- draw_graph option: show_weight
+ -- draw_graph option: spring_embedding_depth
+ -- draw_graph option: terminal
+ -- draw_graph option: vertex_color
+ -- draw_graph option: vertex_coloring
+ -- draw_graph option: vertex_partition
+ -- draw_graph option: vertex_size
+ -- draw_graph option: vertex_type
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
+option:
