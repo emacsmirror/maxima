@@ -632,7 +632,7 @@ If character is in a string or a list, ignore it."
     (while keep-going
       (cond
        ((and
-         (> (point) (point-min))
+         (not (bobp))
          (save-excursion
            (forward-char -1)
            (looking-at "\\w")))
@@ -1407,7 +1407,7 @@ It requires SUBJECT and optionally SAME-WINDOW."
       (erase-buffer)
       (insert
        command-output)
-      (beginning-of-buffer))
+      (goto-char (point-min)))
     (display-buffer-in-side-window help-buffer
 				   `((side . right) (slot . 0)
 				     (window-width . fit-window-to-buffer)
@@ -2127,11 +2127,6 @@ To get apropos with the symbol under point, use:
 \\[maxima-apropos-help].
 
 \\{maxima-mode-map}"
-  (interactive)
-  (kill-all-local-variables)
-  (setq major-mode 'maxima-mode)
-  (setq mode-name "Maxima")
-  (use-local-map maxima-mode-map)
   (maxima-mode-variables)
   (cond
    ((eq maxima-newline-style 'basic)
@@ -2142,8 +2137,7 @@ To get apropos with the symbol under point, use:
     (setq maxima-indent-style 'perhaps-smart)))
   (easy-menu-add maxima-mode-menu maxima-mode-map)
   (add-hook 'post-command-hook
-            'maxima-mode-add-remove-highlight nil t)
-  (run-hooks 'maxima-mode-hook))
+            'maxima-mode-add-remove-highlight nil t))
 
 ;;;; Interacting with the Maxima process
 
@@ -2676,6 +2670,38 @@ Then go to the beginning of the next form."
 
 ;;;; Inferior Maxima mode
 
+
+;;;; Keymap
+
+(defvar maxima-inferior-mode-map nil
+  "The keymap for function `maxima-inferior-mode'.")
+
+(unless maxima-inferior-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map  "\C-a" 'maxima-inferior-bol)
+    (define-key map  "\C-m" 'maxima-inferior-check-and-send-line)
+    (define-key map  [(control return)] 'maxima-inferior-send-line)
+    (define-key map  [(meta control tab)] 'maxima-inferior-input-complete)
+    (define-key map  "\C-c\C-s" 'maxima-inferior-complete)
+    (define-key map  "\177" 'backward-delete-char-untabify)
+    (define-key map  "\C-c\C-k" 'maxima-stop)
+    (define-key map  "\C-c\C-d" maxima-help-map)
+    (setq maxima-inferior-mode-map map)))
+
+;;;; Menu
+
+;; FIXME add more options to the inferior menu, like autocomplete
+(easy-menu-define maxima-inferior-mode-menu maxima-inferior-mode-map
+  "Maxima mode menu"
+  '("Maxima"
+    ("Help"
+     ["Maxima info" maxima-info t]
+     ["Help" maxima-help t])
+    ("Quit"
+     ["Kill process" maxima-stop t])))
+
+
+
 (define-derived-mode maxima-inferior-mode
   comint-mode
   "Inferior Maxima"
@@ -2708,6 +2734,7 @@ To scroll through previous commands,
   (setq comint-prompt-regexp maxima-inferior-prompt)
   (setq comint-get-old-input (function maxima-inferior-get-old-input))
   (setq mode-line-process '(": %s"))
+  (easy-menu-add maxima-inferior-mode-menu maxima-inferior-mode-map)
   (maxima-mode-variables)
   (setq tab-width 8)
   (add-hook 'kill-buffer-hook
@@ -2725,35 +2752,8 @@ To scroll through previous commands,
         (comint-read-input-ring t)
         (set-process-sentinel maxima-inferior-process
                               'maxima-inferior-sentinel)))
-  (set (make-local-variable 'comint-prompt-read-only) t)
-  (run-hooks 'maxima-inferior-mode-hook))
+  (set (make-local-variable 'comint-prompt-read-only) t))
 
-;;;; Keymap
-
-(define-key maxima-inferior-mode-map "\C-a"
-  'maxima-inferior-bol)
-(define-key maxima-inferior-mode-map "\C-m"
-  'maxima-inferior-check-and-send-line)
-(define-key maxima-inferior-mode-map [(control return)]
-  'maxima-inferior-send-line)
-(define-key maxima-inferior-mode-map [(meta control tab)]
-  'maxima-inferior-input-complete)
-(define-key maxima-inferior-mode-map "\C-c\C-s" 'maxima-inferior-complete)
-(define-key maxima-inferior-mode-map "\177" 'backward-delete-char-untabify)
-(define-key maxima-inferior-mode-map "\C-c\C-k" 'maxima-stop)
-(define-key maxima-inferior-mode-map "\C-c\C-d" maxima-help-map)
-
-;;;; Menu
-
-;; FIXME add more options to the inferior menu, like autocomplete
-(easy-menu-define maxima-inferior-mode-menu maxima-inferior-mode-map
-  "Maxima mode menu"
-  '("Maxima"
-    ("Help"
-     ["Maxima info" maxima-info t]
-     ["Help" maxima-help t])
-    ("Quit"
-     ["Kill process" maxima-stop t])))
 
 ;;;; Running Maxima
 

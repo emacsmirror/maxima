@@ -150,7 +150,7 @@ Base on the types assigned by the maxima info manual.")
         '((maxima-font-lock-keywords)
           nil t)))
 
-(add-hook 'maxima-mode-hook 'maxima-font-lock-setup)
+(add-hook 'maxima-mode-hook #'maxima-font-lock-setup)
 
 (provide 'maxima-font-lock)
 ;;; maxima-font-lock.el ends here
