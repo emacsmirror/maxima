@@ -33,16 +33,17 @@ somewhere in your Emacs load path.
 To make sure that  *maxima.el*  is loaded when necessary, whether to
 edit a file in maxima mode or interact with Maxima in an Emacs buffer,
 put the lines:
+
  #+BEGIN_SRC emacs-lisp 
-  (autoload 'maxima-mode "maxima" "Maxima mode" t)
-  (autoload 'maxima "maxima" "Maxima interaction" t)
+   (add-to-list 'load-path "/path/to/maxima/")
   #+END_SRC
-In your `.emacs' file.  If you want any file ending in `.mac' to begin
+
+In your .emacs or init.el file.  If you want any file ending in .mac to begin
 in *maxima-mode*, for example, put the line:
+
  #+BEGIN_SRC emacs-lisp 
   (setq auto-mode-alist (cons '("\\.mac" . maxima-mode) auto-mode-alist))
   #+END_SRC
-to your `.emacs' file.
 
 *** Quelpa
      You can install it with [[https://github.com/quelpa/quelpa][quelpa]]:
