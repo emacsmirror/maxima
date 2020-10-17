@@ -236,14 +236,11 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
  will allow you to interact with Maxima from the minibuffer.  
  The arrows will allow you to scroll through previous inputs.
  
- The line (autoload 'maxima-minibuffer "maxima" "Maxima in a minibuffer" t)
- in your .emacs will make sure the function is available.
- 
  If the variable maxima-minibuffer-2d is non-nil, then the output
  will be in Maxima's 2d output form, otherwise it will be in 
  Maxima's 1d output form. 
  
- The command maxima-insert-last-output will insert
+ The command =maxima-insert-last-output= will insert
  the last maxima output into the current buffer; if the output is in 2d, 
  this will look unpleasant.  The command  maxima-insert-last-output-tex
  will insert the TeX form of the output.
