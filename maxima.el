@@ -355,13 +355,6 @@ And insert the correct end output."
       (remove-hook 'kill-buffer-hook (car hooks) t)
       (setq hooks (cdr hooks)))))
 
-(defun maxima-make-temp-name ()
-  "Return a unique filename."
-  (setq maxima-temp-suffix (+ maxima-temp-suffix 1))
-  (concat (concat (make-temp-name "#mz") "-")
-          (int-to-string maxima-temp-suffix)
-          ".mac"))
-
 (defun maxima-strip-string-beginning (string)
   "Return STRING with whitespace and comments removed from the beginning."
   (with-temp-buffer
@@ -399,40 +392,6 @@ And insert the correct end output."
            (string= (substring string -1) "$"))
     (setq string (concat string ";")))
   string)
-
-(defun maxima-remove-whitespace-from-ends (string)
-  "Return STRING with whitespace from the ends."
-  (let* ((beg)
-         (end))
-    (with-temp-buffer
-      (insert string)
-      (goto-char (point-min))
-      (skip-chars-forward " \t\n")
-      (setq beg (point))
-      (goto-char (point-max))
-      (skip-chars-backward " \t\n")
-      (setq end (point))
-      (buffer-substring-no-properties beg end))))
-
-(defun maxima-remove-whitespace-from-beg (string)
-  "Return STRING with whitespace removed from the beginning."
-  (let* ((beg))
-    (with-temp-buffer
-      (insert string)
-      (goto-char (point-min))
-      (skip-chars-forward " \t\n")
-      (setq beg (point))
-      (buffer-substring-no-properties beg (point-max)))))
-
-(defun maxima-remove-whitespace-from-end (string)
-  "Return STRING with whitespace removed from the end."
-  (let* ((end))
-    (with-temp-buffer
-      (insert string)
-      (goto-char (point-max))
-      (skip-chars-backward " \t\n")
-      (setq end (point))
-      (buffer-substring-no-properties (point-min) end))))
 
 ;;;; Functions that query position
 (defun maxima-in-comment-p ()
@@ -689,22 +648,6 @@ If character is in a string or a list, ignore it."
 
 ;;;; Functions that return special positions
 
-(defun maxima-line-beginning-position ()
-  "Return line beginning position."
-  (if (not (fboundp 'line-beginning-position))
-      (save-excursion
-	(beginning-of-line)
-	(point))
-    (line-beginning-position)))
-
-(defun maxima-line-end-position ()
-  "Return line end position."
-  (if (not (fboundp 'line-end-position))
-      (save-excursion
-	(end-of-line)
-	(point))
-    (line-end-position)))
-
 (defun maxima-name-beginning ()
   "Return the name of the position."
   (save-excursion
@@ -803,7 +746,7 @@ If character is in a string or a list, ignore it."
 (defun maxima-forward-over-comment-whitespace ()
   "Move forward over comments and whitespace."
   (forward-comment (buffer-size))
-  (let ((mmo (maxima-remove-whitespace-from-beg (maxima-minor-output-mark))))
+  (let ((mmo (string-trim-left (maxima-minor-output-mark))))
     (when (and (> (- (point-max) (point)) (length mmo))
                (string=
                 (buffer-substring-no-properties
@@ -815,7 +758,7 @@ If character is in a string or a list, ignore it."
 (defun maxima-back-over-comment-whitespace ()
   "Move backward over comments and whitespace."
   (forward-comment (- (buffer-size)))
-  (let ((mme (maxima-remove-whitespace-from-end (maxima-minor-output-mark-end))))
+  (let ((mme (string-trim-right (maxima-minor-output-mark-end))))
     (when (and (> (- (point) (point-min)) (length mme))
                (string=
                 (buffer-substring-no-properties
@@ -975,7 +918,7 @@ is the same as the previous line."
       (when (= (forward-line -1) 0)
         (progn
           (setq indent (current-indentation))
-          (setq pt (maxima-line-end-position))
+          (setq pt (line-end-position))
           (while (setq match (maxima-re-search-forward "[()]" pt))
             (cond ((string= match ")")
                    (setq indent (- indent maxima-indent-amount)))
@@ -1149,7 +1092,7 @@ Returns an integer: the column to indent to."
           (save-excursion
             (when (maxima-re-search-backward-skip-blocks "," pmin)
               (save-excursion
-                (let ((lep (maxima-line-end-position)))
+                (let ((lep (line-end-position)))
                   (forward-char 1)
                   (maxima-forward-over-comment-whitespace)
                   (unless (>= (point) lep)
@@ -1245,7 +1188,7 @@ Returns an integer: the column to indent to."
 					;             (comma-line
 					;              (setq indent (current-column)))
              ((save-excursion
-                (let ((lep (maxima-line-end-position)))
+                (let ((lep (line-end-position)))
                   (forward-char 1)
                   (maxima-forward-over-comment-whitespace)
                   (>= (point) lep)))
@@ -1520,8 +1463,8 @@ To call it with ARG use `maxima-apropos-at-point'"
       (while (re-search-forward (concat "\\*.*" expr ".*:") nil t)
         (setq have-info t)
         (setq expr-line  (buffer-substring-no-properties
-                          (maxima-line-beginning-position)
-                          (maxima-line-end-position)))
+                          (line-beginning-position)
+                          (line-end-position)))
         (with-current-buffer maxima-help-buffer
           (insert expr-line "\n"))))
     (if have-info
@@ -1649,8 +1592,8 @@ nil and ARG2 non-nil call `maxima-completion-help'."
       (mapc (lambda (expr)
 	      (re-search-forward (concat "\\* " expr ":") nil t)
 	      (setq expr-line  (buffer-substring-no-properties
-				(maxima-line-beginning-position)
-				(maxima-line-end-position)))
+				(line-beginning-position)
+				(line-end-position)))
 	      (with-current-buffer maxima-help-buffer
 		(insert expr-line "\n")))
 	    completions))
@@ -1738,7 +1681,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 If FUZZY is non-nil, it return all the apropos without the
 prefix filter."
   (let* ((command-output nil)
-	 (command-list-raw))
+	 (command-list-raw nil))
     (if (>= (length prefix) 1)
 	(remove "" (progn
 		     (maxima-send-block (concat "apropos(\""prefix"\");"))
@@ -2514,8 +2457,8 @@ With ARG, don't check the parentheses."
   "Send the current line to the Maxima process, after checking parentheses.
 With ARG, don't check parentheses."
   (interactive "P")
-  (let ((b (maxima-line-beginning-position))
-	(e (maxima-line-end-position)))
+  (let ((b (line-beginning-position))
+	(e (line-end-position)))
     (maxima-send-region b e arg)))
 
 (defun maxima-send-form (&optional arg)
@@ -2820,7 +2763,7 @@ To scroll through previous commands,
     (setq output (maxima-last-output-noprompt))
     (maxima-single-string-wait "block(display2d:emacsdisplay,linenum:linenum-1,%);")
     (if (not twod)
-        (setq output (maxima-remove-whitespace-from-ends output))
+        (setq output (string-trim-right output))
       ;; Strip the beginning and trailing newline
       (while (string-match "\\` *\n" output)
         (setq output (substring output (match-end 0))))
@@ -2901,7 +2844,7 @@ into the current buffer, followed by the output, followed by
       (setq output (maxima-last-output-noprompt))
       (maxima-single-string-wait "block(display2d:emacsdisplay,linenum:linenum-1,%);")
       (if (not twod)
-          (setq output (maxima-remove-whitespace-from-ends output))
+          (setq output (string-trim-right output))
         ;; Strip the beginning and trailing newline
         (while (string-match "\\` *\n" output)
           (setq output (substring output (match-end 0))))
@@ -2975,8 +2918,8 @@ followed by the output.  In this case, anything in the line
 after any occurrence of \" ==> \" will be deleted."
   (interactive "P")
   (maxima-minibuffer-on-region
-   (maxima-line-beginning-position)
-   (maxima-line-end-position)
+   (line-beginning-position)
+   (line-end-position)
    arg))
 
 (defun maxima-minibuffer-on-form (&optional arg)
@@ -3019,7 +2962,7 @@ anything in the determined region after any occurrence of \" ==>
    "block(emacsdisplay:display2d,display2d:false,linenum:linenum-1,%);")
   (let ((output (maxima-last-output-noprompt)))
     (maxima-single-string "block(display2d:emacsdisplay,linenum:linenum-1,%);")
-    (insert (maxima-remove-whitespace-from-ends output))))
+    (insert (string-trim-right output))))
 
 (defun maxima-insert-last-output-tex ()
   "Insert the last output in tex format."
