@@ -401,7 +401,7 @@ And insert the correct end output."
       (and
        (search-backward "/*" nil t)
        (not (search-forward "*/" pt t))))))
-
+;; FIXME add test
 (defun maxima-in-output-p ()
   "Non-nil means that the point is in minibuffer output."
   (let ((pt (point)))
@@ -1374,10 +1374,27 @@ Which it is in a comment which begins on a previous line."
   (uncomment-region beg end (universal-argument)))
 
 ;;;; Help functions
-
-(defun maxima-goto-info-node (node)
-  "Go to the info NODE."
-  (info-other-window (concat "(Maxima)" node)))
+;; FIXME add these functions to README.org
+(defun maxima-document-get (symbol)
+  "Get the documentation with describe(SYMBOL).
+Process the output and get a list of the function arguments
+documentation."
+  (let* ((current-symbol symbol))
+    (maxima-send-block (format "describe(\"%s\");" current-symbol))
+    (seq-map 'car (with-temp-buffer
+		    (insert (maxima-last-output-noprompt))
+		    (seq-uniq (s-match-strings-all (rx (literal current-symbol) space
+						       (syntax open-parenthesis)
+						       (+ (any  "<" lower-case digit ">" "," "_" "]" "(" ")" "[" space "."))
+						       (syntax close-parenthesis))
+						   (buffer-substring-no-properties (point-min) (point-max))))))))
+(defun maxima-symbol-doc ()
+  "Pretty print documentation function."
+  (interactive)
+  (let* ((symbol (thing-at-point 'symbol t)))
+    (message "%s" (mapconcat (lambda (element)
+			       (format "%s" element))
+			     (maxima-document-get symbol) " || "))))
 
 (defun maxima-get-info-on-subject (subject)
   "Get info of the maxima subject.
@@ -1409,6 +1426,8 @@ It requires SUBJECT and optionally SAME-WINDOW."
       (setq name (buffer-substring-no-properties pt (point))))
     (maxima-get-info-on-subject name)))
 
+;; FIXME still there are some functions with more than one meaning, so it requires some interaction
+;; this breaks also the function `maxima-symbol-doc'.
 (defun maxima-help (&optional arg)
   "Get help of the desired symbol.
 If ARG is t it get the symbol at point."
