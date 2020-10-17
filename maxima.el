@@ -43,9 +43,9 @@
 ;; put the lines
 ;;  (autoload 'maxima-mode "maxima" "Maxima mode" t)
 ;;  (autoload 'maxima "maxima" "Maxima interaction" t)
-;; in your `.emacs' file.  If you want any file ending in `.max' to begin
+;; in your `.emacs' file.  If you want any file ending in `.mac' to begin
 ;; in `maxima-mode', for example, put the line
-;;  (setq auto-mode-alist (cons '("\\.max" . maxima-mode) auto-mode-alist))
+;;  (setq auto-mode-alist (cons '("\\.mac" . maxima-mode) auto-mode-alist))
 ;; to your `.emacs' file.
 
 ;;; Code:
