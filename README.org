@@ -1,26 +1,33 @@
 #+html: <p align="center"><img src="logo/maxima_emacs.png" /></p>
-* Maxima.el
 [[License: GPL v3][https://img.shields.io/badge/License-GPLv3-blue.svg]]
-  - [[#install][Install]]
-    - [[#source][Source]]
-  - [[#usage][Usage]]
-  - [[#maxima-mode][Maxima mode]]
-    - [[#motion-commands][Motion commands]]
-    - [[#completions-command][Completions command]]
-    - [[#company-integration][Company integration]]
-    - [[#org-mode-and-tex-integration][Org-mode and Tex integration]]
-    - [[#interaction-with-the-maxima-process][Interaction with the Maxima process]]
-    - [[#maxima-noweb-mode][Maxima noweb mode]]
-    - [[#running-maxima-interactively][Running Maxima interactively]]
-      - [[#scroll-through-previous-commands][Scroll through previous commands,]]
-    - [[#running-maxima-from-the-minibuffer][Running Maxima from the minibuffer]]
-    - [[#reading-maxima-results-in-the-minibuffer][Reading Maxima results in the minibuffer]]
-    - [[#maxima-minor-mode][Maxima minor mode]]
-      - [[#enabled-commands][Enabled commands]]
+* Maxima.el
+:PROPERTIES:
+:TOC:       :include descendants
+:END:
+
+:CONTENTS:
+- [[#install][Install]]
+  - [[#source][Source]]
+  - [[#quelpa][Quelpa]]
+- [[#usage][Usage]]
+- [[#maxima-mode][Maxima mode]]
+  - [[#motion-commands][Motion commands]]
+  - [[#completions-command][Completions command]]
+  - [[#company-integration][Company integration]]
+  - [[#org-mode-and-latex-integration][Org-mode and Latex integration]]
+  - [[#interaction-with-the-maxima-process][Interaction with the Maxima process]]
+  - [[#maxima-noweb-mode][Maxima noweb mode]]
+  - [[#running-maxima-interactively][Running Maxima interactively]]
+    - [[#scroll-through-previous-commands][Scroll through previous commands,]]
+  - [[#running-maxima-from-the-minibuffer][Running Maxima from the minibuffer]]
+  - [[#reading-maxima-results-in-the-minibuffer][Reading Maxima results in the minibuffer]]
+  - [[#maxima-minor-mode][Maxima minor mode]]
+    - [[#enabled-commands][Enabled commands]]
+:END:
 
 ** Install 
 *** Source
-To install, put this file (as well as maxima-font-lock.el)
+To install, put this repository
 somewhere in your Emacs load path.
 
 To make sure that  *maxima.el*  is loaded when necessary, whether to
@@ -37,6 +44,11 @@ in *maxima-mode*, for example, put the line:
   #+END_SRC
 to your `.emacs' file.
 
+*** Quelpa
+     You can install it with [[https://github.com/quelpa/quelpa][quelpa]]:
+     #+begin_src emacs-lisp 
+     (quelpa '(maxima :type git :host gitlab :repo "sasanidas/maxima"))
+     #+end_src
 
 ** Usage
 
@@ -107,10 +119,14 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
 
 
 *** Company integration
-    Maxima.el have a company backend for people who use [[https://melpa.org/#/company][company-mode]], to enable it add this to your .emacs/init.el file:
+    Maxima.el have a company backend for people who use [[https://melpa.org/#/company][company-mode]], to enable it, make sure that [[file:company-maxima.el][company-maxima.el]] is loaded
+    add this to your .emacs/init.el file:
+
     #+begin_src emacs-lisp :tangle yes
+
     (require 'company-maxima)
     (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
+
     #+end_src
     
     This will create the backend and add it to the =company-backends= list.
