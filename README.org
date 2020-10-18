@@ -293,6 +293,13 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
  interactions between Maxima and the minibuffer.
  
  It can be made easily available with =M-x maxima-minor-mode=, that will start the minor mode.
+ 
+ There is also the posibility to enable =maxima-minor-mode= globally with:
+#+begin_src emacs-lisp
+  (require 'maxima)
+  (global-maxima-minor-mode)
+
+#+end_src
 
 **** Enabled commands
      | Key combination | Function                               |

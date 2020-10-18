@@ -2993,6 +2993,7 @@ anything in the determined region after any occurrence of \" ==>
 
 ;;; Latex and org-mode interaction
 
+;; FIXME generalise this function for use in minor-mode
 (if (fboundp 'org-latex-preview)
     (defun maxima-latex-insert-form ()
       "Send and insert the current form in text formated output."
@@ -3079,6 +3080,8 @@ buffer, preceded by \" ==> \" (customizable with `maxima-minor-output').
   ;; The indicator for the mode line.;  :lighter
   " maxima"
   nil)
+
+(define-globalized-minor-mode global-maxima-minor-mode maxima-minor-mode maxima-minor-mode)
 
 ;;; For highlighting the region being sent
 
