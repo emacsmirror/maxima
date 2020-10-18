@@ -1,14 +1,14 @@
-;;; maxima-poly.el --- Polymode for Maxima                 -*- lexical-binding: t; -*-
+;;; poly-maxima.el --- Polymode for Maxima                 -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020 Fermin Munoz
 
 ;; Author: Fermin Munoz
 ;; Maintainer: Fermin Munoz <fmfs@posteo.net>
 ;; Created: 8 Oct 2020
-;; Version: 0.5.0
+;; Version: 0.0.1
 ;; Keywords: languages, maxima,lisp
 ;; URL: https://gitlab.com/sasanidas/maxima
-;; Package-Requires: ((emacs "25") (polymode "0.1.5") (maxima "0.5.0") )
+;; Package-Requires: ((emacs "25") (polymode "0.1.5") (maxima "0.6.0") )
 ;; License: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -32,25 +32,25 @@
 (require 'polymode)
 (require 'maxima)
 
-(defun maxima-poly-in-string-or-comment ()
+(defun poly-maxima-in-string-or-comment ()
   "Return non-nil if point is within a string or comment."
   (let ((ppss (syntax-ppss)))
     (or (car (setq ppss (nthcdr 3 ppss)))
         (car (setq ppss (cdr ppss)))
         (nth 3 ppss))))
 
-(defconst maxima-poly--re-tag-tail-matcher
+(defconst poly-maxima--re-tag-tail-matcher
   (eval-when-compile
-    (rx (syntax close-parenthesis)eol)))
+    (rx (literal "/*el*/"))))
 
-(defun maxima-poly--tag-tail-matcher (ahead)
+(defun poly-maxima--tag-tail-matcher (ahead)
   "Matcher for tail of Lisp block, it requires AHEAD."
   (save-excursion
     (let ((re-search (if (< ahead 0) #'re-search-backward #'re-search-forward))
           found matched)
       (while (and (not found)
-                  (setq matched (funcall re-search maxima-poly--re-tag-tail-matcher nil t)))
-        (when (and matched (not (maxima-poly-in-string-or-comment)))
+                  (setq matched (funcall re-search poly-maxima--re-tag-tail-matcher nil t)))
+        (when (and matched (not (poly-maxima-in-string-or-comment)))
           (setq found (cons (match-beginning 0) (match-end 0)))))
       found)))
 
@@ -61,8 +61,8 @@
 (define-innermode lisp-innermode
   :mode 'common-lisp-mode
   :head-matcher (eval-when-compile
-                  (rx (literal ":lisp") space (syntax open-parenthesis)))
-  :tail-matcher #'maxima-poly--tag-tail-matcher
+                  (rx (literal ":lisp")))
+  :tail-matcher #'poly-maxima--tag-tail-matcher
   :head-mode 'body
   :tail-mode 'body)
 
@@ -73,5 +73,5 @@
 ;;;###autoload
 (autoload 'maxima-lisp-mode "maxima-lisp")
 
-(provide 'maxima-poly)
-;;; maxima-poly.el ends here
+(provide 'poly-maxima)
+;;; poly-maxima.el ends here
