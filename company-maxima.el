@@ -8,7 +8,7 @@
 ;; Version: 0.5.0
 ;; Keywords: languages,tools,convenience
 ;; URL: https://gitlab.com/sasanidas/maxima
-;; Package-Requires: ((emacs "25.1") (seq "2.20")(company "0.9.13"))
+;; Package-Requires: ((emacs "25.1")(maxima "0.6.1")(seq "2.20")(company "0.9.13"))
 ;; License: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or
@@ -30,6 +30,8 @@
 ;; Maxima `company-mode' backend.
 ;; it uses the `maxima-mode' function `maxima-get-completions' with the
 ;; native apropos(); maxima function.
+;;
+;; It can also autocomplete libraries inside load with `maxima-get-libraries'.
 
 ;; 
 
@@ -37,7 +39,6 @@
 
 ;;;; The requires
 (require 'company)
-;; FIXME add maxima to MELPA dependencies
 (require 'maxima)
 
 (defun company-maxima-libraries (command &optional _arg &rest ignored)
