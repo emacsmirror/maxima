@@ -1,5 +1,7 @@
 #+html: <p align="center"><img src="logo/maxima_emacs.png" /></p>
 * Maxima.el
+[[https://melpa.org/#/maxima][file:https://melpa.org/packages/maxima-badge.svg]]
+[[https://stable.melpa.org/#/maxima][file:https://stable.melpa.org/packages/maxima-badge.svg]]
 [[License: GPL v3][https://img.shields.io/badge/License-GPLv3-blue.svg]]
 :PROPERTIES:
 :TOC:       :include descendants
