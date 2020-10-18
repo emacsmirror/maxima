@@ -26,7 +26,7 @@
 
 ;;; Commentary:
 
-;; This package integrates Polymode and PHP.
+;; This package integrates Polymode with maxima major mode.
 
 ;;; Code:
 (require 'polymode)
