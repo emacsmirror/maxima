@@ -27,10 +27,35 @@
 ;;; Commentary:
 
 ;; This package integrates Polymode with maxima major mode.
+;; It uses the "special" symbol /*el*/ for delimiter.
+;; You can test this feature using `poly-maxima-insert-block', will create a correct syntax block
+;;
+;; There is also important to remember that the Lisp code must be contracted at the end
+;; because maxima only accept one-line Lisp code.
 
 ;;; Code:
 (require 'polymode)
 (require 'maxima)
+
+(defun poly-maxima-insert-block ()
+  "Insert a :lisp code with the correct `poly-maxima' syntax."
+  (interactive)
+  (let* ((current-point (point)))
+    (insert ":lisp \n/*el*/")
+    (goto-char (+ current-point 6))))
+
+(defun poly-maxima-contract-lisp ()
+  "Handy function to contract into a single line the Lisp code."
+  (interactive)
+  (when (or (eq major-mode 'common-lisp-mode)
+   	    (eq major-mode 'lisp-mode))
+    (let* ((init-point (re-search-backward (rx bol (literal ":lisp")) nil t))
+	   (end-point (- (re-search-forward "/\\*el\\*/" nil t) 7) ))
+      (narrow-to-region init-point end-point)
+      (goto-char (point-min))
+      (while (re-search-forward (rx (or (regexp "\t") (regexp "\n"))) nil t)
+	(replace-match ""))
+      (widen))))
 
 (defun poly-maxima-in-string-or-comment ()
   "Return non-nil if point is within a string or comment."
@@ -66,12 +91,12 @@
   :head-mode 'body
   :tail-mode 'body)
 
-(define-polymode maxima-lisp-mode
+(define-polymode poly-maxima
   :hostmode 'maxima-mode-hostmode
   :innermodes '(lisp-innermode))
 
 ;;;###autoload
-(autoload 'maxima-lisp-mode "maxima-lisp")
+(autoload 'poly-maxima "poly-maxima")
 
 (provide 'poly-maxima)
 ;;; poly-maxima.el ends here
