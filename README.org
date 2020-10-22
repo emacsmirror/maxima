@@ -12,6 +12,7 @@
   - [[#source][Source]]
   - [[#quelpa][Quelpa]]
   - [[#melpa][Melpa]]
+  - [[#use-pacakge--straightel][use-pacakge + straight.el]]
 - [[#usage][Usage]]
 - [[#maxima-mode][Maxima mode]]
   - [[#motion-commands][Motion commands]]
@@ -25,6 +26,7 @@
   - [[#reading-maxima-results-in-the-minibuffer][Reading Maxima results in the minibuffer]]
   - [[#maxima-minor-mode][Maxima minor mode]]
     - [[#enabled-commands][Enabled commands]]
+- [[#license][License]]
 :END:
 
 ** Install 
@@ -341,3 +343,11 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
      | C-c=m           | maxima-minibuffer                      |
      | C-c=o           | maxima-insert-last-output              |
      | C-c=t           | maxima-insert-last-output-tex          |
+
+
+** License
+#+begin_example
+  General Public License Version 3 (GPLv3)
+  Copyright (c) Fermin MF - https://sasanidas.gitlab.io/f-site/
+  https://gitlab.com/sasanidas/maxima/-/blob/master/LICENSE
+#+end_example
