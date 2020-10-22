@@ -96,7 +96,7 @@ Base on the types assigned by the maxima info manual.")
   (concat "\\<\\("
           (regexp-opt maxima-font-lock-constants)
 	  "\\)\\>" )
-  "Regexp to match the maxima functions.")
+  "Regexp to match the maxima constants.")
 
 (defvar maxima-font-lock-operators
   (with-temp-buffer
@@ -105,11 +105,11 @@ Base on the types assigned by the maxima info manual.")
 
 (defvar maxima-font-lock-match-operators
   (regexp-opt maxima-font-lock-operators t)
-  "Regexp to match the maxima functions.")
+  "Regexp to match the maxima operators.")
 
 (defvar maxima-font-lock-match-numbers
   "\\<\\([0-9]+\\)\\>"
-  "Regexp to match the maxima constants.")
+  "Regexp to match the maxima numbers.")
 
 (defvar maxima-font-lock-system-variables
   (with-temp-buffer
@@ -120,7 +120,7 @@ Base on the types assigned by the maxima info manual.")
   (concat "\\<\\("
           (regexp-opt maxima-font-lock-system-variables)
 	  "\\)\\>" )
-  "Regexp to match the maxima functions.")
+  "Regexp to match the maxima system variables.")
 
 (defvar maxima-font-lock-properties
   (with-temp-buffer
@@ -131,7 +131,18 @@ Base on the types assigned by the maxima info manual.")
   (concat "\\<\\("
           (regexp-opt maxima-font-lock-properties)
 	  "\\)\\>" )
-  "Regexp to match the maxima functions.")
+  "Regexp to match the maxima properties.")
+
+(defvar maxima-font-lock-special
+  (with-temp-buffer
+    (insert-file-contents (format "%s/special" maxima-font-lock-keywords-directory))
+    (split-string (buffer-string) "\n" t)))
+
+(defvar maxima-font-lock-match-special
+  (concat "\\<\\("
+          (regexp-opt maxima-font-lock-special)
+	  "\\)\\>" )
+  "Regexp to match the maxima special constructs.")
 
 
 (defvar maxima-font-lock-keywords
@@ -140,7 +151,8 @@ Base on the types assigned by the maxima info manual.")
     (,maxima-font-lock-match-numbers . font-lock-constant-face)
     (,maxima-font-lock-match-operators . font-lock-keyword-face)
     (,maxima-font-lock-match-system-variables . font-lock-keyword-face)
-    (,maxima-font-lock-match-properties . font-lock-keyword-face))
+    (,maxima-font-lock-match-properties . font-lock-keyword-face)
+    (,maxima-font-lock-match-special . font-lock-keyword-face))
   "Default expressions to highlight in Maxima mode.")
 
 (defun maxima-font-lock-setup ()

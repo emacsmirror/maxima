@@ -268,123 +268,63 @@ ztics
 ztics_axis
 ztics_rotate
 z_voxel
- -- draw_graph option: show_id
- -- draw_graph option: show_label
- -- draw_graph option: label_alignment
- -- draw_graph option: show_weight
- -- draw_graph option: vertex_type
- -- draw_graph option: vertex_size
- -- draw_graph option: vertex_color
- -- draw_graph option: show_vertices
- -- draw_graph option: show_vertex_type
- -- draw_graph option: show_vertex_size
- -- draw_graph option: show_vertex_color
- -- draw_graph option: vertex_partition
- -- draw_graph option: vertex_coloring
- -- draw_graph option: edge_color
- -- draw_graph option: edge_width
- -- draw_graph option: edge_type
- -- draw_graph option: show_edges
- -- draw_graph option: show_edge_color
- -- draw_graph option: show_edge_width
- -- draw_graph option: show_edge_type
- -- draw_graph option: edge_partition
- -- draw_graph option: edge_coloring
- -- draw_graph option: redraw
- -- draw_graph option: head_angle
- -- draw_graph option: head_length
- -- draw_graph option: spring_embedding_depth
- -- draw_graph option: terminal
- -- draw_graph option: file_name
- -- draw_graph option: program
- -- draw_graph option: fixed_vertices
- -- draw_graph option: edge_color
- -- draw_graph option: edge_coloring
- -- draw_graph option: edge_partition
- -- draw_graph option: edge_type
- -- draw_graph option: edge_width
- -- draw_graph option: file_name
- -- draw_graph option: fixed_vertices
- -- draw_graph option: head_angle
- -- draw_graph option: head_length
- -- draw_graph option: label_alignment
- -- draw_graph option: program
- -- draw_graph option: redraw
- -- draw_graph option: show_edges
- -- draw_graph option: show_edge_color
- -- draw_graph option: show_edge_type
- -- draw_graph option: show_edge_width
- -- draw_graph option: show_id
- -- draw_graph option: show_label
- -- draw_graph option: show_vertex_color
- -- draw_graph option: show_vertex_size
- -- draw_graph option: show_vertex_type
- -- draw_graph option: show_vertices
- -- draw_graph option: show_weight
- -- draw_graph option: spring_embedding_depth
- -- draw_graph option: terminal
- -- draw_graph option: vertex_color
- -- draw_graph option: vertex_coloring
- -- draw_graph option: vertex_partition
- -- draw_graph option: vertex_size
- -- draw_graph option: vertex_type
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
-option:
+show_id
+show_label
+label_alignment
+show_weight
+vertex_type
+vertex_size
+vertex_color
+show_vertices
+show_vertex_type
+show_vertex_size
+show_vertex_color
+vertex_partition
+vertex_coloring
+edge_color
+edge_width
+edge_type
+show_edges
+show_edge_color
+show_edge_width
+show_edge_type
+edge_partition
+edge_coloring
+redraw
+head_angle
+head_length
+spring_embedding_depth
+terminal
+file_name
+program
+fixed_vertices
+edge_color
+edge_coloring
+edge_partition
+edge_type
+edge_width
+file_name
+fixed_vertices
+head_angle
+head_length
+label_alignment
+program
+redraw
+show_edges
+show_edge_color
+show_edge_type
+show_edge_width
+show_id
+show_label
+show_vertex_color
+show_vertex_size
+show_vertex_type
+show_vertices
+show_weight
+spring_embedding_depth
+terminal
+vertex_color
+vertex_coloring
+vertex_partition
+vertex_size
+vertex_type
