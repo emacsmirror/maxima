@@ -61,6 +61,28 @@ in *maxima-mode*, for example, put the line:
 
      =M-x package-install RET maxima RET= to install =maxima= from [[https://melpa.org/][MELPA]].
 
+
+*** use-pacakge + straight.el
+    This is a configuration example with =use-pacakge= and =straight.el=, it is also
+    my personal configuration:
+
+#+begin_src emacs-lisp
+     (use-package maxima
+       :straight (maxima :type git :host gitlab :repo "sasanidas/maxima")
+       :defer t
+       :init 
+       (require 'maxima-font-lock)
+       (require 'company-maxima)
+       (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
+       (setq
+	org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
+	maxima-display-maxima-buffer nil)
+       :mode ("\\.mac\\'" . maxima-mode)
+       :interpreter ("maxima" . maxima-mode))
+#+end_src
+
+
+
 ** Usage
 
  In *any* of the Maxima modes, to get help on a prompted for Maxima topic,
@@ -134,10 +156,8 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
     add this to your .emacs/init.el file:
 
     #+begin_src emacs-lisp :tangle yes
-
     (require 'company-maxima)
     (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
-
     #+end_src
     
     This will create the backend and add it to the =company-backends= list.
