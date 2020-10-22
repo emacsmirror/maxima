@@ -288,6 +288,10 @@ And insert the correct end output."
 (defvar maxima-inferior-process nil
   "The Maxima process.")
 
+(defvar maxima-auxiliary-inferior-process nil
+  "The Maxima auxiliary process.
+This process is used for autocompletion and documentation.")
+
 (defvar maxima-inferior-input-end 0
   "The end of the latest input that was sent to Maxima.")
 
@@ -1401,8 +1405,8 @@ documentation."
 It requires SUBJECT and optionally SAME-WINDOW."
   (let* ((command-output nil)
 	 (help-buffer (get-buffer-create "*maxima-help*")))
-    (maxima-send-block (format "describe(\"%s\");" subject))
-    (setq command-output (maxima-last-output-noprompt))
+    (maxima-send-block (format "describe(\"%s\");" subject) t)
+    (setq command-output (maxima-last-output-noprompt t))
     (with-current-buffer help-buffer
       (erase-buffer)
       (insert
@@ -1703,8 +1707,8 @@ prefix filter."
 	 (command-list-raw nil))
     (if (>= (length prefix) 1)
 	(remove "" (progn
-		     (maxima-send-block (concat "apropos(\""prefix"\");"))
-		     (setq command-output (maxima-last-output-noprompt))
+		     (maxima-send-block (concat "apropos(\""prefix"\");") t)
+		     (setq command-output (maxima-last-output-noprompt t))
 		     (setq command-list-raw (seq-map (lambda (string)
 						       (string-remove-suffix "]"
 									     (string-remove-prefix "[" (string-trim string))))
@@ -2142,10 +2146,14 @@ To get apropos with the symbol under point, use:
 ;;;; Interacting with the Maxima process
 
 ;;; Checking on the process
-(defun maxima-inferior-running ()
-  "Check if the maxima process is running."
-  (and (processp maxima-inferior-process)
-       (eq (process-status maxima-inferior-process) 'run)))
+(defun maxima-inferior-running (&optional auxiliary)
+  "Check if the maxima process is running.
+If AUXILIARY is non nil, check the auxiliar process."
+  (let* ((current-process (if auxiliary maxima-auxiliary-inferior-process
+			    maxima-inferior-process
+			    )))
+    (and (processp current-process)
+	 (eq (process-status current-process) 'run))))
 
 ;;; Sending the information
 (defun maxima-inferior-get-old-input ()
@@ -2174,32 +2182,48 @@ If QUERY is not nil, it takes the input in point."
 (defun maxima-inferior-remove-double-input-prompt (&optional _string)
   "Fix the double prompt that occasionally appears in Emacs.
 Optionally it requires STRING."
-  (let ((current-buffer (process-buffer maxima-inferior-process)))
-    (with-current-buffer current-buffer
-      (goto-char maxima-inferior-input-end)
-      (forward-line 1)
-      (if (looking-at (concat "(" maxima-inchar "[0-9]+)"))
-          (kill-line 1))
-      (if (looking-at "")
-          (delete-char 1)))))
+  (let ((process-list (list maxima-inferior-process maxima-auxiliary-inferior-process)))
+    (seq-map (lambda (inferior)
+	       (when (processp inferior)
+		 (with-current-buffer (process-buffer inferior)
+		   (goto-char maxima-inferior-input-end)
+		   (forward-line 1)
+		   (if (looking-at (concat "(" maxima-inchar "[0-9]+)"))
+		       (kill-line 1))
+		   (if (looking-at "")
+		       (delete-char 1)))))
+	     process-list)
+    ))
 
 (defun maxima-inferior-replace-tabs-by-spaces (&optional _string)
   "Replace tabs in the Maxima output by spaces.
 Optionally it requires STRING."
-  (let ((beg))
-    (set-buffer (process-buffer maxima-inferior-process))
-    (if (marker-position comint-last-output-start)
-        (setq beg comint-last-output-start)
-      (setq beg (point-min)))
-    (untabify beg
-              (process-mark maxima-inferior-process))))
+  (let ((beg)
+	(process-list (list maxima-inferior-process maxima-auxiliary-inferior-process)))
+    (seq-map (lambda (inferior)
+	       (when (processp inferior)
+		 (set-buffer (process-buffer inferior))
+		 (if (marker-position comint-last-output-start)
+		     (setq beg comint-last-output-start)
+		   (setq beg (point-min)))
+		 (untabify beg
+			   (process-mark inferior))))
+	     process-list)
+    ))
 
-(defun maxima-inferior-wait-for-output ()
-  "Wait for output from the Maxima process."
+(defun maxima-inferior-wait-for-output (&optional auxiliary)
+  "Wait for output from the Maxima process.
+If AUXILIARY non-nil wait for the auxiliary output."
   (when (and
          maxima-inferior-waiting-for-output
-         (maxima-inferior-running))
-    (accept-process-output maxima-inferior-process))
+         (maxima-inferior-running auxiliary))
+    (let* ((process (if auxiliary
+			maxima-auxiliary-inferior-process
+		      maxima-inferior-process
+		      )))
+      (message "%s" process)
+      (accept-process-output process))
+    )
   (sit-for 0 maxima-inferior-after-output-wait))
 
 (defun maxima-inferior-output-filter (str)
@@ -2222,8 +2246,9 @@ It requires PROC and STATE."
   (unless (string-match "^run" state)
     (comint-write-input-ring)))
 
-(defun maxima-start ()
-  "Start the Maxima process."
+(defun maxima-start (&optional auxiliary)
+  "Start the Maxima process.
+It is also use for the AUXILIARY(`maxima-auxiliary-inferior-process')."
   (interactive)
   (if (processp maxima-inferior-process)
       (unless (eq (process-status maxima-inferior-process) 'run)
@@ -2232,28 +2257,35 @@ It requires PROC and STATE."
             (with-current-buffer "*maxima*"
               (erase-buffer)))
         (setq maxima-inferior-process nil)))
-  (unless (processp maxima-inferior-process)
+  (when (or
+	 (not (processp maxima-inferior-process))
+	 (and auxiliary (not (processp maxima-auxiliary-inferior-process))))
     (setq maxima-inferior-input-end 0)
     (setq maxima-inferior-waiting-for-output t)
     (let ((mbuf)
-          (cmd))
+	  (cmd)
+	  (name (if auxiliary "aux-maxima"
+		  "maxima")))
       (if maxima-args
-          (setq cmd
-                (append (list 'make-comint "maxima" maxima-command
-                              nil)
+	  (setq cmd
+		(append (list 'make-comint name maxima-command
+			      nil)
 			(split-string maxima-args)))
-        (setq cmd (list 'make-comint "maxima" maxima-command)))
+	(setq cmd (list 'make-comint name maxima-command)))
       (setq mbuf (eval cmd))
       (with-current-buffer mbuf
-	(setq maxima-inferior-process (get-buffer-process mbuf))
+	(if auxiliary
+	    (setq maxima-auxiliary-inferior-process (get-buffer-process mbuf))
+	  (setq maxima-inferior-process (get-buffer-process mbuf)))
 	(add-hook 'comint-output-filter-functions
-                  'maxima-inferior-output-filter nil t)
+		  'maxima-inferior-output-filter nil t)
 	(add-hook 'comint-output-filter-functions
-                  'maxima-inferior-replace-tabs-by-spaces nil t)
+		  'maxima-inferior-replace-tabs-by-spaces nil t)
 	(add-hook 'comint-output-filter-functions
 		  'maxima-inferior-remove-double-input-prompt nil t)
-	(maxima-inferior-wait-for-output)
-	(maxima-inferior-mode)))))
+	;; (maxima-inferior-wait-for-output auxiliary)
+	(maxima-inferior-mode))))
+  )
 
 (defun maxima-stop (&optional arg)
   "Kill the currently running Maxima process.
@@ -2273,13 +2305,15 @@ If ARG is t, it doesn't ask confirmation."
 
 ;;; Sending information to the process
 
-(defun maxima-single-string (string)
-  "Send STRING to the Maxima process."
+(defun maxima-single-string (string &optional auxiliary)
+  "Send STRING to the Maxima process.
+It can also be use to send information to auxiliary AUXILIARY."
   (setq string (maxima-strip-string-add-semicolon string))
-  (maxima-start)
-					;  (maxima-inferior-wait-for-output)
+  (maxima-start auxiliary)
   (save-current-buffer
-    (set-buffer (process-buffer maxima-inferior-process))
+    (if auxiliary
+	(set-buffer (process-buffer maxima-auxiliary-inferior-process))
+      (set-buffer (process-buffer maxima-inferior-process)))
     (goto-char (point-max))
     (let ((start (point)))
       (insert string)
@@ -2342,16 +2376,15 @@ With ARG, use `maxima-block-wait' instead of `maxima-block'."
 	(if (string= maxima-block ";") (setq maxima-block ""))))
     command))
 
-(defun maxima-send-block (stuff)
-  "Send a STUFF block of code to Maxima."
-  (maxima-start)
+(defun maxima-send-block (stuff &optional auxiliary)
+  "Send a STUFF block of code to Maxima.
+It can also send commands to the AUXILIARY buffer."
+  (maxima-start auxiliary)
   (setq stuff (maxima-strip-string-add-semicolon stuff))
-					;  (unless (string-match (substring stuff -1) ";$")
-					;    (setq stuff (concat stuff ";")))
   (if (string= maxima-block "")
       (progn
         (setq maxima-block stuff)
-        (maxima-single-string (maxima-get-command)))
+	(maxima-single-string (maxima-get-command) auxiliary))
     (setq maxima-block (concat maxima-block stuff))))
 
 (defun maxima-send-block-wait (stuff)
@@ -2372,29 +2405,41 @@ Return the last string sent."
 
 ;;; Getting information back from Maxima.
 
-(defun maxima-last-output ()
-  "Get the most recent output from Maxima."
+(defun maxima-last-output (&optional auxiliary)
+  "Get the most recent output from Maxima.
+It can also get the last output from the AUXILIARY process."
   (interactive)
-  (maxima-inferior-wait-for-output)
-  (with-current-buffer (process-buffer maxima-inferior-process)
-    (let* ((pt (point))
-           (pmark (progn (goto-char (process-mark maxima-inferior-process))
-                         (forward-line 0)
-                         (point-marker)))
-           (beg (progn
-                  (goto-char maxima-inferior-input-end)
-                  (forward-line 1)
-                  (point)))
-           (output (buffer-substring-no-properties beg pmark)))
-      (goto-char pt)
-      output)))
+  (maxima-inferior-wait-for-output auxiliary)
+  (let* ((proc-buffer
+	  (if auxiliary
+	      (process-buffer maxima-auxiliary-inferior-process)
+	    (process-buffer maxima-inferior-process)))
+	 (procc (if auxiliary
+		    maxima-auxiliary-inferior-process
+		  maxima-inferior-process)))
+    (with-current-buffer proc-buffer
+      (let* ((pt (point))
+             (pmark (progn (goto-char (process-mark procc ))
+                           (forward-line 0)
+                           (point-marker)))
+             (beg (progn
+                    (goto-char maxima-inferior-input-end)
+                    (forward-line 1)
+                    (point)))
+             (output (buffer-substring-no-properties beg pmark)))
+	(goto-char pt)
+	output))
 
-(defun maxima-last-output-noprompt ()
-  "Return the last Maxima output, without the prompts."
+    )
+  )
+
+(defun maxima-last-output-noprompt (&optional auxiliary)
+  "Return the last Maxima output, without the prompts.
+It can also get the most recent output from AUXILIARY."
   (interactive)
-  (if (not (maxima-inferior-running))
-      (maxima-last-output)
-    (let* ((output (maxima-last-output))
+  (if (not (maxima-inferior-running auxiliary))
+      (maxima-last-output auxiliary)
+    (let* ((output (maxima-last-output auxiliary))
            (newstring)
            (i 0)
            (beg)
