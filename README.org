@@ -11,6 +11,7 @@
 - [[#install][Install]]
   - [[#source][Source]]
   - [[#quelpa][Quelpa]]
+  - [[#melpa][Melpa]]
 - [[#usage][Usage]]
 - [[#maxima-mode][Maxima mode]]
   - [[#motion-commands][Motion commands]]
@@ -18,7 +19,6 @@
   - [[#company-integration][Company integration]]
   - [[#org-mode-and-latex-integration][Org-mode and Latex integration]]
   - [[#interaction-with-the-maxima-process][Interaction with the Maxima process]]
-  - [[#maxima-noweb-mode][Maxima noweb mode]]
   - [[#running-maxima-interactively][Running Maxima interactively]]
     - [[#scroll-through-previous-commands][Scroll through previous commands,]]
   - [[#running-maxima-from-the-minibuffer][Running Maxima from the minibuffer]]
@@ -47,11 +47,19 @@ in *maxima-mode*, for example, put the line:
   (setq auto-mode-alist (cons '("\\.mac" . maxima-mode) auto-mode-alist))
   #+END_SRC
 
+
 *** Quelpa
      You can install it with [[https://github.com/quelpa/quelpa][quelpa]]:
+
      #+begin_src emacs-lisp 
      (quelpa '(maxima :type git :host gitlab :repo "sasanidas/maxima"))
      #+end_src
+
+     
+*** Melpa
+    The maxima package can be found [[https://melpa.org/#/maxima][here]], to install it with package.el :
+
+     =M-x package-install RET maxima RET= to install =maxima= from [[https://melpa.org/][MELPA]].
 
 ** Usage
 
