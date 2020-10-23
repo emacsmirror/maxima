@@ -1402,8 +1402,9 @@ documentation."
 
 (defun maxima-get-info-on-subject (subject)
   "Get info of the maxima subject.
-It requires SUBJECT and optionally SAME-WINDOW."
+It requires SUBJECT."
   (let* ((command-output nil)
+	 (help-buffer-displayed (get-buffer-window "*maxima-help*"))
 	 (help-buffer (get-buffer-create "*maxima-help*")))
     (maxima-send-block (format "describe(\"%s\");" subject) t)
     (setq command-output (maxima-last-output-noprompt t))
@@ -1412,10 +1413,12 @@ It requires SUBJECT and optionally SAME-WINDOW."
       (insert
        command-output)
       (goto-char (point-min)))
-    (display-buffer-in-side-window help-buffer
-				   `((side . right) (slot . 0)
-				     (window-width . fit-window-to-buffer)
-				     (preserve-size . (t . nil))))))
+    (unless help-buffer-displayed
+      (display-buffer-in-side-window help-buffer
+				     `((side . right) (slot . 0)
+				       (window-width . fit-window-to-buffer)
+				       (preserve-size . (t . nil)))))
+    ))
 
 (defun maxima-get-help ()
   "Get help on a given subject."
@@ -2221,9 +2224,7 @@ If AUXILIARY non-nil wait for the auxiliary output."
 			maxima-auxiliary-inferior-process
 		      maxima-inferior-process
 		      )))
-      (message "%s" process)
-      (accept-process-output process))
-    )
+      (accept-process-output process)))
   (sit-for 0 maxima-inferior-after-output-wait))
 
 (defun maxima-inferior-output-filter (str)
