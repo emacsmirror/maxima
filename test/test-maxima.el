@@ -190,6 +190,12 @@
 	    (and maxima-inferior-process maxima-auxiliary-inferior-process))
 	  "`maxima-inferior-process' doesn't start correctly.")
 
+(assert-nil (progn
+	      (maxima-stop t)
+	      (and (not (get-buffer "*maxima*" )) (not (get-buffer "*aux-maxima*"))
+		   (and maxima-inferior-process maxima-auxiliary-inferior-process)))
+	    "`maxima-stop' doesn't stop the processes correctly.")
+
 (assert-equal (list "test" t)
 	      (let* ((inferior (maxima-make-inferior "test" t))
 		     (inferior-name (process-name inferior)))

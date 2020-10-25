@@ -2311,22 +2311,21 @@ The process name is passed in NAME."
   `(when (not (processp ,inferior-symbol))
      (setq ,inferior-symbol (maxima-make-inferior ,name))))
 
-;; FIXME Adapt this to the "make process" infrastructure
 (defun maxima-stop (&optional arg)
-  "Kill the currently running Maxima process.
-If ARG is t, it doesn't ask confirmation."
-  (interactive "P")
+  "Kill the main inferior.
+The \"main inferiors\" are defined in the variables
+`maxima-inferior-process' and
+`maxima-auxiliary-inferior-process'.
+If ARG is t, the confirmation is omitted."
+  (interactive)
   (if (processp maxima-inferior-process)
       (if arg
 	  (progn
-	    (delete-process maxima-inferior-process)
-	    (kill-buffer "*maxima*")
-	    (setq maxima-inferior-process nil))
-	(if (y-or-n-p "Really quit Maxima? ")
-	    (progn
-	      (delete-process maxima-inferior-process)
-	      (kill-buffer "*maxima*")
-	      (setq maxima-inferior-process nil))))))
+	    (maxima-remove-inferior maxima-inferior-process maxima-inferior-process)
+	    (maxima-remove-inferior maxima-auxiliary-inferior-process maxima-auxiliary-inferior-process))
+	(when (y-or-n-p "Really quit Maxima? ")
+	  (maxima-remove-inferior maxima-inferior-process maxima-inferior-process)
+	  (maxima-remove-inferior maxima-auxiliary-inferior-process maxima-auxiliary-inferior-process)))))
 
 ;;; Sending information to the process
 
