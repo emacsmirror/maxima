@@ -236,6 +236,14 @@ Available with function `maxima-minor-mode'."
   :group 'maxima
   :type 'boolean)
 
+(defcustom maxima-comint-output-functions
+  '(maxima-inferior-output-filter
+    maxima-inferior-replace-tabs-by-spaces
+    maxima-inferior-remove-double-input-prompt)
+  "List of functions to when `maxima-make-inferior' is called."
+  :group 'maxima
+  :type 'list)
+
 (defun maxima-minor-output-mark ()
   "Internal function, check if point is in a comment.
 And call the correct function."
@@ -669,9 +677,9 @@ If character is in a string or a list, ignore it."
 
 (defun maxima-form-end-position ()
   "Find the end of a form."
-  (save-excursion
+  (with-current-buffer (current-buffer)
     (if (maxima-goto-end-of-form)
-        (point)
+	(point)
       nil)))
 
 (defun maxima-form-end-position-or-point-max ()
@@ -1379,9 +1387,9 @@ Which it is in a comment which begins on a previous line."
 Process the output and get a list of the function arguments
 documentation."
   (let* ((current-symbol symbol))
-    (maxima-send-block (format "describe(\"%s\");" current-symbol))
+    (maxima-send-block (format "describe(\"%s\");" current-symbol) maxima-auxiliary-inferior-process)
     (seq-map 'car (with-temp-buffer
-		    (insert (maxima-last-output-noprompt))
+		    (insert (maxima-last-output-noprompt maxima-auxiliary-inferior-process))
 		    (seq-uniq (s-match-strings-all (rx (literal current-symbol) space
 						       (syntax open-parenthesis)
 						       (+ (any  "<" lower-case digit ">" "," "_" "]" "(" ")" "[" space "."))
@@ -1396,13 +1404,12 @@ documentation."
 			     (maxima-document-get symbol) " || "))))
 
 (defun maxima-get-info-on-subject (subject)
-  "Get info of the maxima subject.
-It requires SUBJECT."
+  "Get info of the Maxima SUBJECT."
   (let* ((command-output nil)
 	 (help-buffer-displayed (get-buffer-window "*maxima-help*"))
 	 (help-buffer (get-buffer-create "*maxima-help*")))
-    (maxima-send-block (format "describe(\"%s\");" subject) t)
-    (setq command-output (maxima-last-output-noprompt t))
+    (maxima-send-block (format "describe(\"%s\");" subject) maxima-auxiliary-inferior-process)
+    (setq command-output (maxima-last-output-noprompt maxima-auxiliary-inferior-process))
     (with-current-buffer help-buffer
       (erase-buffer)
       (insert
@@ -1412,8 +1419,7 @@ It requires SUBJECT."
       (display-buffer-in-side-window help-buffer
 				     `((side . right) (slot . 0)
 				       (window-width . fit-window-to-buffer)
-				       (preserve-size . (t . nil)))))
-    ))
+				       (preserve-size . (t . nil)))))))
 
 (defun maxima-get-help ()
   "Get help on a given subject."
@@ -1542,12 +1548,12 @@ nil and ARG2 non-nil call `maxima-completion-help'."
   (interactive)
   (cond
    ((or (looking-at "[a-zA-Z_]")
-	(looking-at "?[a-zA-Z]")
+	(looking-at "\\?[a-zA-Z]")
 	(looking-at "%[a-zA-Z]"))
     (if arg2
 	(maxima-context-help)
       (maxima-help (current-word))))
-   ((looking-at "?")
+   ((looking-at "\\?")
     (maxima-get-info-on-subject "\"\\?\""))
    ((looking-at "#")
     (maxima-get-info-on-subject "\"#\""))
@@ -1703,12 +1709,14 @@ nil and ARG2 non-nil call `maxima-completion-help'."
   "Using apropos, return a list of completions with PREFIX.
 If FUZZY is non-nil, it return all the apropos without the
 prefix filter."
+  (unless maxima-auxiliary-inferior-process
+    (maxima-init-inferiors))
   (let* ((command-output nil)
 	 (command-list-raw nil))
     (if (>= (length prefix) 1)
 	(remove "" (progn
-		     (maxima-send-block (concat "apropos(\""prefix"\");") t)
-		     (setq command-output (maxima-last-output-noprompt t))
+		     (maxima-send-block (concat "apropos(\""prefix"\");") maxima-auxiliary-inferior-process)
+		     (setq command-output (maxima-last-output-noprompt maxima-auxiliary-inferior-process))
 		     (setq command-list-raw (seq-map (lambda (string)
 						       (string-remove-suffix "]"
 									     (string-remove-prefix "[" (string-trim string))))
@@ -1954,62 +1962,64 @@ It uses BEG and END as a parameters."
 (defvar maxima-mode-map nil
   "The keymap for `maxima-mode'.")
 
+;; FIXME Use kbd for clearance
 (if maxima-mode-map
-nil
-(let ((map (make-sparse-keymap)))
-  ;; Motion
-  (define-key map "\M-\C-a" 'maxima-goto-beginning-of-form-interactive)
-  (define-key map "\M-\C-e" 'maxima-goto-end-of-form-interactive)
-  (define-key map "\M-\C-b" 'maxima-goto-beginning-of-list-interactive)
-  (define-key map "\M-\C-f" 'maxima-goto-end-of-list-interactive)
-  ;; Process
-  (define-key map "\C-c\C-p" 'maxima-display-buffer)
-  (define-key map "\C-c\C-r" 'maxima-send-region)
-  (define-key map "\C-c\C-b" 'maxima-send-buffer)
-  (define-key map "\C-c\C-c" 'maxima-send-line)
-  (define-key map "\C-c\C-e" 'maxima-send-previous-form)
-  (define-key map "\C-c\C-s" 'maxima-send-previous-form-and-goto-end-of-form)
-  (define-key map [(control return)]
-    'maxima-send-full-line-and-goto-next-form)
-  (define-key map [(meta return)]
-    'maxima-send-completed-region-and-goto-next-form)
-  (define-key map [(control meta return)] 'maxima-send-buffer)
-  (define-key map "\C-c\C-k" 'maxima-stop)
-  (define-key map "\C-c\C-q" 'maxima-clear-queue)
-  (define-key map "\C-c\C-l" 'maxima-load-file)
-  (define-key map "\C-c\C-f" 'maxima-load-current-file)
-  ;; Completion
+    nil
+  (let ((map (make-sparse-keymap)))
+    ;; Motion
+    (define-key map "\M-\C-a" 'maxima-goto-beginning-of-form-interactive)
+    (define-key map "\M-\C-e" 'maxima-goto-end-of-form-interactive)
+    (define-key map "\M-\C-b" 'maxima-goto-beginning-of-list-interactive)
+    (define-key map "\M-\C-f" 'maxima-goto-end-of-list-interactive)
+    ;; Process
+    (define-key map "\C-c\C-p" 'maxima-display-buffer)
+    (define-key map "\C-c\C-r" 'maxima-send-region)
+    (define-key map "\C-c\C-b" 'maxima-send-buffer)
+    (define-key map "\C-c\C-c" 'maxima-send-line)
+    (define-key map "\C-c\C-e" 'maxima-send-previous-form)
+    (define-key map "\C-c\C-s" 'maxima-send-previous-form-and-goto-end-of-form)
+    (define-key map [(control return)]
+      'maxima-send-full-line-and-goto-next-form)
+    (define-key map [(meta return)]
+      'maxima-send-completed-region-and-goto-next-form)
+    (define-key map [(control meta return)] 'maxima-send-buffer)
+    (define-key map "\C-c\C-k" 'maxima-stop)
+    (define-key map "\C-c\C-q" 'maxima-clear-queue)
+    (define-key map "\C-c\C-l" 'maxima-load-file)
+    (define-key map "\C-c\C-f" 'maxima-load-current-file)
+    ;; Completion
 					;(if maxima-use-dynamic-complete
 					;    (define-key map (kbd "M-TAB") 'maxima-dynamic-complete)
-  (define-key map (kbd "M-TAB") 'maxima-complete)
-  ;; Commenting
-  (define-key map "\C-c;" 'comment-region)
-  (define-key map "\C-c:" 'maxima-uncomment-region)
-  (define-key map "\M-;" 'maxima-insert-short-comment)
-  (define-key map "\C-c*" 'maxima-insert-long-comment)
-  ;; Indentation
+    (define-key map (kbd "M-TAB") 'maxima-complete)
+    ;; Commenting
+    (define-key map "\C-c;" 'comment-region)
+    (define-key map "\C-c:" 'maxima-uncomment-region)
+    (define-key map "\M-;" 'maxima-insert-short-comment)
+    (define-key map "\C-c*" 'maxima-insert-long-comment)
+    ;; Indentation
 					;    (define-key map "\t" 'maxima-reindent-line)
-  (define-key map "\C-m" 'maxima-return)
-  (define-key map "\M-\C-q" 'maxima-indent-form)
+    (define-key map "\C-m" 'maxima-return)
+    (define-key map "\M-\C-q" 'maxima-indent-form)
 					;    (define-key map [(control tab)] 'maxima-untab)
-  ;; Help
-  (define-key map "\C-c\C-d" maxima-help-map)
-  (define-key map [(f12)] 'maxima-help)
-  (define-key map [(meta f12)] 'maxima-apropos)
-  ;; Minibuffer
-  (define-key map "\C-c\C-nr" 'maxima-minibuffer-on-region)
-  (define-key map "\C-c\C-nl" 'maxima-minibuffer-on-line)
-  (define-key map "\C-c\C-nf" 'maxima-minibuffer-on-form)
-  ;; Misc
-  (define-key map "\M-h" 'maxima-mark-form)
-  (define-key map "\C-c\)" 'maxima-check-parens-region)
-  (define-key map [(control c) (control \))] 'maxima-check-form-parens)
+    ;; Help
+    (define-key map "\C-c\C-d" maxima-help-map)
+    (define-key map [(f12)] 'maxima-help)
+    (define-key map [(meta f12)] 'maxima-apropos)
+    ;; Minibuffer
+    (define-key map "\C-c\C-nr" 'maxima-minibuffer-on-region)
+    (define-key map "\C-c\C-nl" 'maxima-minibuffer-on-line)
+    (define-key map "\C-c\C-nf" 'maxima-minibuffer-on-form)
+    ;; Misc
+    (define-key map "\M-h" 'maxima-mark-form)
+    (define-key map (kbd "C-c (") 'maxima-check-parens-region)
+    (define-key map [(control c) (control \))] 'maxima-check-form-parens)
 					;    (define-key map "\C-cC-\)" 'maxima-check-form-parens)
-  (define-key map "\177" 'backward-delete-char-untabify)
-  (setq maxima-mode-map map)))
+    (define-key map "\177" 'backward-delete-char-untabify)
+    (setq maxima-mode-map map)))
 
 ;;;; Menu
 
+;; FIXME Add the new functions to the menu
 (easy-menu-define maxima-mode-menu maxima-mode-map "Maxima mode menu"
   '("Maxima"
     ("Motion"
@@ -2018,7 +2028,7 @@ nil
      ["Beginning of sexp" maxima-goto-beginning-of-list-interactive t]
      ["End of sexp" maxima-goto-end-of-list-interactive t])
     ("Process"
-     ["Start process" maxima-start t]
+     ;; ["Start process" maxima-start t]
      ["Send region" maxima-send-region t]
      ["Send buffer" maxima-send-buffer t]
      ["Send line" maxima-send-line t]
@@ -2149,14 +2159,10 @@ To get apropos with the symbol under point, use:
 ;;;; Interacting with the Maxima process
 
 ;;; Checking on the process
-(defun maxima-inferior-running (&optional auxiliary)
-  "Check if the maxima process is running.
-If AUXILIARY is non nil, check the auxiliar process."
-  (let* ((current-process (if auxiliary maxima-auxiliary-inferior-process
-			    maxima-inferior-process
-			    )))
-    (and (processp current-process)
-	 (eq (process-status current-process) 'run))))
+(defun maxima-inferior-running (inferior-process)
+  "Check if INFERIOR-PROCESS is running."
+  (and (processp inferior-process)
+       (eq (process-status inferior-process) 'run)))
 
 ;;; Sending the information
 (defun maxima-inferior-get-old-input ()
@@ -2183,63 +2189,65 @@ If QUERY is not nil, it takes the input in point."
   (comint-send-input))
 
 (defun maxima-inferior-remove-double-input-prompt (&optional _string)
-  "Fix the double prompt that occasionally appears in Emacs.
-Optionally it requires STRING."
-  (let ((process-list (list maxima-inferior-process maxima-auxiliary-inferior-process)))
-    (seq-map (lambda (inferior)
-	       (when (processp inferior)
-		 (with-current-buffer (process-buffer inferior)
-		   (goto-char maxima-inferior-input-end)
-		   (forward-line 1)
-		   (if (looking-at (concat "(" maxima-inchar "[0-9]+)"))
-		       (kill-line 1))
-		   (if (looking-at "")
-		       (delete-char 1)))))
-	     process-list)
-    ))
+  "Fix the double prompt that occasionally appears in Emacs."
+  (let* ((buffer (current-buffer))
+	 (inferior-process (get-buffer-process buffer)))
+    (when (processp inferior-process)
+      (with-current-buffer buffer
+	(goto-char maxima-inferior-input-end)
+	(forward-line 1)
+	(if (looking-at (concat "(" maxima-inchar "[0-9]+)"))
+	    (kill-line 1))
+	(if (looking-at "")
+	    (delete-char 1))))))
 
 (defun maxima-inferior-replace-tabs-by-spaces (&optional _string)
-  "Replace tabs in the Maxima output by spaces.
-Optionally it requires STRING."
-  (let ((beg)
-	(process-list (list maxima-inferior-process maxima-auxiliary-inferior-process)))
-    (seq-map (lambda (inferior)
-	       (when (processp inferior)
-		 (set-buffer (process-buffer inferior))
-		 (if (marker-position comint-last-output-start)
-		     (setq beg comint-last-output-start)
-		   (setq beg (point-min)))
-		 (untabify beg
-			   (process-mark inferior))))
-	     process-list)
-    ))
+  "Replace tabs in the Maxima output by spaces."
+  (let* ((beg)
+	 (buffer (current-buffer))
+	 (inferior-process (get-buffer-process buffer)))
+    (when (processp inferior-process)
+      (with-current-buffer buffer
+	(if (marker-position comint-last-output-start)
+	    (setq beg comint-last-output-start)
+	  (setq beg (point-min)))
+	(untabify beg
+		  (process-mark inferior-process))))))
 
-(defun maxima-inferior-wait-for-output (&optional auxiliary)
-  "Wait for output from the Maxima process.
-If AUXILIARY non-nil wait for the auxiliary output."
-  (when (and
-         maxima-inferior-waiting-for-output
-         (maxima-inferior-running auxiliary))
-    (let* ((process (if auxiliary
-			maxima-auxiliary-inferior-process
-		      maxima-inferior-process
-		      )))
-      (accept-process-output process)))
-  (sit-for 0 maxima-inferior-after-output-wait))
+(defun maxima-inferior-wait-for-output (inferior-process)
+  "Wait for output from INFERIOR-PROCESS."
+  ;; FIXME This is a hack, the output must be check
+  ;; correctly.
+  (sleep-for 0.05)
+  (when
+      (and
+       maxima-inferior-waiting-for-output
+       (maxima-inferior-running inferior-process))
+    (accept-process-output inferior-process)))
 
 (defun maxima-inferior-output-filter (str)
   "Look for a new input prompt.
-Optionally it requires STR."
-  (cond ((and
-          (string-match "? *$" str)
-          (not (string-match (concat "(" maxima-outchar "[0-9]+)") str)))
-         (maxima-ask-question str))
-        ((string-match maxima-inferior-prompt str)
-         (if (and maxima-inferior-process (not (string= maxima-block "")))
-             (maxima-single-string (maxima-get-command))
-           (if (not maxima-inferior-process)
-               (maxima-clear-queue))
-           (setq maxima-inferior-waiting-for-output nil)))))
+It requires STR."
+  (let* ((buffer (current-buffer))
+	 (inferior-process (get-buffer-process buffer)))
+    (cond ((and
+            (string-match (rx (literal "Still waiting:")) str)
+            (not (string-match (concat "(" maxima-outchar "[0-9]+)") str)))
+	   ;; FIXME This is a workaround, it may be some cases
+	   ;; that "all" doesn't work.
+	   (if (equal maxima-auxiliary-inferior-process inferior-process)
+	       (maxima-send-block "all" inferior-process)
+	     (maxima-ask-question str inferior-process)))
+          ((string-match maxima-inferior-prompt str)
+           (if (and inferior-process (not (string= maxima-block "")))
+               (maxima-single-string (maxima-get-command) inferior-process)
+             (if (not inferior-process)
+		 (maxima-clear-queue))
+             (setq maxima-inferior-waiting-for-output nil))))
+
+
+    )
+  )
 
 (defun maxima-inferior-sentinel (_proc state)
   "Write the input history when the process ends.
@@ -2247,47 +2255,63 @@ It requires PROC and STATE."
   (unless (string-match "^run" state)
     (comint-write-input-ring)))
 
-(defun maxima-start (&optional auxiliary)
-  "Start the Maxima process.
-It is also use for the AUXILIARY(`maxima-auxiliary-inferior-process')."
-  (interactive)
-  (if (processp maxima-inferior-process)
-      (unless (eq (process-status maxima-inferior-process) 'run)
-        (delete-process maxima-inferior-process)
-        (if (get-buffer "*maxima*")
-            (with-current-buffer "*maxima*"
-              (erase-buffer)))
-        (setq maxima-inferior-process nil)))
-  (when (or
-	 (not (processp maxima-inferior-process))
-	 (and auxiliary (not (processp maxima-auxiliary-inferior-process))))
+(defun maxima-make-inferior (name &optional test)
+  "Create an `maxima-inferior-mode' process and return it.
+Creates the process with the command defined in `maxima-command'
+with the args defined in `maxima-args' with the name in NAME.
+Is possible to attach functions to `comint-output-filter-functions'
+to pass a list of functions in COMINT-FILTER-FUNCTIONS.
+The TEST input is for test purpose."
+  (let* ((proc-buf)
+	 (cmd)
+	 (proc))
     (setq maxima-inferior-input-end 0)
     (setq maxima-inferior-waiting-for-output t)
-    (let ((mbuf)
-	  (cmd)
-	  (name (if auxiliary "aux-maxima"
-		  "maxima")))
-      (if maxima-args
-	  (setq cmd
-		(append (list 'make-comint name maxima-command
-			      nil)
-			(split-string maxima-args)))
-	(setq cmd (list 'make-comint name maxima-command)))
-      (setq mbuf (eval cmd))
-      (with-current-buffer mbuf
-	(if auxiliary
-	    (setq maxima-auxiliary-inferior-process (get-buffer-process mbuf))
-	  (setq maxima-inferior-process (get-buffer-process mbuf)))
-	(add-hook 'comint-output-filter-functions
-		  'maxima-inferior-output-filter nil t)
-	(add-hook 'comint-output-filter-functions
-		  'maxima-inferior-replace-tabs-by-spaces nil t)
-	(add-hook 'comint-output-filter-functions
-		  'maxima-inferior-remove-double-input-prompt nil t)
-	;; (maxima-inferior-wait-for-output auxiliary)
-	(maxima-inferior-mode))))
-  )
+    (if maxima-args
+	(setq cmd
+	      (append (list 'make-comint name maxima-command
+			    nil)
+		      (split-string maxima-args)))
+      (setq cmd (list 'make-comint name maxima-command)))
+    (setq proc-buf (eval cmd))
+    (with-current-buffer proc-buf
+      (unless (seq-empty-p maxima-comint-output-functions)
+	(seq-map (lambda (filter-function)
+		   (add-hook 'comint-output-filter-functions
+			     filter-function nil t))
+		 maxima-comint-output-functions))
+      (maxima-inferior-mode))
+    (setq proc (get-buffer-process proc-buf))
+    (unless test
+      (maxima-inferior-wait-for-output proc))
+    proc))
 
+(defmacro maxima-remove-inferior (inferior-process &optional inferior-symbol)
+  "Remove the INFERIOR-PROCESS and the process buffer.
+Optionally can set to nil a global variable passed as
+symbol in INFERIOR-SYMBOL."
+  `(let* ((inferior-buffer (get-buffer (process-buffer ,inferior-process))))
+     (delete-process ,inferior-process)
+     (kill-buffer inferior-buffer)
+     (when ,inferior-symbol
+       (setq inferior-symbol  nil))))
+
+(defun maxima-init-inferiors ()
+  "Check if the main inferior process exists.
+The inferior processes are defined inside
+the variables `maxima-inferior-process' and `maxima-auxiliary-inferior-process'.
+This functions assigns process to those variables."
+  (maxima-start maxima-inferior-process "maxima")
+  (maxima-start maxima-auxiliary-inferior-process "aux-maxima"))
+
+
+(defmacro maxima-start (inferior-symbol name)
+  "Start a maxima process and save the process in INFERIOR-SYMBOL.
+The process name is passed in NAME."
+  `(when (not (processp ,inferior-symbol))
+     (setq ,inferior-symbol (maxima-make-inferior ,name))))
+
+;; FIXME Adapt this to the "make process" infrastructure
 (defun maxima-stop (&optional arg)
   "Kill the currently running Maxima process.
 If ARG is t, it doesn't ask confirmation."
@@ -2306,32 +2330,29 @@ If ARG is t, it doesn't ask confirmation."
 
 ;;; Sending information to the process
 
-(defun maxima-single-string (string &optional auxiliary)
-  "Send STRING to the Maxima process.
-It can also be use to send information to auxiliary AUXILIARY."
-  (setq string (maxima-strip-string-add-semicolon string))
-  (maxima-start auxiliary)
-  (save-current-buffer
-    (if auxiliary
-	(set-buffer (process-buffer maxima-auxiliary-inferior-process))
-      (set-buffer (process-buffer maxima-inferior-process)))
-    (goto-char (point-max))
-    (let ((start (point)))
-      (insert string)
-      (untabify start (point)))
-    (goto-char (point-max))
-    (maxima-inferior-comint-send-input)
-    (goto-char (point-max))))
+(defun maxima-single-string (string inferior-process)
+  "Send STRING to INFERIOR-PROCESS."
+  (let* ((strip-string (maxima-strip-string-add-semicolon string)))
+    (with-current-buffer (process-buffer inferior-process)
+      (goto-char (point-max))
+      (let ((start (point)))
+	(insert strip-string)
+	(untabify start (point)))
+      (goto-char (point-max))
+      (maxima-inferior-comint-send-input)
+      (goto-char (point-max)))))
 
-(defun maxima-ask-question (string)
-  "Ask the STRING question maxima wants answered."
-  (let ((ans (read-string
-              (concat (maxima-strip-string string) " " ))))
+(defun maxima-ask-question (string inferior-process)
+  "Ask the STRING question maxima wants answered.
+Send the answer to INFERIOR-PROCESS."
+  (let ((ans))
+    (setq ans (read-from-minibuffer
+	       string nil nil nil nil nil t)) 
     (unless (string-match "[;$]" ans)
       (setq ans (concat ans ";")))
     (setq ans (maxima-strip-string ans))
     (save-current-buffer
-      (set-buffer (process-buffer maxima-inferior-process))
+      (set-buffer (process-buffer inferior-process))
       (goto-char (point-max))
       (insert ans)
       (maxima-inferior-comint-send-input t)
@@ -2377,21 +2398,20 @@ With ARG, use `maxima-block-wait' instead of `maxima-block'."
 	(if (string= maxima-block ";") (setq maxima-block ""))))
     command))
 
-(defun maxima-send-block (stuff &optional auxiliary)
-  "Send a STUFF block of code to Maxima.
-It can also send commands to the AUXILIARY buffer."
-  (maxima-start auxiliary)
-  (setq stuff (maxima-strip-string-add-semicolon stuff))
-  (if (string= maxima-block "")
-      (progn
-        (setq maxima-block stuff)
-	(maxima-single-string (maxima-get-command) auxiliary))
-    (setq maxima-block (concat maxima-block stuff))))
+(defun maxima-send-block (stuff inferior-process)
+  "Send a STUFF block of code to INFERIOR-PROCESS."
+  (let* ((strip-stuff (maxima-strip-string-add-semicolon stuff)))
+    (if (string= maxima-block "")
+	(progn
+          (setq maxima-block strip-stuff)
+	  (maxima-single-string (maxima-get-command) inferior-process))
+      (setq maxima-block (concat maxima-block strip-stuff)))
+    ))
 
+;; FIXME Adapt this to the process architecture.
 (defun maxima-send-block-wait (stuff)
   "Send a STUFF block of code to Maxima; wait for it to finish.
 Return the last string sent."
-  (maxima-start)
   (if (not (string= maxima-block ""))
       (message "Maxima process currently busy.")
     (setq maxima-block-wait (maxima-strip-string-add-semicolon stuff))
@@ -2406,21 +2426,14 @@ Return the last string sent."
 
 ;;; Getting information back from Maxima.
 
-(defun maxima-last-output (&optional auxiliary)
-  "Get the most recent output from Maxima.
-It can also get the last output from the AUXILIARY process."
+(defun maxima-last-output (inferior-process)
+  "Get the most recent output from a Maxima INFERIOR-PROCESS."
   (interactive)
-  (maxima-inferior-wait-for-output auxiliary)
-  (let* ((proc-buffer
-	  (if auxiliary
-	      (process-buffer maxima-auxiliary-inferior-process)
-	    (process-buffer maxima-inferior-process)))
-	 (procc (if auxiliary
-		    maxima-auxiliary-inferior-process
-		  maxima-inferior-process)))
+  (maxima-inferior-wait-for-output inferior-process)
+  (let* ((proc-buffer (process-buffer inferior-process)))
     (with-current-buffer proc-buffer
       (let* ((pt (point))
-             (pmark (progn (goto-char (process-mark procc ))
+             (pmark (progn (goto-char (process-mark inferior-process))
                            (forward-line 0)
                            (point-marker)))
              (beg (progn
@@ -2430,17 +2443,16 @@ It can also get the last output from the AUXILIARY process."
              (output (buffer-substring-no-properties beg pmark)))
 	(goto-char pt)
 	output))
-
     )
   )
 
-(defun maxima-last-output-noprompt (&optional auxiliary)
-  "Return the last Maxima output, without the prompts.
-It can also get the most recent output from AUXILIARY."
+(defun maxima-last-output-noprompt (inferior-process)
+  "Return the last Maxima output from INFERIOR-PROCESS.
+Without the prompts."
   (interactive)
-  (if (not (maxima-inferior-running auxiliary))
-      (maxima-last-output auxiliary)
-    (let* ((output (maxima-last-output auxiliary))
+  (if (not (maxima-inferior-running inferior-process))
+      (maxima-last-output inferior-process)
+    (let* ((output (maxima-last-output inferior-process))
            (newstring)
            (i 0)
            (beg)
@@ -2461,10 +2473,10 @@ It can also get the most recent output from AUXILIARY."
                 (substring output
                            end))))))
 
-(defun maxima-last-output-tex-noprompt ()
-  "Return the last Maxima output, between the dollar signs."
+(defun maxima-last-output-tex-noprompt (inferior-process)
+  "Return the last INFERIOR-PROCESS output, between the dollar signs."
   (interactive)
-  (let* ((output (maxima-last-output))
+  (let* ((output (maxima-last-output inferior-process))
          (begtex (string-match "\\$\\$" output))
          (endtex (string-match "\\$\\$" output (1+ begtex))))
     (concat
@@ -2479,13 +2491,16 @@ It can also get the most recent output from AUXILIARY."
 (defun maxima-single-string-wait (string)
   "Send a single STRING to the maxima process.
 Waiting for output after."
-  (maxima-inferior-wait-for-output)
-  (maxima-single-string string)
-  (maxima-inferior-wait-for-output))
+  (maxima-inferior-wait-for-output maxima-inferior-process)
+  (maxima-single-string string maxima-inferior-process)
+  (maxima-inferior-wait-for-output maxima-inferior-process))
 
 (defun maxima-string (string)
   "Send a STRING to the Maxima process."
-  (maxima-send-block string))
+  (unless maxima-inferior-process
+    (maxima-init-inferiors))
+  (maxima-send-block string maxima-inferior-process)
+  (maxima-send-block string maxima-auxiliary-inferior-process))
 
 (defun maxima-region (beg end)
   "Send the region between BEG and END to the Maxima process."
@@ -2602,15 +2617,15 @@ Then go to the beginning of the next form."
   (goto-char (maxima-send-completed-region beg end))
   (maxima-goto-beginning-of-form))
 
+;; FIXME This fails
 (defun maxima-display-buffer ()
   "Display the `maxima-inferior-process' buffer so the recent output is visible."
   (interactive)
   (let ((origbuffer (current-buffer)))
     (if (not (processp maxima-inferior-process))
-	(maxima-start))
+	(maxima-init-inferiors))
     (pop-to-buffer (process-buffer maxima-inferior-process))
     (goto-char (point-max))
-					;    (recenter (universal-argument))
     (pop-to-buffer origbuffer)))
 
 
@@ -2726,14 +2741,14 @@ Then go to the beginning of the next form."
 
 (unless maxima-inferior-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map  "\C-a" 'maxima-inferior-bol)
-    (define-key map  "\C-m" 'maxima-inferior-check-and-send-line)
-    (define-key map  [(control return)] 'maxima-inferior-send-line)
-    (define-key map  [(meta control tab)] 'maxima-inferior-input-complete)
-    (define-key map  "\C-c\C-s" 'maxima-inferior-complete)
-    (define-key map  "\177" 'backward-delete-char-untabify)
-    (define-key map  "\C-c\C-k" 'maxima-stop)
-    (define-key map  "\C-c\C-d" maxima-help-map)
+    (define-key map  (kbd "C-a") 'maxima-inferior-bol)
+    (define-key map  (kbd "C-m") 'maxima-inferior-check-and-send-line)
+    (define-key map  (kbd "<C-return>") 'maxima-inferior-send-line)
+    (define-key map  (kbd "<C-M-tab>") 'maxima-inferior-input-complete)
+    (define-key map  (kbd "C-c C-s") 'maxima-inferior-complete)
+    (define-key map  (kbd "\d") 'backward-delete-char-untabify)
+    (define-key map  (kbd "C-c C-k") 'maxima-stop)
+    (define-key map  (kbd "C-c C-d") maxima-help-map)
     (setq maxima-inferior-mode-map map)))
 
 ;;;; Menu
@@ -2777,22 +2792,22 @@ To scroll through previous commands,
 \\[comint-next-matching-input] will bring the next input matching
   a regular expression to the prompt.
 "
-					;  (if maxima-use-full-color-in-process-buffer
-					;      (maxima-inferior-font-setup))
   (setq comint-prompt-regexp maxima-inferior-prompt)
   (setq comint-get-old-input (function maxima-inferior-get-old-input))
   (setq mode-line-process '(": %s"))
   (easy-menu-add maxima-inferior-mode-menu maxima-inferior-mode-map)
   (maxima-mode-variables)
   (setq tab-width 8)
-  (add-hook 'kill-buffer-hook
-            (function
-             (lambda ()
-               (maxima-clear-queue)
-               (if (processp maxima-inferior-process)
-                   (delete-process maxima-inferior-process))
-               (setq maxima-inferior-process nil)
-               (run-hooks 'maxima-inferior-exit-hook))) t t)
+
+  ;; (add-hook 'kill-buffer-hook
+  ;;           (lambda ()
+  ;;             (maxima-clear-queue)
+  ;;             (if (processp maxima-inferior-process)
+  ;;                 (delete-process maxima-inferior-process))
+  ;;             (setq maxima-inferior-process nil)
+  ;;             (run-hooks 'maxima-inferior-exit-hook))
+  ;; 	    t t)
+
   (setq comint-input-ring-size maxima-input-history-length)
   (if maxima-save-input-history
       (progn
@@ -2808,7 +2823,7 @@ To scroll through previous commands,
 (defun maxima ()
   "Run Maxima interactively inside a buffer."
   (interactive)
-  (maxima-start)
+  (maxima-init-inferiors)
   (switch-to-buffer (process-buffer maxima-inferior-process)))
 
 ;;; Interacting with Maxima outside of a maxima buffer
@@ -2816,18 +2831,18 @@ To scroll through previous commands,
 (defun maxima-minibuffer ()
   "Communicate with Maxima through the minibuffer."
   (interactive)
-  (maxima-start)
+  (maxima-init-inferiors)
   (let ((input (read-string "Maxima: " nil maxima-minibuffer-history))
         (output nil)
         (twod maxima-minibuffer-2d))
     (setq input (maxima-strip-string-add-semicolon input))
     (if twod
-        (maxima-single-string-wait
-         "block(emacsdisplay:display2d,display2d:true,linenum:linenum-1,%);")
-      (maxima-single-string-wait
-       "block(emacsdisplay:display2d,display2d:false,linenum:linenum-1,%);"))
+        (maxima-single-string
+         "block(emacsdisplay:display2d,display2d:true,linenum:linenum-1,%);" maxima-inferior-process)
+      (maxima-single-string
+       "block(emacsdisplay:display2d,display2d:false,linenum:linenum-1,%);" maxima-inferior-process))
     (maxima-single-string-wait input)
-    (setq output (maxima-last-output-noprompt))
+    (setq output (maxima-last-output-noprompt maxima-inferior-process))
     (maxima-single-string-wait "block(display2d:emacsdisplay,linenum:linenum-1,%);")
     (if (not twod)
         (setq output (string-trim-right output))
@@ -2902,14 +2917,14 @@ into the current buffer, followed by the output, followed by
               (and
                (maxima-check-parens-region realbeg realend)
                (maxima-check-commas realbeg realend)))
-      (maxima-start)
+      (maxima-init-inferiors)
       (if twod
           (maxima-single-string-wait
            "block(emacsdisplay:display2d,display2d:true,linenum:linenum-1,%);")
         (maxima-single-string-wait
          "block(emacsdisplay:display2d,display2d:false,linenum:linenum-1,%);"))
       (maxima-send-block-wait input)
-      (setq output (maxima-last-output-noprompt))
+      (setq output (maxima-last-output-noprompt maxima-inferior-process))
       (maxima-single-string-wait "block(display2d:emacsdisplay,linenum:linenum-1,%);")
       (if (not twod)
           (setq output (string-trim-right output))
@@ -2927,7 +2942,6 @@ into the current buffer, followed by the output, followed by
             (goto-char realend)
             (if (looking-at "^")
                 (setq realend (1- realend)))
-					;(delete-region realend end)
             (goto-char realend)
             (skip-chars-backward " \t\n")
             (unless (= (point) realend)
@@ -2960,7 +2974,6 @@ into the current buffer, followed by the output, followed by
               (set-marker there (point))
               (goto-char here)
               (goto-char (line-end-position))
-					;              (fill-region (line-beginning-position) (point))
               (if (string-match
 		   "\n"
 		   (buffer-substring-no-properties here (point)))
@@ -3028,16 +3041,16 @@ anything in the determined region after any occurrence of \" ==>
   (interactive)
   (maxima-single-string-wait
    "block(emacsdisplay:display2d,display2d:false,linenum:linenum-1,%);")
-  (let ((output (maxima-last-output-noprompt)))
-    (maxima-single-string "block(display2d:emacsdisplay,linenum:linenum-1,%);")
+  (let ((output (maxima-last-output-noprompt maxima-inferior-process)))
+    (maxima-single-string "block(display2d:emacsdisplay,linenum:linenum-1,%);" maxima-inferior-process)
     (insert (string-trim-right output))))
 
 (defun maxima-insert-last-output-tex ()
   "Insert the last output in tex format."
   (interactive)
   (maxima-single-string-wait "tex(%);")
-  (let ((output (substring (maxima-last-output-tex-noprompt) 2 -3)))
-    (maxima-single-string "block(linenum:linenum-2,%th(2));")
+  (let ((output (substring (maxima-last-output-tex-noprompt maxima-inferior-process) 2 -3)))
+    (maxima-single-string "block(linenum:linenum-2,%th(2));" maxima-inferior-process)
     (insert output)))
 
 ;;; Latex and org-mode interaction
@@ -3061,14 +3074,13 @@ anything in the determined region after any occurrence of \" ==>
 	  (unless (looking-at "\\\\\\$")
             (setq keep-looking nil))
 	  (forward-char 2))
-
 	(if (not keep-looking)
 	    (setq end-point (point))
 	  (error "End of the form not found"))
 	(setq form-text (string-remove-suffix ";" (buffer-substring beg-point end-point)))
-	(maxima-send-block (format "%s;" form-text))
-	(maxima-send-block "tex(%,false);")
-	(setq command-output (maxima-last-output-tex-noprompt))
+	(maxima-send-block (format "%s;" form-text) maxima-auxiliary-inferior-process)
+	(maxima-send-block "tex(%,false);" maxima-auxiliary-inferior-process)
+	(setq command-output (maxima-last-output-tex-noprompt maxima-auxiliary-inferior-process))
 	(backward-char 3)
 	(end-of-line)
 	(insert
