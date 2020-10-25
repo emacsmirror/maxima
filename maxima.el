@@ -594,15 +594,6 @@ If character is in a string or a list, ignore it."
 
 ;;; Functions for dealing with words
 
-;; (defun maxima-number-of-preceding-backslashes ()
-;;   "The number of backslashes (including the one being looked at)."
-;;   (let ((pt (point)))
-;;     (if (not (looking-at "\\\\"))
-;;         0
-;;       (save-excursion
-;;         (skip-chars-backward "\\\\")
-;;         (1+ (- pt (point)))))))
-
 (defun maxima-next-char-word-part-p ()
   "Non-nil if next char is a a word part."
   (or
