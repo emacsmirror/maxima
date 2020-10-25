@@ -170,6 +170,50 @@
 		  (point))
 	      "Error with `maxima-goto-end-of-expression'.")
 
+(assert-equal 'if (with-temp-buffer
+		    (maxima-mode)
+		    (insert
+		     "if sqrt(4) = 2 then
+		   print(\"Correct\")
+		   else
+		   print(\"No\");")
+		    (re-search-backward "2")
+		    (maxima-goto-beginning-of-construct (point-min))
+		    (symbol-at-point))
+	      "Error with `maxima-goto-beginning-of-construct'.")
+
+
+(note "Inferior process functions")
+
+(assert-t (progn
+	    (maxima-init-inferiors)
+	    (and maxima-inferior-process maxima-auxiliary-inferior-process))
+	  "`maxima-inferior-process' doesn't start correctly.")
+
+(assert-equal (list "test" t)
+	      (let* ((inferior (maxima-make-inferior "test" t))
+		     (inferior-name (process-name inferior)))
+		(list inferior-name (processp inferior)))
+	      "`maxima-make-inferior' doesn't returns a process
+	      with the correct name.")
+
+(assert-t (let* ((inferior-process (maxima-make-inferior "test" t))
+		 (inferior-buffer (process-buffer inferior-process)))
+	    (maxima-remove-inferior inferior-process inferior-process)
+	    (and (not (buffer-name inferior-buffer))
+		 (equal (process-status inferior-process) 'signal)))
+	  "`maxima-remove-inferior' doesn't delete the inferior
+	  buffer and process correctly.")
+
+(note "Help functions")
+
+(assert-equal '("sqrt (<x>)")
+	      (progn
+		(maxima-init-inferiors)
+		(maxima-document-get "sqrt"))
+	      "`maxima-document-get' doesn't return the correct symbol list")
+
+
 
 
 
