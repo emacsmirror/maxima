@@ -779,6 +779,7 @@ If character is in a string or a list, ignore it."
         (goto-char pt))
     (point)))
 
+;; FIXME I think there is no need to an interactive separate function.
 (defun maxima-goto-beginning-of-form-interactive ()
   "Move to the beginning of the form."
   (interactive)
@@ -834,6 +835,7 @@ The expression is assumed to begin with \"if\", \"then\", \"do\"
         (goto-char pmin))
     (point)))
 
+;; FIXME this can be optimize, maybe without so much workaround
 (defun maxima-goto-end-of-list ()
   "Go up a list.
 Return t if possible, nil otherwise."
@@ -889,6 +891,7 @@ Return t if possible, nil otherwise."
       t
     nil))
 
+;; TEST
 ;;; Newlines and indents
 (defun maxima-indent-form ()
   "Indent the entire form."
@@ -1309,6 +1312,7 @@ Which it is in a comment which begins on a previous line."
 
 ;;;; Indentation according to style
 
+;; FIXME Unify identation, so there is no need for those cond
 (defun maxima-indent-line ()
   "Indent the current line base on the indent style."
   (interactive)
@@ -1587,6 +1591,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 	  (t				; There's no unique completion.
 	   (maxima-help-variation completions)))))
 
+;; FIXME Code duplication with maxima-apropos
 (defun maxima-help-variation (completions)
   "Get help on certain subjects, with COMPLETIONS as a arg."
   (let* ((maxima-help-buffer
@@ -1657,6 +1662,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 ;;;; Completion
 
 ;;; This next functions are from hippie-expand.el
+;; FIXME use s library instead
 (defun maxima-he-capitalize-first (str)
   "Capitalize STR."
   (save-match-data
@@ -1868,6 +1874,7 @@ It uses BEG and END as a parameters."
 
 ;;; For highlighting the region being sent
 
+;; FIXME Check this functionality
 (defun maxima-mode-add-highlight ()
   "Add highlight to a `maxima-mode' buffer."
   (maxima-mode-remove-highlight)
@@ -1943,6 +1950,7 @@ It uses BEG and END as a parameters."
 
 ;;;; Keymap
 
+;; FIXME Add the new functions to the keymap
 (defvar maxima-mode-map nil
   "The keymap for `maxima-mode'.")
 
@@ -2065,6 +2073,7 @@ nil
 
 ;;;; Maxima mode
 
+;; FIXME improve comment, add the "new" functions 
 (define-derived-mode maxima-mode prog-mode "Maxima" ()
   "Major mode for editing Maxima code.
 
@@ -2466,6 +2475,7 @@ It can also get the most recent output from AUXILIARY."
 ;;; Sending information to the process should be done through these
 ;; next five commands
 
+;; FIXME This command...
 (defun maxima-single-string-wait (string)
   "Send a single STRING to the maxima process.
 Waiting for output after."
@@ -2486,6 +2496,7 @@ Waiting for output after."
 
 ;;; Some functions to send commands to the process.
 
+;; FIXME test this function when `maxima-display-buffer' is t.
 (defun maxima-send-region (beg end &optional arg)
   "Send the current region between BEG and END to the Maxima process.
 With ARG , don't check the parentheses first."
@@ -2853,6 +2864,7 @@ To scroll through previous commands,
                   (kill-region end (point)))))
           (point))))))
 
+;; FIXME this probably need a re-write
 (defun maxima-minibuffer-on-region (beg end &optional arg)
   "Send the current region between BEG and END to Maxima.
 Display last output in minibuffer.  With ARG, insert \" ==> \"
@@ -3071,6 +3083,7 @@ anything in the determined region after any occurrence of \" ==>
 (defvar maxima-minor-mode-map nil
   "The keymap for function `maxima-minor-mode'.")
 
+;; FIXME Use kbd for clearance
 (if maxima-minor-mode-map
     nil
   (let ((map (make-sparse-keymap)))
