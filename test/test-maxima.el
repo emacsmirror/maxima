@@ -1,6 +1,5 @@
 ;;; test-maxima.el --- Maxima test file.               -*- lexical-binding: t; -*-
 
-
 ;; Copyright (C) 2020 Fermin Munoz
 
 ;; License: GPL-3.0-or-later
@@ -193,7 +192,8 @@
 (assert-nil (progn
 	      (maxima-stop t)
 	      (and (not (get-buffer "*maxima*" )) (not (get-buffer "*aux-maxima*"))
-		   (and maxima-inferior-process maxima-auxiliary-inferior-process)))
+		   (and (processp maxima-inferior-process)
+			(processp maxima-auxiliary-inferior-process))))
 	    "`maxima-stop' doesn't stop the processes correctly.")
 
 (assert-equal (list "test" t)
@@ -205,7 +205,7 @@
 
 (assert-t (let* ((inferior-process (maxima-make-inferior "test" t))
 		 (inferior-buffer (process-buffer inferior-process)))
-	    (maxima-remove-inferior inferior-process inferior-process)
+	    (maxima-remove-inferior inferior-process)
 	    (and (not (buffer-name inferior-buffer))
 		 (equal (process-status inferior-process) 'signal)))
 	  "`maxima-remove-inferior' doesn't delete the inferior
@@ -213,13 +213,28 @@
 
 (note "Help functions")
 
+(assert-equal '("sqrt" "sqrtdispflag")
+	      (maxima-get-completions "sqrt"))
+(assert-t
+ (progn
+   (maxima-get-info-on-subject "sqrt" t)
+   (bufferp (get-buffer "*maxima-help*")))
+ "`maxima-get-info-on-subject' doesn't create a help buffer.")
+
+(assert-equal "sqrt (<x>)"
+	      (with-temp-buffer
+		(maxima-mode)
+		(insert "sqrt")
+		(goto-char (point-min))
+		(maxima-symbol-doc))
+	      "`maxima-symbol-doc' doesn't return the correct symbol signature.")
+
 (assert-equal '("sqrt (<x>)")
 	      (progn
 		(maxima-init-inferiors)
+		(sleep-for 0.4)
 		(maxima-document-get "sqrt"))
-	      "`maxima-document-get' doesn't return the correct symbol list")
-
-
+	      "`maxima-document-get' doesn't return the correct symbol list.")
 
 
 
