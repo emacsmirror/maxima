@@ -1,4 +1,4 @@
-;;; maxima.el --- Major modes for writing Maxima code              -*- lexical-binding: t; -*-
+;;; maxima.el --- Major mode for Maxima             -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 1998,1999 William F. Schelter
 ;; Copyright (C) 2001-2007 Jay Belanger
