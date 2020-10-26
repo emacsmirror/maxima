@@ -2286,30 +2286,28 @@ The TEST input is for test purpose."
       (maxima-inferior-wait-for-output proc))
     proc))
 
-(defmacro maxima-remove-inferior (inferior-process &optional inferior-symbol)
-  "Remove the INFERIOR-PROCESS and the process buffer.
-Optionally can set to nil a global variable passed as
-symbol in INFERIOR-SYMBOL."
+;;;###autoload
+(defmacro maxima-remove-inferior (inferior-process)
+  "Remove the INFERIOR-PROCESS and the process buffer."
   `(let* ((inferior-buffer (get-buffer (process-buffer ,inferior-process))))
      (delete-process ,inferior-process)
-     (kill-buffer inferior-buffer)
-     (when ,inferior-symbol
-       (setq inferior-symbol  nil))))
+     (kill-buffer inferior-buffer)))
 
 (defun maxima-init-inferiors ()
   "Check if the main inferior process exists.
 The inferior processes are defined inside
 the variables `maxima-inferior-process' and `maxima-auxiliary-inferior-process'.
 This functions assigns process to those variables."
-  (maxima-start maxima-inferior-process "maxima")
-  (maxima-start maxima-auxiliary-inferior-process "aux-maxima"))
+  (unless maxima-inferior-process
+    (maxima-start maxima-inferior-process "maxima"))
+  (unless maxima-auxiliary-inferior-process
+    (maxima-start maxima-auxiliary-inferior-process "aux-maxima")))
 
-
+;;;###autoload
 (defmacro maxima-start (inferior-symbol name)
   "Start a maxima process and save the process in INFERIOR-SYMBOL.
 The process name is passed in NAME."
-  `(when (not (processp ,inferior-symbol))
-     (setq ,inferior-symbol (maxima-make-inferior ,name))))
+  `(setq ,inferior-symbol (maxima-make-inferior ,name)))
 
 (defun maxima-stop (&optional arg)
   "Kill the main inferior.
@@ -2321,11 +2319,15 @@ If ARG is t, the confirmation is omitted."
   (if (processp maxima-inferior-process)
       (if arg
 	  (progn
-	    (maxima-remove-inferior maxima-inferior-process maxima-inferior-process)
-	    (maxima-remove-inferior maxima-auxiliary-inferior-process maxima-auxiliary-inferior-process))
+	    (maxima-remove-inferior maxima-inferior-process)
+	    (setq maxima-inferior-process nil)
+	    (maxima-remove-inferior maxima-auxiliary-inferior-process )
+	    (setq maxima-auxiliary-inferior-process nil))
 	(when (y-or-n-p "Really quit Maxima? ")
-	  (maxima-remove-inferior maxima-inferior-process maxima-inferior-process)
-	  (maxima-remove-inferior maxima-auxiliary-inferior-process maxima-auxiliary-inferior-process)))))
+	  (maxima-remove-inferior maxima-inferior-process)
+	  (setq maxima-inferior-process nil)
+	  (maxima-remove-inferior maxima-auxiliary-inferior-process)
+	  (setq maxima-auxiliary-inferior-process nil)))))
 
 ;;; Sending information to the process
 
