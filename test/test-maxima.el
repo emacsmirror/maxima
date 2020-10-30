@@ -189,6 +189,16 @@
 	    (and maxima-inferior-process maxima-auxiliary-inferior-process))
 	  "`maxima-inferior-process' doesn't start correctly.")
 
+(assert-nil (let* ((examples '("load(\"alsdfasfd\");"
+			       "block([asdfasdfjh],x);"
+			       "loadfile(\"dasdasdajjkkJJk23.mac\");"
+			       "f(x,t,[x])  := x^2;"
+			       "m:sin(%pi/2);"
+			       ":lisp (format t \"hello from lisp~%\"")))
+	      (seq-contains-p
+	       (seq-map #'maxima-inferior-auxiliar-filter examples) nil))
+	    "`maxima-inferior-auxiliar-filter' doesn't filter correctly.")
+
 (assert-nil (progn
 	      (maxima-stop t)
 	      (and (not (get-buffer "*maxima*" )) (not (get-buffer "*aux-maxima*"))

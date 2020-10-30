@@ -1769,6 +1769,7 @@ if completion is ambiguous."
 
 ;;;; Miscellaneous
 
+;; FIXME This doesn't seem to work
 (defun maxima-mark-form ()
   "Make the current form as the region."
   (interactive)
@@ -2252,6 +2253,27 @@ It requires PROC and STATE."
   (unless (string-match "^run" state)
     (comint-write-input-ring)))
 
+(defun maxima-inferior-auxiliar-filter (user-string)
+  "Check if USER-STRING is allow in the auxiliar-process.
+This prevents gnuplot or similar functions to show duplicates
+graphics and allow only some commands.  This only affects user
+sending commands throw `maxima-string'"
+  (let* ((auxiliar-regex
+	  (rx (or
+	       ;;block,load,loadfile function match
+	       (group
+		(or (literal "block") (literal "load") (literal "loadfile")) (* space) (literal "(") (* anything) (literal ")")(literal ";"))
+	       ;;:lisp construct match
+	       (group
+		(literal ":lisp") (* anything) eol)
+	       ;; Variable definition match
+	       (group bol (* alnum) (literal ":") (* anything) (literal ";"))
+	       ;; Function definition match
+	       (group (+ alnum)(syntax open-parenthesis)
+		      (+ alnum (? (literal ",") ) (? (literal "[")) (? (literal "]")))
+		      (literal ")") (* space) (literal ":=") (* anything) (literal ";"))))))
+    (string-match-p auxiliar-regex user-string)))
+
 (defun maxima-make-inferior (name &optional test)
   "Create an `maxima-inferior-mode' process and return it.
 Creates the process with the command defined in `maxima-command'
@@ -2490,11 +2512,15 @@ Waiting for output after."
   (maxima-inferior-wait-for-output maxima-inferior-process))
 
 (defun maxima-string (string)
-  "Send a STRING to the Maxima process."
+  "Send a STRING to `maxima-inferior-process'.
+It also checks with `maxima-inferior-auxiliar-filter' if the
+string is going to be sent to
+`maxima-auxiliary-inferior-process'."
   (unless maxima-inferior-process
     (maxima-init-inferiors))
   (maxima-send-block string maxima-inferior-process)
-  (maxima-send-block string maxima-auxiliary-inferior-process))
+  (when (maxima-inferior-auxiliar-filter string)
+    (maxima-send-block string maxima-auxiliary-inferior-process)))
 
 (defun maxima-region (beg end)
   "Send the region between BEG and END to the Maxima process."
