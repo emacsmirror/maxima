@@ -1403,8 +1403,9 @@ documentation."
 			       (format "%s" element))
 			     (maxima-document-get symbol) " || "))))
 
-(defun maxima-get-info-on-subject (subject)
-  "Get info of the Maxima SUBJECT."
+(defun maxima-get-info-on-subject (subject &optional test)
+  "Get info of the Maxima SUBJECT.
+The TEST variable is for test purpose."
   (let* ((command-output nil)
 	 (help-buffer-displayed (get-buffer-window "*maxima-help*"))
 	 (help-buffer (get-buffer-create "*maxima-help*")))
@@ -1415,7 +1416,7 @@ documentation."
       (insert
        command-output)
       (goto-char (point-min)))
-    (unless help-buffer-displayed
+    (unless (or help-buffer-displayed test)
       (display-buffer-in-side-window help-buffer
 				     `((side . right) (slot . 0)
 				       (window-width . fit-window-to-buffer)
@@ -2083,7 +2084,7 @@ It uses BEG and END as a parameters."
 
 ;;;; Maxima mode
 
-;; FIXME improve comment, add the "new" functions 
+;; FIXME improve comment, add the "new" functions
 (define-derived-mode maxima-mode prog-mode "Maxima" ()
   "Major mode for editing Maxima code.
 
@@ -2243,11 +2244,7 @@ It requires STR."
                (maxima-single-string (maxima-get-command) inferior-process)
              (if (not inferior-process)
 		 (maxima-clear-queue))
-             (setq maxima-inferior-waiting-for-output nil))))
-
-
-    )
-  )
+             (setq maxima-inferior-waiting-for-output nil))))))
 
 (defun maxima-inferior-sentinel (_proc state)
   "Write the input history when the process ends.
@@ -2261,7 +2258,7 @@ Creates the process with the command defined in `maxima-command'
 with the args defined in `maxima-args' with the name in NAME.
 Is possible to attach functions to `comint-output-filter-functions'
 to pass a list of functions in COMINT-FILTER-FUNCTIONS.
-The TEST input is for test purpose."
+The TEST variable is for test purpose."
   (let* ((proc-buf)
 	 (cmd)
 	 (proc))
@@ -2303,7 +2300,6 @@ This functions assigns process to those variables."
   (unless maxima-auxiliary-inferior-process
     (maxima-start maxima-auxiliary-inferior-process "aux-maxima")))
 
-;;;###autoload
 (defmacro maxima-start (inferior-symbol name)
   "Start a maxima process and save the process in INFERIOR-SYMBOL.
 The process name is passed in NAME."
@@ -2406,8 +2402,7 @@ With ARG, use `maxima-block-wait' instead of `maxima-block'."
 	(progn
           (setq maxima-block strip-stuff)
 	  (maxima-single-string (maxima-get-command) inferior-process))
-      (setq maxima-block (concat maxima-block strip-stuff)))
-    ))
+      (setq maxima-block (concat maxima-block strip-stuff)))))
 
 ;; FIXME Adapt this to the process architecture.
 (defun maxima-send-block-wait (stuff)
@@ -2443,36 +2438,34 @@ Return the last string sent."
                     (point)))
              (output (buffer-substring-no-properties beg pmark)))
 	(goto-char pt)
-	output))
-    )
-  )
+	output))))
 
-(defun maxima-last-output-noprompt (inferior-process)
-  "Return the last Maxima output from INFERIOR-PROCESS.
+  (defun maxima-last-output-noprompt (inferior-process)
+    "Return the last Maxima output from INFERIOR-PROCESS.
 Without the prompts."
-  (interactive)
-  (if (not (maxima-inferior-running inferior-process))
-      (maxima-last-output inferior-process)
-    (let* ((output (maxima-last-output inferior-process))
-           (newstring)
-           (i 0)
-           (beg)
-           (end)
-           (k))
-      ;; Replace the output prompt with spaces
-      (setq beg (string-match
-                 (concat "\\(^(" maxima-outchar "[0-9]*) \\)") output))
-      (if (not beg)
-          output
-        (setq end (1+ (string-match ")" output beg)))
-        (setq newstring (substring output 0 beg))
-        (setq k (- end beg))
-        (while (< i k)
-          (setq newstring (concat newstring " "))
-          (setq i (1+ i)))
-        (concat newstring
-                (substring output
-                           end))))))
+    (interactive)
+    (if (not (maxima-inferior-running inferior-process))
+	(maxima-last-output inferior-process)
+      (let* ((output (maxima-last-output inferior-process))
+             (newstring)
+             (i 0)
+             (beg)
+             (end)
+             (k))
+	;; Replace the output prompt with spaces
+	(setq beg (string-match
+                   (concat "\\(^(" maxima-outchar "[0-9]*) \\)") output))
+	(if (not beg)
+            output
+          (setq end (1+ (string-match ")" output beg)))
+          (setq newstring (substring output 0 beg))
+          (setq k (- end beg))
+          (while (< i k)
+            (setq newstring (concat newstring " "))
+            (setq i (1+ i)))
+          (concat newstring
+                  (substring output
+                             end))))))
 
 (defun maxima-last-output-tex-noprompt (inferior-process)
   "Return the last INFERIOR-PROCESS output, between the dollar signs."
@@ -3144,6 +3137,7 @@ buffer, preceded by \" ==> \" (customizable with `maxima-minor-output').
   " maxima"
   nil)
 
+;;;###autoload
 (define-globalized-minor-mode global-maxima-minor-mode maxima-minor-mode maxima-minor-mode)
 
 ;;; For highlighting the region being sent
