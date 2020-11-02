@@ -194,6 +194,7 @@
 			       "loadfile(\"dasdasdajjkkJJk23.mac\");"
 			       "f(x,t,[x])  := x^2;"
 			       "m:sin(%pi/2);"
+			       "kill(\"seksile\");"
 			       ":lisp (format t \"hello from lisp~%\"")))
 	      (seq-contains-p
 	       (seq-map #'maxima-inferior-auxiliar-filter examples) nil))
@@ -224,26 +225,32 @@
 (note "Help functions")
 
 (assert-equal '("sqrt" "sqrtdispflag")
-	      (maxima-get-completions "sqrt"))
+	      (let* ((inferior (maxima-make-inferior "test"))
+		     (completions (maxima-get-completions "sqrt" inferior)))
+		(maxima-remove-inferior inferior)
+		completions))
 (assert-t
  (progn
+   (maxima-init-inferiors)
    (maxima-get-info-on-subject "sqrt" t)
    (bufferp (get-buffer "*maxima-help*")))
  "`maxima-get-info-on-subject' doesn't create a help buffer.")
 
 (assert-equal "sqrt (<x>)"
-	      (with-temp-buffer
-		(maxima-mode)
-		(insert "sqrt")
-		(goto-char (point-min))
-		(maxima-symbol-doc))
+	      (progn
+		(maxima-init-inferiors)
+		(with-temp-buffer
+		  (maxima-mode)
+		  (insert "sqrt")
+		  (goto-char (point-min))
+		  (maxima-symbol-doc)))
 	      "`maxima-symbol-doc' doesn't return the correct symbol signature.")
 
 (assert-equal '("sqrt (<x>)")
 	      (progn
 		(maxima-init-inferiors)
 		(sleep-for 0.4)
-		(maxima-document-get "sqrt"))
+		(maxima-document-get "sqrt" maxima-auxiliary-inferior-process))
 	      "`maxima-document-get' doesn't return the correct symbol list.")
 
 
