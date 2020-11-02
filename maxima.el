@@ -1435,14 +1435,12 @@ The TEST variable is for test purpose."
       (setq name (buffer-substring-no-properties pt (point))))
     (maxima-get-info-on-subject name)))
 
-;; FIXME still there are some functions with more than one meaning, so it requires some interaction
-;; this breaks also the function `maxima-symbol-doc'.
 (defun maxima-help (&optional arg)
   "Get help of the desired symbol.
 If ARG is t it get the symbol at point."
   (interactive "P")
   (let* ((cw (current-word))
-	 (completion-list (maxima-get-completions cw t))
+	 (completion-list (maxima-get-completions cw maxima-auxiliary-inferior-process t))
 	 (subj nil))
     (if (not(seq-empty-p completion-list))
 	(progn
@@ -1585,7 +1583,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
   "Provide completion help base on the context."
   (interactive)
   (let* ((stub  (current-word))
-	 (completions  (maxima-get-completions (downcase stub)  t)))
+	 (completions  (maxima-get-completions (downcase stub) maxima-auxiliary-inferior-process  t)))
     (setq completions
 	  (mapc
 	   (function upcase) completions))
@@ -1711,13 +1709,18 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 If FUZZY is non-nil, it return all the apropos without the
 prefix filter."
   (unless maxima-auxiliary-inferior-process
+(defun maxima-get-completions (prefix inferior-process &optional fuzzy)
+  "Return a list of completions with PREFIX from INFERIOR-PROCESS.
+If FUZZY is non-nil, it return all the apropos without the prefix
+filter."
+  (unless inferior-process
     (maxima-init-inferiors))
   (let* ((command-output nil)
 	 (command-list-raw nil))
     (if (>= (length prefix) 1)
 	(remove "" (progn
-		     (maxima-send-block (concat "apropos(\""prefix"\");") maxima-auxiliary-inferior-process)
-		     (setq command-output (maxima-last-output-noprompt maxima-auxiliary-inferior-process))
+		     (maxima-send-block (concat "apropos(\""prefix"\");") inferior-process)
+		     (setq command-output (maxima-last-output-noprompt inferior-process))
 		     (setq command-list-raw (seq-map (lambda (string)
 						       (string-remove-suffix "]"
 									     (string-remove-prefix "[" (string-trim string))))
@@ -1747,7 +1750,7 @@ A completions listing will be shown in a help buffer
 if completion is ambiguous."
   (let* ((stub  (buffer-substring-no-properties
                  (maxima-name-beginning) (point)))
-	 (completions (maxima-get-completions stub t)))
+	 (completions (maxima-get-completions stub maxima-auxiliary-inferior-process t)))
     (completion-in-region (maxima-name-beginning) (point) completions)))
 
 (defun maxima-complete-filename ()

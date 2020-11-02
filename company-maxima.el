@@ -65,7 +65,7 @@ It requires COMMAND, optionally _ARG and IGNORED."
 		 (not (company-in-string-or-comment))
 		 (company-grab-symbol)))
     (duplicates t)
-    (candidates  (maxima-get-completions (company-grab-symbol)))))
+    (candidates  (maxima-get-completions (company-grab-symbol) maxima-auxiliary-inferior-process))))
 
 (provide 'company-maxima)
 ;;; company-maxima.el ends here
