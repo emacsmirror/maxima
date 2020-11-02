@@ -1382,27 +1382,29 @@ Which it is in a comment which begins on a previous line."
 
 ;;;; Help functions
 ;; FIXME add these functions to README.org
-(defun maxima-document-get (symbol)
+(defun maxima-document-get (symbol inferior-process)
   "Get the documentation with describe(SYMBOL).
-Process the output and get a list of the function arguments
-documentation."
+Process the output of INFERIOR-PROCESS and get a list of the
+function arguments documentation."
   (let* ((current-symbol symbol))
-    (maxima-send-block (format "describe(\"%s\");" current-symbol) maxima-auxiliary-inferior-process)
+    (maxima-send-block (format "describe(\"%s\");" current-symbol) inferior-process)
     (seq-map 'car (with-temp-buffer
-		    (insert (maxima-last-output-noprompt maxima-auxiliary-inferior-process))
+		    (insert (maxima-last-output-noprompt inferior-process))
 		    (seq-uniq (s-match-strings-all (rx (literal current-symbol) space
 						       (syntax open-parenthesis)
 						       (+ (any  "<" lower-case digit ">" "," "_" "]" "(" ")" "[" space "."))
 						       (syntax close-parenthesis))
 						   (buffer-substring-no-properties (point-min) (point-max))))))))
+
 (defun maxima-symbol-doc ()
   "Pretty print documentation function."
   (interactive)
   (let* ((symbol (thing-at-point 'symbol t)))
     (message "%s" (mapconcat (lambda (element)
 			       (format "%s" element))
-			     (maxima-document-get symbol) " || "))))
+			     (maxima-document-get symbol maxima-auxiliary-inferior-process) " || "))))
 
+; FIXME add inferior-process as an argument
 (defun maxima-get-info-on-subject (subject &optional test)
   "Get info of the Maxima SUBJECT.
 The TEST variable is for test purpose."
@@ -1478,6 +1480,7 @@ To call it with ARG use `maxima-apropos-at-point'"
     (insert "[RET] will get help on the subject on the given line\n")
     (insert "q in the *info* buffer will return you here.\n")
     (insert "q in this buffer will exit Maxima help\n\n")
+    ;;FIXME We can use `maxima-get-info-on-subject' for this task.
     (with-temp-buffer
       (require 'info)
       (Info-mode)
@@ -1596,7 +1599,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 	  (t				; There's no unique completion.
 	   (maxima-help-variation completions)))))
 
-;; FIXME Code duplication with maxima-apropos
+;; FIXME Code duplication with `maxima-apropos'
 (defun maxima-help-variation (completions)
   "Get help on certain subjects, with COMPLETIONS as a arg."
   (let* ((maxima-help-buffer
@@ -1666,49 +1669,6 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 
 ;;;; Completion
 
-;;; This next functions are from hippie-expand.el
-;; FIXME use s library instead
-(defun maxima-he-capitalize-first (str)
-  "Capitalize STR."
-  (save-match-data
-    (if (string-match "\\Sw*\\(\\sw\\).*" str)
-	(let ((res (downcase str))
-	      (no (match-beginning 1)))
-	  (aset res no (upcase (aref str no)))
-	  res)
-      str)))
-
-(defun maxima-he-ordinary-case-p (str)
-  "Check if STR start with a character."
-  (or (string= str (downcase str))
-      (string= str (upcase str))
-      (string= str (capitalize str))
-      (string= str (maxima-he-capitalize-first str))))
-
-
-(defun maxima-he-transfer-case (from-str to-str)
-  "Transform FROM-STR to TO-STR."
-  (cond ((string= from-str (substring to-str 0 (min (length from-str)
-						    (length to-str))))
-	 to-str)
-	((not (maxima-he-ordinary-case-p to-str))
-	 to-str)
-	((string= from-str (downcase from-str))
-	 (downcase to-str))
-	((string= from-str (upcase from-str))
-	 (upcase to-str))
-	((string= from-str (maxima-he-capitalize-first from-str))
-	 (maxima-he-capitalize-first to-str))
-	((string= from-str (capitalize from-str))
-	 (capitalize to-str))
-	(t
-	 to-str)))
-
-(defun maxima-get-completions (prefix &optional fuzzy)
-  "Using apropos, return a list of completions with PREFIX.
-If FUZZY is non-nil, it return all the apropos without the
-prefix filter."
-  (unless maxima-auxiliary-inferior-process
 (defun maxima-get-completions (prefix inferior-process &optional fuzzy)
   "Return a list of completions with PREFIX from INFERIOR-PROCESS.
 If FUZZY is non-nil, it return all the apropos without the prefix
@@ -2265,7 +2225,10 @@ sending commands throw `maxima-string'"
 	  (rx (or
 	       ;;block,load,loadfile function match
 	       (group
-		(or (literal "block") (literal "load") (literal "loadfile")) (* space) (literal "(") (* anything) (literal ")")(literal ";"))
+		(or (literal "block")
+		    (literal "load")
+		    (literal "loadfile")
+		    (literal "kill")) (* space) (literal "(") (* anything) (literal ")")(literal ";"))
 	       ;;:lisp construct match
 	       (group
 		(literal ":lisp") (* anything) eol)
@@ -2640,7 +2603,6 @@ Then go to the beginning of the next form."
   (goto-char (maxima-send-completed-region beg end))
   (maxima-goto-beginning-of-form))
 
-;; FIXME This fails
 (defun maxima-display-buffer ()
   "Display the `maxima-inferior-process' buffer so the recent output is visible."
   (interactive)
@@ -2662,15 +2624,9 @@ Then go to the beginning of the next form."
 (defun maxima-inferior-previous-inputs ()
   "Return a list of previous inputs."
   (interactive)
-  (let* ((inputs nil)
-         (comint-inputs (cddr comint-input-ring))
-         (i 0))
-    (while (and (< i comint-input-ring-size)
-                (not (null (aref comint-inputs i))))
-      (unless (member (aref comint-inputs i) inputs)
-        (setq inputs (cons (aref comint-inputs i) inputs)))
-      (setq i (1+ i)))
-    (reverse inputs)))
+  (let* ((comint-inputs
+	  (seq-remove 'null (cddr comint-input-ring))))
+    (seq-uniq comint-inputs)))
 
 ;; FIXME this doesn't work at all.
 (defun maxima-inferior-input-complete ()
@@ -2680,9 +2636,6 @@ Then go to the beginning of the next form."
                  (maxima-inferior-bol-position) (point)))
 	 (completions (all-completions (downcase stub)
                                        (maxima-inferior-previous-inputs))))
-    (setq completions
-          (mapc
-           (function (lambda (x) (maxima-he-transfer-case stub x))) completions))
     (cond ((null completions)
 	   (message "No completions of %s" stub))
 	  ((= 1 (length completions))	; Gotcha!
