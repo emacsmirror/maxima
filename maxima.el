@@ -1404,15 +1404,14 @@ function arguments documentation."
 			       (format "%s" element))
 			     (maxima-document-get symbol maxima-auxiliary-inferior-process) " || "))))
 
-; FIXME add inferior-process as an argument
-(defun maxima-get-info-on-subject (subject &optional test)
-  "Get info of the Maxima SUBJECT.
+(defun maxima-get-info-on-subject (subject inferior-process &optional test)
+  "Get info of the Maxima SUBJECT in the INFERIOR-PROCESS.
 The TEST variable is for test purpose."
   (let* ((command-output nil)
 	 (help-buffer-displayed (get-buffer-window "*maxima-help*"))
 	 (help-buffer (get-buffer-create "*maxima-help*")))
-    (maxima-send-block (format "describe(\"%s\");" subject) maxima-auxiliary-inferior-process)
-    (setq command-output (maxima-last-output-noprompt maxima-auxiliary-inferior-process))
+    (maxima-send-block (format "describe(\"%s\");" subject) inferior-process)
+    (setq command-output (maxima-last-output-noprompt inferior-process))
     (with-current-buffer help-buffer
       (erase-buffer)
       (insert
@@ -1424,8 +1423,9 @@ The TEST variable is for test purpose."
 				       (window-width . fit-window-to-buffer)
 				       (preserve-size . (t . nil)))))))
 
-(defun maxima-get-help ()
-  "Get help on a given subject."
+(defun maxima-get-help (inferior-process)
+  "Get help on a given subject.
+Within the context of INFERIOR-PROCESS"
   (let ((pt)
 	(name))
     (save-excursion
@@ -1435,7 +1435,7 @@ The TEST variable is for test purpose."
       (search-forward ":")
       (skip-chars-backward ": ")
       (setq name (buffer-substring-no-properties pt (point))))
-    (maxima-get-info-on-subject name)))
+    (maxima-get-info-on-subject inferior-process name)))
 
 (defun maxima-help (&optional arg)
   "Get help of the desired symbol.
@@ -1451,7 +1451,7 @@ If ARG is t it get the symbol at point."
                     cw
 		  (completing-read (format "Maxima help(%s): " cw)
 				   completion-list)))
-	  (maxima-get-info-on-subject subj))
+	  (maxima-get-info-on-subject maxima-auxiliary-inferior-process subj))
       (message "No help for \" %s \"" cw))))
 
 (defun maxima-help-at-point ()
@@ -1501,7 +1501,7 @@ To call it with ARG use `maxima-apropos-at-point'"
 	  (set-buffer maxima-help-buffer)
 	  (defun maxima-help-subject ()
 	    (interactive)
-	    (maxima-get-help))
+	    (maxima-get-help maxima-auxiliary-inferior-process))
 	  (defun maxima-kill-help ()
 	    (interactive)
 	    (let ((buf (current-buffer)))
@@ -1556,23 +1556,23 @@ nil and ARG2 non-nil call `maxima-completion-help'."
 	(maxima-context-help)
       (maxima-help (current-word))))
    ((looking-at "\\?")
-    (maxima-get-info-on-subject "\"\\?\""))
+    (maxima-get-info-on-subject maxima-auxiliary-inferior-process "\"\\?\""))
    ((looking-at "#")
-    (maxima-get-info-on-subject "\"#\""))
+    (maxima-get-info-on-subject maxima-auxiliary-inferior-process "\"#\""))
    ((looking-at "\\.")
-    (maxima-get-info-on-subject "\"\\.\""))
+    (maxima-get-info-on-subject maxima-auxiliary-inferior-process "\"\\.\""))
    ((looking-at "[:=!%']")
     (let ((expr (buffer-substring-no-properties
 		 (maxima-special-symbol-beginning) (maxima-special-symbol-end))))
       (cond
        ((or (string= expr "%") (string= expr "%%"))
-	(maxima-get-info-on-subject expr)) ; % and %% are without double quotes
+	(maxima-get-info-on-subject maxima-auxiliary-inferior-process expr)) ; % and %% are without double quotes
        ((string= expr "''")
-	(maxima-get-info-on-subject "\"")) ; "''" is called """ in the manual
+	(maxima-get-info-on-subject maxima-auxiliary-inferior-process "\"")) ; "''" is called """ in the manual
        ((or (string= expr ":") (string= expr "::")
             (string= expr ":=") (string= expr "::=")
             (string= expr "=") (string= expr "!") (string= expr "!!"))
-	(maxima-get-info-on-subject (concat "\"" expr "\"")))
+	(maxima-get-info-on-subject maxima-auxiliary-inferior-process (concat "\"" expr "\"")))
        (t (error "No help for %s" expr)))))
    (arg1
     (error "No help for %s" (char-to-string (char-after (point)))))
@@ -1595,7 +1595,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
     (cond ((null completions)
 	   (message "No help for %s" stub))
 	  ((= 1 (length completions))
-	   (maxima-get-info-on-subject (car completions)))
+	   (maxima-get-info-on-subject maxima-auxiliary-inferior-process (car completions)))
 	  (t				; There's no unique completion.
 	   (maxima-help-variation completions)))))
 
@@ -1630,7 +1630,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
     (goto-char (point-min))
     (defun maxima-help-subject ()
       (interactive)
-      (maxima-get-help))
+      (maxima-get-help maxima-auxiliary-inferior-process))
     (defun maxima-kill-help ()
       (interactive)
       (let ((buf (current-buffer)))
