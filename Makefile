@@ -17,10 +17,12 @@ elpa: *.el
 	tar cvf maxima-$$version.tar --mode 644 "$$dir"
 
 clean:
-	@rm -rf maxima-*/ maxima-*.tar maxima-*.tar.bz2 *.elc ert.el
+	@rm -rf maxima-*/ maxima-*.tar maxima-*.tar.bz2 *.elc ert.el .elpa/
 
-test:
-	${EMACS}  --batch --eval "(locate-library \"test-simple\")" -l test/test-load.el 
+make-test:
+	${EMACS}  --batch -l test/make-install.el -l test/make-test.el 
+
+test: make-test clean
 
 build-keywords:
 	awk '/^ -- Function/' keywords/keywords.txt > keywords/functions

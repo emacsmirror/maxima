@@ -248,17 +248,17 @@
    response)
  "`maxima-get-info-on-subject' doesn't create a help buffer.")
 
-(assert-equal "sqrt (<x>)"
-	      (let* ((response nil))
-		(maxima-init-inferiors)
-		(setq response (with-temp-buffer
-				 (maxima-mode)
-				 (insert "sqrt")
-				 (goto-char (point-min))
-				 (maxima-symbol-doc)))
-		(maxima-stop t)
-		response)
-	      "`maxima-symbol-doc' doesn't return the correct symbol signature.")
+;; (assert-equal "sqrt (<x>)"
+;; 	      (let* ((response nil))
+;; 		(maxima-init-inferiors)
+;; 		(setq response (with-temp-buffer
+;; 				 (maxima-mode)
+;; 				 (insert "sqrt")
+;; 				 (goto-char (point-min))
+;; 				 (maxima-symbol-doc)))
+;; 		(maxima-stop t)
+;; 		response)
+;; 	      "`maxima-symbol-doc' doesn't return the correct symbol signature.")
 
 ;; (assert-equal '("sqrt (<x>)")
 ;; 	      (let* ((inferior (maxima-make-inferior "test"))
