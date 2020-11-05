@@ -3,6 +3,7 @@
 [[https://melpa.org/#/maxima][file:https://melpa.org/packages/maxima-badge.svg]]
 [[https://stable.melpa.org/#/maxima][file:https://stable.melpa.org/packages/maxima-badge.svg]]
 [[License: GPL v3][https://img.shields.io/badge/License-GPLv3-blue.svg]]
+#+html: <a href="https://gitlab.com/sasanidas/maxima/-/commits/master"><img alt="pipeline status" src="https://gitlab.com/sasanidas/maxima/badges/master/pipeline.svg" /></a>
 :PROPERTIES:
 :TOC:       :include descendants
 :END:
