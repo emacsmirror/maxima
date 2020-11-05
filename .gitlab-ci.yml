@@ -1,6 +1,6 @@
 default:
   before_script:
-    - apt-get update && apt-get install make
+    - apt-get update && apt-get install make maxima
 
 test:27.1:
   image: silex/emacs:27.1
