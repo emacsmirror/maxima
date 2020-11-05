@@ -1,13 +1,41 @@
+stages:
+  - byte-compile
+  - test
+  - artifact
+
+variables:
+  VERSION: "0.7.3"
+  PKG: "maxima-${VERSION}.tar.gz"
+
 default:
   before_script:
     - apt-get update && apt-get install -y make maxima
 
+
+byte-compile:27.1:
+  stage: byte-compile
+  image: silex/emacs:27.1
+  script:
+    - make compile-test
+
 test:27.1:
+  stage: test
   image: silex/emacs:27.1
   script:
     - make test
 
 test:26.3:
+  stage: test
   image: silex/emacs:26.3
   script:
     - make test
+
+artifact:
+  stage: artifact
+  image: silex/emacs:27.1
+  script:
+    - make package
+  artifacts:
+    paths:
+      - $PKG
+    expire_in: 1 week

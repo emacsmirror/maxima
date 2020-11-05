@@ -1,6 +1,6 @@
 EMACS=emacs
 
-.PHONY: test package elpa clean build-keywords
+.PHONY: test package elpa clean build-keywords compile-test
 
 package: *.el
 	@ver=`grep -o "Version: .*" maxima.el | cut -c 10-`; \
@@ -64,8 +64,7 @@ build-keywords:
 	awk '/^ -- Special/' keywords/keywords.txt > keywords/special
 	 cd keywords && awk '/^ -- Special/{print $$4}' special > special2 && rm special && mv special2 special
 
-
-
-
 compile:
-	${EMACS} -Q --batch -L . -f batch-byte-compile maxima.el maxima-*.el
+	${EMACS} --batch  -l test/make-install.el -L . -f batch-byte-compile maxima.el maxima-*.el
+
+compile-test: compile clean

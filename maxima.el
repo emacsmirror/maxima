@@ -9,7 +9,7 @@
 ;;         Fermin Munoz
 ;; Maintainer: Fermin Munoz <fmfs@posteo.net>
 ;; Created: 30 April 2020
-;; Version: 0.5.0
+;; Version: 0.7.3
 ;; Keywords: maxima,tools,math
 ;; URL: https://gitlab.com/sasanidas/maxima
 ;; Package-Requires: ((emacs "25.1")(s "1.11.0")(test-simple "1.3.0"))
@@ -2341,7 +2341,7 @@ If ARG is t, the confirmation is omitted."
 Send the answer to INFERIOR-PROCESS."
   (let ((ans))
     (setq ans (read-from-minibuffer
-	       string nil nil nil nil nil t)) 
+	       string nil nil nil nil nil t))
     (unless (string-match "[;$]" ans)
       (setq ans (concat ans ";")))
     (setq ans (maxima-strip-string ans))
