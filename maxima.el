@@ -2037,19 +2037,19 @@ It uses BEG and END as a parameters."
   "Set all the necessary variables for `maxima-mode'."
   (set-syntax-table maxima-mode-syntax-table)
   (setq-local local-abbrev-table maxima-mode-abbrev-table)
-  (setq-local paragraph-start (concat "^$\\|" page-delimiter)
-	      paragraph-separate paragraph-start
-	      indent-line-function #'maxima-indent-line
-	      case-fold-search t
-	      comment-start "/*"
-	      comment-end "*/"
-	      comment-start-skip "/\\*+ *"
-	      comment-column 40
-	      comment-indent-function #'comment-indent-default)
-  (unless maxima-use-tabs
-    (setq-local indent-tabs-mode nil))
-  (setq imenu-generic-expression
-	(list '(nil "^ *\\([a-zA-Z0-9_]*\\) *(.*) *:=" 1))))
+  (setq-local paragraph-start (concat "^$\\|" page-delimiter))
+	      (setq-local	      paragraph-separate paragraph-start)
+	      (setq-local     indent-line-function #'maxima-indent-line)
+	      (setq-local	      case-fold-search t)
+	      (setq-local     comment-start "/*")
+	      (setq-local     comment-end "*/")
+	      (setq-local     comment-start-skip "/\\*+ *")
+	      (setq-local     comment-column 40)
+	      (setq-local     comment-indent-function #'comment-indent-default)
+	      (unless maxima-use-tabs
+		(setq-local indent-tabs-mode nil))
+	      (setq imenu-generic-expression
+		    (list '(nil "^ *\\([a-zA-Z0-9_]*\\) *(.*) *:=" 1))))
 
 
 ;;;; Maxima mode
