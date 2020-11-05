@@ -201,6 +201,7 @@
 	    "`maxima-inferior-auxiliar-filter' doesn't filter correctly.")
 
 (assert-nil (progn
+	      (maxima-init-inferiors)
 	      (maxima-stop t)
 	      (and (not (get-buffer "*maxima*" )) (not (get-buffer "*aux-maxima*"))
 		   (and (processp maxima-inferior-process)
@@ -209,8 +210,10 @@
 
 (assert-equal (list "test" t)
 	      (let* ((inferior (maxima-make-inferior "test" t))
-		     (inferior-name (process-name inferior)))
-		(list inferior-name (processp inferior)))
+		     (inferior-name (process-name inferior))
+		     (response (list inferior-name (processp inferior))))
+		(maxima-remove-inferior inferior)
+		response)
 	      "`maxima-make-inferior' doesn't returns a process
 	      with the correct name.")
 
@@ -222,35 +225,48 @@
 	  "`maxima-remove-inferior' doesn't delete the inferior
 	  buffer and process correctly.")
 
+(assert-t (let* ((inferior (maxima-make-inferior "test"))
+		 (inferior-runing (maxima-inferior-running inferior)))
+	    (maxima-remove-inferior inferior)
+	    inferior-runing)
+	  "`maxima-inferior-running' doesn't check correctly if an inferior is running.")
+
 (note "Help functions")
 
 (assert-equal '("sqrt" "sqrtdispflag")
 	      (let* ((inferior (maxima-make-inferior "test"))
 		     (completions (maxima-get-completions "sqrt" inferior)))
 		(maxima-remove-inferior inferior)
-		completions))
+		completions)
+	      "`maxima-get-completions' doesn't work as intended.")
 (assert-t
- (progn
-   (maxima-init-inferiors)
-   (maxima-get-info-on-subject "sqrt" t)
-   (bufferp (get-buffer "*maxima-help*")))
+ (let* ((inferior (maxima-make-inferior "test"))
+	(response nil))
+   (maxima-get-info-on-subject "sqrt" inferior  t)
+   (setq response (bufferp (get-buffer "*maxima-help*")))
+   (maxima-remove-inferior inferior)
+   response)
  "`maxima-get-info-on-subject' doesn't create a help buffer.")
 
 (assert-equal "sqrt (<x>)"
-	      (progn
+	      (let* ((response nil))
 		(maxima-init-inferiors)
-		(with-temp-buffer
-		  (maxima-mode)
-		  (insert "sqrt")
-		  (goto-char (point-min))
-		  (maxima-symbol-doc)))
+		(setq response (with-temp-buffer
+				 (maxima-mode)
+				 (insert "sqrt")
+				 (goto-char (point-min))
+				 (maxima-symbol-doc)))
+		(maxima-stop t)
+		response)
 	      "`maxima-symbol-doc' doesn't return the correct symbol signature.")
 
 (assert-equal '("sqrt (<x>)")
-	      (progn
-		(maxima-init-inferiors)
+	      (let* ((inferior (maxima-make-inferior "test"))
+		     (response nil))
 		(sleep-for 0.4)
-		(maxima-document-get "sqrt" maxima-auxiliary-inferior-process))
+		(setq response (maxima-document-get "sqrt" inferior))
+		(maxima-remove-inferior inferior)
+		response)
 	      "`maxima-document-get' doesn't return the correct symbol list.")
 
 
