@@ -1,0 +1,10 @@
+
+test:27.1:
+  image: silex/emacs:27.1
+  script:
+    - make test
+
+test:26.3:
+  image: silex/emacs:26.3
+  script:
+    - make test
