@@ -1381,6 +1381,12 @@ Which it is in a comment which begins on a previous line."
   (uncomment-region beg end (universal-argument)))
 
 ;;;; Help functions
+;; RX
+;; (rx  (literal current-symbol)space
+;;      (syntax open-parenthesis)
+;;      (+ (any  "<" lower-case digit ">" "," "_" "]" "(" ")" "[" space "."))
+;;      (syntax close-parenthesis))
+
 ;; FIXME add these functions to README.org
 (defun maxima-document-get (symbol inferior-process)
   "Get the documentation with describe(SYMBOL).
@@ -1390,11 +1396,9 @@ function arguments documentation."
     (maxima-send-block (format "describe(\"%s\");" current-symbol) inferior-process)
     (seq-map 'car (with-temp-buffer
 		    (insert (maxima-last-output-noprompt inferior-process))
-		    (seq-uniq (s-match-strings-all (rx (literal current-symbol) space
-						       (syntax open-parenthesis)
-						       (+ (any  "<" lower-case digit ">" "," "_" "]" "(" ")" "[" space "."))
-						       (syntax close-parenthesis))
-						   (buffer-substring-no-properties (point-min) (point-max))))))))
+		    (seq-uniq (s-match-strings-all
+			       (format "%s[[:space:]]\\s([](),.<>[_[:lower:][:digit:][:space:]]+\\s)" current-symbol)
+			       (buffer-substring-no-properties (point-min) (point-max))))))))
 
 (defun maxima-symbol-doc ()
   "Pretty print documentation function."
@@ -1691,13 +1695,15 @@ filter."
 				   command-list-raw))))
       '())))
 
+;;RX (rx (literal ".") (or (literal "lisp") (literal "mac")))
+
 (defun maxima-get-libraries (prefix &optional fuzzy)
   "Return a list of libraries in `maxima-libraries-directory' with PREFIX.
 It also have an option for FUZZY search."
   (let* ((libraries-list (seq-map (lambda (file) (file-name-base file))
 				  (directory-files-recursively
 				   maxima-libraries-directory
-				   (rx (literal ".") (or (literal "lisp") (literal "mac")))))))
+				   "\\.\\(?:lisp\\|mac\\)"))))
     (seq-filter (lambda (file-name)
 		  (if fuzzy
 		      (string-match-p prefix file-name)
@@ -2196,19 +2202,19 @@ It requires STR."
   (let* ((buffer (current-buffer))
 	 (inferior-process (get-buffer-process buffer)))
     (cond ((and
-            (string-match (rx (literal "Still waiting:")) str)
+            (string-match "Still waiting:" str)
             (not (string-match (concat "(" maxima-outchar "[0-9]+)") str)))
 	   ;; FIXME This is a workaround, it may be some cases
 	   ;; that "all" doesn't work.
 	   (if (equal maxima-auxiliary-inferior-process inferior-process)
 	       (maxima-send-block "all" inferior-process)
 	     (maxima-ask-question str inferior-process)))
-          ((string-match maxima-inferior-prompt str)
-           (if (and inferior-process (not (string= maxima-block "")))
-               (maxima-single-string (maxima-get-command) inferior-process)
-             (if (not inferior-process)
+	  ((string-match maxima-inferior-prompt str)
+	   (if (and inferior-process (not (string= maxima-block "")))
+	       (maxima-single-string (maxima-get-command) inferior-process)
+	     (if (not inferior-process)
 		 (maxima-clear-queue))
-             (setq maxima-inferior-waiting-for-output nil))))))
+	     (setq maxima-inferior-waiting-for-output nil))))))
 
 (defun maxima-inferior-sentinel (_proc state)
   "Write the input history when the process ends.
@@ -2216,28 +2222,31 @@ It requires PROC and STATE."
   (unless (string-match "^run" state)
     (comint-write-input-ring)))
 
+;; RX
+;; (rx (or
+;;      ;;block,load,loadfile function match
+;;      (group
+;;       (or (literal "block")
+;; 	  (literal "load")
+;; 	  (literal "loadfile")
+;; 	  (literal "kill")) (* space) (literal "(") (* anything) (literal ")")(literal ";"))
+;;      ;;:lisp construct match
+;;      (group
+;;       (literal ":lisp") (* anything) eol)
+;;      ;; Variable definition match
+;;      (group bol (* alnum) (literal ":") (* anything) (literal ";"))
+;;      ;; Function definition match
+;;      (group (+ alnum)(syntax open-parenthesis)
+;; 	    (+ alnum (? (literal ",") ) (? (literal "[")) (? (literal "]")))
+;; 	    (literal ")") (* space) (literal ":=") (* anything) (literal ";"))))
+
 (defun maxima-inferior-auxiliar-filter (user-string)
   "Check if USER-STRING is allow in the auxiliar-process.
 This prevents gnuplot or similar functions to show duplicates
 graphics and allow only some commands.  This only affects user
 sending commands throw `maxima-string'"
   (let* ((auxiliar-regex
-	  (rx (or
-	       ;;block,load,loadfile function match
-	       (group
-		(or (literal "block")
-		    (literal "load")
-		    (literal "loadfile")
-		    (literal "kill")) (* space) (literal "(") (* anything) (literal ")")(literal ";"))
-	       ;;:lisp construct match
-	       (group
-		(literal ":lisp") (* anything) eol)
-	       ;; Variable definition match
-	       (group bol (* alnum) (literal ":") (* anything) (literal ";"))
-	       ;; Function definition match
-	       (group (+ alnum)(syntax open-parenthesis)
-		      (+ alnum (? (literal ",") ) (? (literal "[")) (? (literal "]")))
-		      (literal ")") (* space) (literal ":=") (* anything) (literal ";"))))))
+	  "\\(\\(?:block\\|load\\|loadfile\\|kill\\)[[:space:]]*([^z-a]*);\\)\\|\\(:lisp[^z-a]*$\\)\\|\\(^[[:alnum:]]*:[^z-a]*;\\)\\|\\([[:alnum:]]+\\s(\\(?:[[:alnum:]],?\\[?]?\\)+)[[:space:]]*:=[^z-a]*;\\)"))
     (string-match-p auxiliar-regex user-string)))
 
 (defun maxima-make-inferior (name &optional test)
