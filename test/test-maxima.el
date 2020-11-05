@@ -196,8 +196,11 @@
 			       "m:sin(%pi/2);"
 			       "kill(\"seksile\");"
 			       ":lisp (format t \"hello from lisp~%\"")))
-	      (seq-contains-p
-	       (seq-map #'maxima-inferior-auxiliar-filter examples) nil))
+	      (if (equal "26.3" emacs-version )
+		  (seq-contains
+	       (seq-map #'maxima-inferior-auxiliar-filter examples) nil)
+		  (seq-contains-p
+		   (seq-map #'maxima-inferior-auxiliar-filter examples) nil)))
 	    "`maxima-inferior-auxiliar-filter' doesn't filter correctly.")
 
 (assert-nil (progn
