@@ -1,0 +1,25 @@
+* Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [[https://keepachangelog.com/en/1.0.0/][Keep a Changelog]].
+
+** [0.7.4] - 2020-11-06
+*** Added
++ Decouple =maxima-get-info-on-subject= from the global auxiliary process
++ The test section of the Makefile has been rewrite, make it suitable for CI/CD
++ The .gitignore file
++ Added CHANGELOG.org
++ Added Gitlab CI/CD integration
+
+*** Changed
++ Now the test are self contained, can be executed without leaving any background process.
++ Some tests are not active, this is due to a CI/CD time problem
+
+*** Fixed
++ Fix maxima-get-completions function in the company integration
++ Compatibility with Emacs 26.3
+
+*** Removed
++ hippie-expand functions 
+
+[0.7.4]: https://gitlab.com/sasanidas/maxima/-/tags/0.7.4
