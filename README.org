@@ -9,31 +9,48 @@
 :END:
 
 :CONTENTS:
+- [[#features][Features]]
 - [[#install][Install]]
   - [[#source][Source]]
   - [[#quelpa][Quelpa]]
   - [[#melpa][Melpa]]
   - [[#use-pacakge--straightel][use-pacakge + straight.el]]
-- [[#usage][Usage]]
-- [[#maxima-mode][Maxima mode]]
+- [[#major-mode][Major-mode]]
+  - [[#indentation][Indentation]]
   - [[#motion-commands][Motion commands]]
   - [[#completions-command][Completions command]]
-  - [[#company-integration][Company integration]]
-  - [[#org-mode-and-latex-integration][Org-mode and Latex integration]]
+  - [[#help-commands][Help commands]]
   - [[#interaction-with-the-maxima-process][Interaction with the Maxima process]]
-  - [[#running-maxima-interactively][Running Maxima interactively]]
-    - [[#scroll-through-previous-commands][Scroll through previous commands,]]
-  - [[#running-maxima-from-the-minibuffer][Running Maxima from the minibuffer]]
+- [[#minor-mode][Minor-mode]]
+  - [[#interaction-commands][Interaction commands]]
   - [[#reading-maxima-results-in-the-minibuffer][Reading Maxima results in the minibuffer]]
-  - [[#maxima-minor-mode][Maxima minor mode]]
-    - [[#enabled-commands][Enabled commands]]
+- [[#inferior-mode][Inferior-mode]]
+  - [[#scroll-through-previous-commands][Scroll through previous commands,]]
+- [[#external-packages][External packages]]
+  - [[#company][Company]]
+  - [[#org-mode-and-latex][Org-mode and Latex]]
+  - [[#imenu][Imenu]]
+  - [[#polymode][Polymode]]
 - [[#license][License]]
 :END:
 
+** Features
+   + Font Highlight 
+   + Smart indentation
+   + Help functions (documentation and symbol signature)
+   + Imenu integration
+   + Latex support ([[https://orgmode.org/manual/Previewing-LaTeX-fragments.html][org-mode-latex-preview]])
+   + Autocompletion support ([[https://github.com/company-mode/company-mode][company-mode]])
+   + Multiple major modes ([[https://github.com/polymode/polymode][polymode]])
+   + Maxima subprocess integration
+   + Minibuffer minor-mode
+   + Tests and CI ([[https://gitlab.com/sasanidas/maxima/-/pipelines][gitlab-ci]])
+   + [[https://gitlab.com/sasanidas/maxima/-/issues?label_name%5B%5D=Feature][More to come!]]
+
+
 ** Install 
 *** Source
-To install, put this repository
-somewhere in your Emacs load path.
+To install, put this repository somewhere in your Emacs load path.
 
 To make sure that  *maxima.el*  is loaded when necessary, whether to
 edit a file in maxima mode or interact with Maxima in an Emacs buffer,
@@ -86,10 +103,57 @@ in *maxima-mode*, for example, put the line:
 
 
 
-** Usage
+** Major-mode
+   Maxima.el major mode, it's the main mode that enhance the maxima editing experience
 
- In *any* of the Maxima modes, to get help on a prompted for Maxima topic,
-use *C-c* *C-d* *h* or *f12*.
+   To put the current buffer into maxima-mode, type:
+   =M-x maxima-mode=
+
+*** Indentation
+
+ Indentation by default will be to the same level as the 
+ previous line, with an additional space added for open parentheses.
+ 
+ The behaviour of indent can be changed by the command =M-x maxima-change-indent-style=.
+ 
+ The possibilities are:
+
+ | *Standard*    | Simply indent                                                                         |
+ | *Perhaps smart* | Tries to guess an appropriate indentation, based on pen parentheses, "do" loops, etc. |
+ 
+ 
+ The default can be set by setting the value of the variable 
+ =maxima-indent-style= to either 'standard or 'perhaps-smart.
+ 
+ In both cases, =M-x maxima-untab= will remove a level of indentation.
+
+
+*** Motion commands
+    Main motions commands, this can be used inside the =maxima-mode= buffer.
+
+    | Key combination | Function name                             | Explanation                                        |
+    |-----------------+-------------------------------------------+----------------------------------------------------|
+    | M-C-a           | maxima-goto-beginning-of-form-interactive | Move to the beginning of the form.                 |
+    | M-C-e           | maxima-goto-end-of-form-interactive       | Move to the end of the form.                       |
+    | M-C-b           | maxima-goto-beginning-of-list-interactive | Move to the beginning of the list.                 |
+    | M-C-f           | maxima-goto-end-of-list-interactive       | Move to the end of the list.                       |
+    | M-h             | maxima-mark-form                          | Mark the current form                              |
+    | C-c )           | maxima-check-parens-region                | Check the current region for balanced parentheses. |
+    | C-c C-)         | maxima-check-form-parens                  | Check the current form for balanced parentheses.   |
+
+
+*** Completions command
+
+    | Key combination | Function name   | Explanation                                                                                                                  |
+    |-----------------+-----------------+------------------------------------------------------------------------------------------------------------------------------|
+    | M-TAB           | maxima-complete | Complete the Maxima symbol as much as possible, providing a completion buffer if there is more than one possible completion. |
+
+    Portions of the buffer can be sent to a Maxima process.  (If a process is  not running, one will be started.)
+
+    
+*** Help commands
+    In *any* of the Maxima modes, to get help on a prompted for Maxima topic,
+    use *C-c* *C-d* *h* or *f12*.
 
   + Help with the symbol under point, use ("d" for describe): 
     
@@ -97,8 +161,7 @@ use *C-c* *C-d* *h* or *f12*.
     |-----------------+--------------------------|
     | C-c C-d d       | maxima-completion-help |
     | C-c C-d C-d     | maxima-completion-help |
- 
- 
+
  + Apropos
    
     | Key combination | Function name  |
@@ -113,7 +176,7 @@ use *C-c* *C-d* *h* or *f12*.
     |-----------------+---------------------|
     | C-c C-d p       | maxima-apropos-help |
     | C-C C-d C-p     | maxima-apropos-help |
- 
+
  + Maxima info manual, use:
 
     | Key combination | Function name |
@@ -128,92 +191,16 @@ use *C-c* *C-d* *h* or *f12*.
  (For Maxima minor mode, replace C-cC-d by C-c=d.)
 
 
-** Maxima mode
-To put the current buffer into maxima-mode, type:
-=M-x maxima-mode=
- 
-
-*** Motion commands
-    | Key combination | Function name                             | Explanation                                        |
-    |-----------------+-------------------------------------------+----------------------------------------------------|
-    | M-C-a           | maxima-goto-beginning-of-form-interactive | Move to the beginning of the form.                 |
-    | M-C-e           | maxima-goto-end-of-form-interactive       | Move to the end of the form.                       |
-    | M-C-b           | maxima-goto-beginning-of-list-interactive | Move to the beginning of the list.                 |
-    | M-C-f           | maxima-goto-end-of-list-interactive       | Move to the end of the list.                       |
-    | M-h             | maxima-mark-form                          | Mark the current form                              |
-    | C-c )           | maxima-check-parens-region                | Check the current region for balanced parentheses. |
-    | C-c C-)         | maxima-check-form-parens                  | Check the current form for balanced parentheses.   |
-
-    
-*** Completions command
-
-    | Key combination | Function name   | Explanation                                                                                                                  |
-    |-----------------+-----------------+------------------------------------------------------------------------------------------------------------------------------|
-    | M-TAB           | maxima-complete | Complete the Maxima symbol as much as possible, providing a completion buffer if there is more than one possible completion. |
-
-Portions of the buffer can be sent to a Maxima process.  (If a process is  not running, one will be started.)
-
-
-*** Company integration
-    Maxima.el have a company backend for people who use [[https://melpa.org/#/company][company-mode]], to enable it, make sure that [[file:company-maxima.el][company-maxima.el]] is loaded
-    add this to your .emacs/init.el file:
-
-    #+begin_src emacs-lisp :tangle yes
-    (require 'company-maxima)
-    (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
-    #+end_src
-    
-    This will create the backend and add it to the =company-backends= list.
-
-
-*** Org-mode and Latex integration
-    By default, [[https://orgmode.org/][org-mode]] supports maxima syntax highlight, export results and plot integration.
-    To enable it, you have add it to =org-babel-load-languages= :
-
-    #+begin_src emacs-lisp :tangle yes
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((maxima . t))) 
-    #+end_src
-    More information in [[https://www.orgmode.org/worg/org-contrib/babel/languages/ob-doc-maxima.html][here]].
-    
-    With tex integration, we use org-mode latex functionalities, to use it you must have:
-
-    + [[HTTPS://www.latex-project.org/get/][LATEX]] 
-    + One of the =org-preview-latex= software in order to convert latex to image
-      + dvipng
-      + dvisvgm
-      + imagemagic
-
-    The variable =org-preview-latex-process-alist= show more extend information about it, the default
-    one is defined in =org-preview-latex-default-process=.
-
-    It is recommended to increase the latex format font, the default one is quite small:
-    #+begin_src emacs-lisp :tangle yes
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
-    #+end_src
-    
-    Available functions:
-
-| Function name            | Explanation                                         |
-|--------------------------+-----------------------------------------------------|
-| maxima-latex-insert-form | Insert the preview latex image below the current form |
-
-
-
-
 *** Interaction with the Maxima process
  When something is sent to Maxima, a buffer running an inferior Maxima 
- process will appear.  
+ process will appear if the variable =maxima-display-buffer= is t (default behaviour).
 
  It can also be made to appear by using the command =C-c C-p=.
 
  When a command is given to send information to Maxima, the region
  (buffer, line, form) is first checked to make sure the parentheses
  are balanced.  
- 
- With an argument, they *will not* be checked first.
- 
+
  The Maxima process can be killed, after asking for confirmation 
  with =C-c C-k=.  
  
@@ -230,56 +217,45 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
     | M-RET           | maxima-send-completed-region-and-goto-next-form | As above, but with the region instead of the current line.                                                          |
     | C-c C-l         | maxima-load-file                                | Prompt for a file name to load into Maxima.                                                                         |
 
-
- By default, indentation will be to the same level as the 
- previous line, with an additional space added for open parentheses.
  
- The behaviour of indent can be changed by the command =M-x maxima-change-indent-style=.
+    
+** Minor-mode
+
+ =maxima-minor-mode= provides convenient keybindings for the various
+ interactions between Maxima and the minibuffer.
  
- The possibilities are:
-
- | Standard      | Simply indent                                                                         |
- | Perhaps smart | Tries to guess an appropriate indentation, based on pen parentheses, "do" loops, etc. |
+ It can be made easily available with =M-x maxima-minor-mode=, that will start the minor mode.
  
- 
- The default can be set by setting the value of the variable 
- =maxima-indent-style= to either 'standard or 'perhaps-smart.
- 
+ There is also the possibility to enable =maxima-minor-mode= globally with:
 
- In both cases, =M-x maxima-untab= will remove a level of indentation.
+#+begin_src emacs-lisp
+  (require 'maxima)
+  (global-maxima-minor-mode)
+#+end_src
 
-
-*** Running Maxima interactively 
- 
- To run Maxima interactively in a buffer, type =M-x maxima=
- In the Maxima process buffer,return will check the line for balanced parentheses, and send line as input.
- 
-**** Scroll through previous commands,
-
-     | Key combination | Explanation                                                           |
-     |-----------------+-----------------------------------------------------------------------|
-     | M-p             | Bring the previous input to the current prompt,                       |
-     | M-n             | Bring the next input to the prompt.                                   |
-     | M-r             | Bring the previous input matching a regular expression to the prompt, |
-     | M-s             | Bring the next input matching a regular expression to the prompt.     |
-
-
-*** Running Maxima from the minibuffer
+*** Interaction commands
 
  The command =M-x maxima-minibuffer=
  will allow you to interact with Maxima from the minibuffer.  
  The arrows will allow you to scroll through previous inputs.
- 
- If the variable maxima-minibuffer-2d is non-nil, then the output
- will be in Maxima's 2d output form, otherwise it will be in 
- Maxima's 1d output form. 
- 
+
  The command =maxima-insert-last-output= will insert
  the last maxima output into the current buffer; if the output is in 2d, 
- this will look unpleasant.  The command  maxima-insert-last-output-tex
+ this will look unpleasant.  
+ The command  =maxima-insert-last-output-tex=
  will insert the TeX form of the output.
- 
 
+     | Key combination | Function                               |
+     |-----------------+----------------------------------------|
+     | C-c=e           | maxima-minibuffer-on-determined-region |
+     | C-c=l           | maxima-minibuffer-on-line              |
+     | C-c=r           | maxima-minibuffer-on-region            |
+     | C-c=f           | maxima-minibuffer-on-form              |
+     | C-c=m           | maxima-minibuffer                      |
+     | C-c=o           | maxima-insert-last-output              |
+     | C-c=t           | maxima-insert-last-output-tex          |
+
+     
 *** Reading Maxima results in the minibuffer 
 
  The command =maxima-minibuffer-on-determined-region= 
@@ -315,36 +291,115 @@ Portions of the buffer can be sent to a Maxima process.  (If a process is  not r
  =maxima-minibuffer-on-determined-region= above, everything after any
  "==>" in the region will be ignored.  
  
- 
  What will typically happen with =maxima-minibuffer-on-region= and
  =maxima-minibuffer-on-form=, however, is that new outputs will
  be inserted without old output being deleted.
 
  
-*** Maxima minor mode
- maxima-minor-mode provides convenient keybindings for the various
- interactions between Maxima and the minibuffer.
+
  
- It can be made easily available with =M-x maxima-minor-mode=, that will start the minor mode.
+** Inferior-mode
+ To run Maxima interactively in a inferior-buffer, type =M-x maxima=
+ In the Maxima process buffer,return will check the line for balanced parentheses, and send line as input.
  
- There is also the posibility to enable =maxima-minor-mode= globally with:
-#+begin_src emacs-lisp
-  (require 'maxima)
-  (global-maxima-minor-mode)
+**** Scroll through previous commands
 
-#+end_src
+     | Key combination | Explanation                                                           |
+     |-----------------+-----------------------------------------------------------------------|
+     | M-p             | Bring the previous input to the current prompt,                       |
+     | M-n             | Bring the next input to the prompt.                                   |
+     | M-r             | Bring the previous input matching a regular expression to the prompt, |
+     | M-s             | Bring the next input matching a regular expression to the prompt.     |
 
-**** Enabled commands
-     | Key combination | Function                               |
-     |-----------------+----------------------------------------|
-     | C-c=e           | maxima-minibuffer-on-determined-region |
-     | C-c=l           | maxima-minibuffer-on-line              |
-     | C-c=r           | maxima-minibuffer-on-region            |
-     | C-c=f           | maxima-minibuffer-on-form              |
-     | C-c=m           | maxima-minibuffer                      |
-     | C-c=o           | maxima-insert-last-output              |
-     | C-c=t           | maxima-insert-last-output-tex          |
+     
+** External packages
+   These are integration with various packages from internal Emacs, [[https://elpa.gnu.org/][ELPA]] or [[https://melpa.org/][MELPA]].
 
+*** Company
+    Maxima.el have a company backend for people who use [[https://melpa.org/#/company][company-mode]], to enable it, make sure that [[file:company-maxima.el][company-maxima.el]] is loaded.
+    (Assume that the file is already in the =load-path=)
+    For example:
+
+    #+begin_src emacs-lisp :tangle yes
+    (require 'company-maxima)
+    (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
+    #+end_src
+    
+    This will create the backend and add it to the =company-backends= list.
+
+
+*** Org-mode and Latex
+    By default, [[https://orgmode.org/][org-mode]] supports maxima syntax highlight, export results and plot integration.
+    To enable it, you have add it to =org-babel-load-languages= :
+
+    #+begin_src emacs-lisp :tangle yes
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((maxima . t))) 
+    #+end_src
+
+    More information in [[https://www.orgmode.org/worg/org-contrib/babel/languages/ob-doc-maxima.html][here]].
+    
+    With tex integration, we use org-mode latex functionalities, to use it you must have:
+
+    + [[HTTPS://www.latex-project.org/get/][LATEX]] 
+    + One of the =org-preview-latex= software in order to convert latex to image
+      + dvipng
+      + dvisvgm
+      + imagemagic
+
+    The variable =org-preview-latex-process-alist= show more extend information about it, the default
+    one is defined in =org-preview-latex-default-process=.
+
+    It is recommended to increase the latex format font, the default one is quite small:
+    #+begin_src emacs-lisp :tangle yes
+(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+    #+end_src
+    
+    Available functions:
+
+| Function name            | Explanation                                         |
+|--------------------------+-----------------------------------------------------|
+| maxima-latex-insert-form | Insert the preview latex image below the current form |
+
+
+
+
+
+*** Imenu
+   The integration is activated by default in any =maxima-mode= buffer, 
+   to get the list, just call the =imenu= interactive function.
+
+
+*** Polymode
+    *EXPERIMENTAL*
+
+    Maxima has the statement :lisp, which enable common-lisp integration,
+    this polymode make possible to have =common-lisp-mode= enable inside
+    the =maxima-mode= buffer.
+
+    Make sure that the file [[file:poly-maxima.el][poly-maxima.el]] is loaded, you can try this configuration:
+    (Assume that the file is already in the =load-path=)
+
+    #+begin_src emacs-lisp :tangle yes
+    (require 'poly-maxima)
+    (setq auto-mode-alist (cons '("\\.mac" . poly-maxima) auto-mode-alist))
+    #+end_src
+
+    The way it works is that it creates a custom tail with a comment, so
+    you can expand all the lisp code the way you want, and then contract it with a simple command.
+    (Maxima only allow one line :lisp statement)
+    
+    Available functions:
+
+| Function name             | Explanation                                                  |
+|---------------------------+--------------------------------------------------------------|
+| poly-maxima-insert-block  | Insert a :lisp code with the correct poly-maxima syntax.     |
+| poly-maxima-contract-lisp | Handy function to contract into a single line the Lisp code. |
+    
+
+
+    
 
 ** License
 #+begin_example
