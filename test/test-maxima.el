@@ -245,7 +245,7 @@
 (assert-t
  (let* ((inferior (maxima-make-inferior "test"))
 	(response nil))
-   (maxima-get-info-on-subject "sqrt" inferior  t)
+   (maxima-get-info-on-subject inferior "sqrt" t)
    (setq response (bufferp (get-buffer "*maxima-help*")))
    (maxima-remove-inferior inferior)
    response)
