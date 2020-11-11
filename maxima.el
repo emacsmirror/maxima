@@ -1408,7 +1408,7 @@ function arguments documentation."
 			       (format "%s" element))
 			     (maxima-document-get symbol maxima-auxiliary-inferior-process) " || "))))
 
-(defun maxima-get-info-on-subject (subject inferior-process &optional test)
+(defun maxima-get-info-on-subject (inferior-process  subject &optional test)
   "Get info of the Maxima SUBJECT in the INFERIOR-PROCESS.
 The TEST variable is for test purpose."
   (let* ((command-output nil)
