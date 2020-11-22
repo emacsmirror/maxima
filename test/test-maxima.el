@@ -201,7 +201,7 @@
 			       "kill(\"seksile\")$"
 			       ":lisp (format t \"hello from lisp~%\"")))
 	      (if (< (string-to-number emacs-version) 27.1)
-		  (seq-contains-p
+		  (seq-contains
 		   (seq-map #'maxima-inferior-auxiliar-filter examples) nil)
 		(seq-contains-p
 		 (seq-map #'maxima-inferior-auxiliar-filter examples) nil)))
@@ -214,7 +214,7 @@
 			     "draw(scene1, scene2, columns = 2)$"
 			     "draw(scene1, scene2, columns = 2);")))
 	    (if (< (string-to-number emacs-version) 27.1)
-		(not (seq-contains-p
+		(not (seq-contains
 		      (seq-map #'maxima-inferior-auxiliar-filter examples)0))
 	      (not (seq-contains-p
 		    (seq-map #'maxima-inferior-auxiliar-filter examples) 0))))
