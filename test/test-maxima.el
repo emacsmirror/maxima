@@ -192,15 +192,16 @@
 (assert-nil (let* ((examples '("load(\"alsdfasfd\");"
 			       "block([asdfasdfjh],x);"
 			       "loadfile(\"dasdasdajjkkJJk23.mac\");"
+			       "loadfile(\"dasdasdajjkkJJk23.mac\")$"
 			       "f(x,t,[x])  := x^2;"
 			       "m:sin(%pi/2);"
 			       "kill(\"seksile\");"
 			       ":lisp (format t \"hello from lisp~%\"")))
-	      (if (equal "26.3" emacs-version )
+	      (if (< (string-to-number emacs-version) 27.1)
 		  (seq-contains
-	       (seq-map #'maxima-inferior-auxiliar-filter examples) nil)
-		  (seq-contains-p
-		   (seq-map #'maxima-inferior-auxiliar-filter examples) nil)))
+		   (seq-map #'maxima-inferior-auxiliar-filter examples) nil)
+		(seq-contains-p
+		 (seq-map #'maxima-inferior-auxiliar-filter examples) nil)))
 	    "`maxima-inferior-auxiliar-filter' doesn't filter correctly.")
 
 (assert-nil (progn
