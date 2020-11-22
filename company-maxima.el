@@ -5,7 +5,7 @@
 ;; Author: Fermin Munoz
 ;; Maintainer: Fermin Munoz <fmfs@posteo.net>
 ;; Created: 5 October 2020
-;; Version: 0.7.4
+;; Version: 0.7.6
 ;; Keywords: languages,tools,convenience
 ;; URL: https://gitlab.com/sasanidas/maxima
 ;; Package-Requires: ((emacs "25.1")(maxima "0.6.1")(seq "2.20")(company "0.9.13"))

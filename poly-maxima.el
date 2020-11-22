@@ -5,7 +5,7 @@
 ;; Author: Fermin Munoz
 ;; Maintainer: Fermin Munoz <fmfs@posteo.net>
 ;; Created: 8 Oct 2020
-;; Version: 0.7.4
+;; Version: 0.7.6
 ;; Keywords: languages, maxima,lisp
 ;; URL: https://gitlab.com/sasanidas/maxima
 ;; Package-Requires: ((emacs "25") (polymode "0.1.5") (maxima "0.6.0") )

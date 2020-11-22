@@ -3,6 +3,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [[https://keepachangelog.com/en/1.0.0/][Keep a Changelog]].
 
+** [0.7.6] - 2020-11-22
+*** Added
++ Test for the non-nil =maxima-inferior-auxiliar-filter=
++ Added =maxima-apropos= menu button
++ Added =maxima-symbol-doc= menu button and key binding
+
+*** Changed
++ README updated with the new functions
+
+*** Fixed
++ Delete duplicated README information
++ Fix =maxima-inferior-filter= function, now it take into account the $ operator
+
+*** Removed
++ -interactive suffix functions
+
+[0.7.6]: https://gitlab.com/sasanidas/maxima/-/tags/0.7.6
+
+
+** [0.7.5] - 2020-11-11
+*** Added
+
+*** Changed
+
+*** Fixed
++ Fix function order of arguments
+
+*** Removed
+
+[0.7.5]: https://gitlab.com/sasanidas/maxima/-/tags/0.7.5
+
+
 ** [0.7.4] - 2020-11-06
 *** Added
 + Decouple =maxima-get-info-on-subject= from the global auxiliary process

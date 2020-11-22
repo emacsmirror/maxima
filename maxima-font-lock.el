@@ -9,7 +9,7 @@
 ;; Maintainer: Fermin Munoz <fmfs@posteo.net>
 ;; Revision: 1.16
 ;; Created: 30 April 2020
-;; Version: 0.7.4
+;; Version: 0.7.6
 ;; Keywords: maxima, tools, math
 ;; URL: https://gitlab.com/sasanidas/maxima
 ;; License: GPL-3.0-or-later

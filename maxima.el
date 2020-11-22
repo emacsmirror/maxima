@@ -9,7 +9,7 @@
 ;;         Fermin Munoz
 ;; Maintainer: Fermin Munoz <fmfs@posteo.net>
 ;; Created: 30 April 2020
-;; Version: 0.7.4
+;; Version: 0.7.6
 ;; Keywords: maxima,tools,math
 ;; URL: https://gitlab.com/sasanidas/maxima
 ;; Package-Requires: ((emacs "25.1")(s "1.11.0")(test-simple "1.3.0"))
