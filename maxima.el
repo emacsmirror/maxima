@@ -2246,7 +2246,7 @@ This prevents gnuplot or similar functions to show duplicates
 graphics and allow only some commands.  This only affects user
 sending commands throw `maxima-string'"
   (let* ((auxiliar-regex
-	  "\\(\\(?:block\\|load\\|loadfile\\|kill\\)[[:space:]]*([^z-a]*);\\)\\|\\(:lisp[^z-a]*$\\)\\|\\(^[[:alnum:]]*:[^z-a]*;\\)\\|\\([[:alnum:]]+\\s(\\(?:[[:alnum:]],?\\[?]?\\)+)[[:space:]]*:=[^z-a]*;\\)"))
+	  "\\(\\(?:block\\|load\\|loadfile\\|kill\\)[[:space:]]*([^z-a]*);\\|$\\)\\|\\(:lisp[^z-a]*$\\)\\|\\(^[[:alnum:]]*:[^z-a]*;\\)\\|\\([[:alnum:]]+\\s(\\(?:[[:alnum:]],?\\[?]?\\)+)[[:space:]]*:=[^z-a]*;\\)"))
     (string-match-p auxiliar-regex user-string)))
 
 (defun maxima-make-inferior (name &optional test)
