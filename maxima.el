@@ -1636,6 +1636,7 @@ nil and ARG2 non-nil call `maxima-completion-help'."
     nil
   (let ((map (make-sparse-keymap)))
     (define-key map "h" 'maxima-help)
+    (define-key map "s" 'maxima-symbol-doc)
     (define-key map "d" 'maxima-completion-help)
     (define-key map "\C-d" 'maxima-completion-help)
     (define-key map "i" 'maxima-info)
@@ -1976,7 +1977,7 @@ It uses BEG and END as a parameters."
      ["Beginning of sexp" maxima-goto-beginning-of-list t]
      ["End of sexp" maxima-goto-end-of-list t])
     ("Process"
-     ;; ["Start process" maxima-start t]
+     ["Start process" maxima-init-inferiors t]
      ["Send region" maxima-send-region t]
      ["Send buffer" maxima-send-buffer t]
      ["Send line" maxima-send-line t]
@@ -1985,7 +1986,7 @@ It uses BEG and END as a parameters."
      "----"
      ["Display buffer" maxima-display-buffer t]
      "----"
-     ["Kill process" maxima-stop t])
+     ["Kill main processes" maxima-stop t])
     ("Indentation"
      ["Change to basic" (maxima-change-indent-style "b")
       (not (eq maxima-indent-style 'basic))]
@@ -2001,6 +2002,8 @@ It uses BEG and END as a parameters."
      ["Uncomment region" maxima-uncomment-region t])
     ("Help"
      ["Maxima info" maxima-info t]
+     ["Maxima apropos" maxima-apropos t]
+     ["Maxima eldoc" maxima-symbol-doc t]
      ["Help" maxima-help t])))
 
 
@@ -2270,11 +2273,13 @@ The TEST variable is for test purpose."
 The inferior processes are defined inside
 the variables `maxima-inferior-process' and `maxima-auxiliary-inferior-process'.
 This functions assigns process to those variables."
+  (interactive)
   (unless maxima-inferior-process
     (maxima-start maxima-inferior-process "maxima"))
   (unless maxima-auxiliary-inferior-process
     (maxima-start maxima-auxiliary-inferior-process "aux-maxima")))
 
+;;;###autoload
 (defmacro maxima-start (inferior-symbol name)
   "Start a maxima process and save the process in INFERIOR-SYMBOL.
 The process name is passed in NAME."
@@ -2484,7 +2489,6 @@ string is going to be sent to
 
 ;;; Some functions to send commands to the process.
 
-;; FIXME test this function when `maxima-display-buffer' is t.
 (defun maxima-send-region (beg end &optional arg)
   "Send the current region between BEG and END to the Maxima process.
 With ARG , don't check the parentheses first."

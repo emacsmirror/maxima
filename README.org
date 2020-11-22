@@ -155,12 +155,18 @@ in *maxima-mode*, for example, put the line:
     In *any* of the Maxima modes, to get help on a prompted for Maxima topic,
     use *C-c* *C-d* *h* or *f12*.
 
-  + Help with the symbol under point, use ("d" for describe): 
+ + Help with the symbol under point, use ("d" for describe): 
     
-    | Key combination | Function name            |
-    |-----------------+--------------------------|
+    | Key combination | Function name          |
+    |-----------------+------------------------|
     | C-c C-d d       | maxima-completion-help |
     | C-c C-d C-d     | maxima-completion-help |
+
+ + Eldoc-like information
+    
+    | Key combination | Function name     |
+    |-----------------+-------------------|
+    | C-c C-d s       | maxima-symbol-doc |
 
  + Apropos
    
