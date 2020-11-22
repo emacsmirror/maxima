@@ -772,6 +772,7 @@ If character is in a string or a list, ignore it."
 
 (defun maxima-goto-beginning-of-form ()
   "Move to the beginning of the form."
+  (interactive)
   (let ((pt (point))
         (keep-looking t))
     (while (and keep-looking
@@ -787,14 +788,9 @@ If character is in a string or a list, ignore it."
         (goto-char pt))
     (point)))
 
-;; FIXME I think there is no need to an interactive separate function.
-(defun maxima-goto-beginning-of-form-interactive ()
-  "Move to the beginning of the form."
-  (interactive)
-  (maxima-goto-beginning-of-form))
-
 (defun maxima-goto-end-of-form ()
   "Move to the end of the form."
+  (interactive)
   (let ((keep-looking t)
         (pt (point)))
     (while (and keep-looking
@@ -807,12 +803,6 @@ If character is in a string or a list, ignore it."
         (point)
       (goto-char pt)
       nil)))
-
-(defun maxima-goto-end-of-form-interactive ()
-  "Move to the end of the form."
-  (interactive)
-  (unless (maxima-goto-end-of-form)
-    (message "No end of form")))
 
 (defun maxima-goto-end-of-expression ()
   "Find the point that ends the expression that begins at point.
@@ -855,29 +845,16 @@ Return t if possible, nil otherwise."
       nil
     t))
 
-(defun maxima-goto-end-of-list-interactive ()
-  "Go up a list."
-  (interactive)
-  (if (maxima-goto-end-of-list)
-      t
-    (error "No list to end")))
-
 (defun maxima-goto-beginning-of-list ()
   "Go up a list backwards.
 Return t if possible, nil otherwise."
+  (interactive)
   (if
       (condition-case nil
           (up-list -1)
         (error t))
       nil
     t))
-
-(defun maxima-goto-beginning-of-list-interactive ()
-  "Go up a list."
-  (interactive)
-  (if (maxima-goto-beginning-of-list)
-      t
-    (error "No list to begin")))
 
 (defun maxima-forward-list ()
   "Go forward a list.
@@ -1938,10 +1915,10 @@ It uses BEG and END as a parameters."
     nil
   (let ((map (make-sparse-keymap)))
     ;; Motion
-    (define-key map "\M-\C-a" 'maxima-goto-beginning-of-form-interactive)
-    (define-key map "\M-\C-e" 'maxima-goto-end-of-form-interactive)
-    (define-key map "\M-\C-b" 'maxima-goto-beginning-of-list-interactive)
-    (define-key map "\M-\C-f" 'maxima-goto-end-of-list-interactive)
+    (define-key map "\M-\C-a" 'maxima-goto-beginning-of-form)
+    (define-key map "\M-\C-e" 'maxima-goto-end-of-form)
+    (define-key map "\M-\C-b" 'maxima-goto-beginning-of-list)
+    (define-key map "\M-\C-f" 'maxima-goto-end-of-list)
     ;; Process
     (define-key map "\C-c\C-p" 'maxima-display-buffer)
     (define-key map "\C-c\C-r" 'maxima-send-region)
@@ -1994,10 +1971,10 @@ It uses BEG and END as a parameters."
 (easy-menu-define maxima-mode-menu maxima-mode-map "Maxima mode menu"
   '("Maxima"
     ("Motion"
-     ["Beginning of form" maxima-goto-beginning-of-form-interactive t]
-     ["End of form" maxima-goto-end-of-form-interactive t]
-     ["Beginning of sexp" maxima-goto-beginning-of-list-interactive t]
-     ["End of sexp" maxima-goto-end-of-list-interactive t])
+     ["Beginning of form" maxima-goto-beginning-of-form t]
+     ["End of form" maxima-goto-end-of-form t]
+     ["Beginning of sexp" maxima-goto-beginning-of-list t]
+     ["End of sexp" maxima-goto-end-of-list t])
     ("Process"
      ;; ["Start process" maxima-start t]
      ["Send region" maxima-send-region t]
@@ -2059,10 +2036,10 @@ It uses BEG and END as a parameters."
   "Major mode for editing Maxima code.
 
 Maxima mode provides the following motion commands:
-\\[maxima-goto-beginning-of-form-interactive]: Move to the beginning of the form.
-\\[maxima-goto-end-of-form-interactive]: Move to the end of the form.
-\\[maxima-goto-beginning-of-list-interactive]: Move to the beginning of the sexp.
-\\[maxima-goto-end-of-list-interactive]: Move to the end of the sexp.
+\\[maxima-goto-beginning-of-form]: Move to the beginning of the form.
+\\[maxima-goto-end-of-form]: Move to the end of the form.
+\\[maxima-goto-beginning-of-list]: Move to the beginning of the sexp.
+\\[maxima-goto-end-of-list]: Move to the end of the sexp.
 
 and the following miscellaneous commands.
 \\[maxima-mark-form]: Mark the current form
@@ -2555,7 +2532,7 @@ With ARG, don't check parentheses."
 Then go to the end of form."
   (interactive "P")
   (maxima-send-previous-form arg)
-  (maxima-goto-end-of-form-interactive))
+  (maxima-goto-end-of-form))
 
 (defun maxima-send-full-line ()
   "Send the minimum number of lines such that the current is one of them.

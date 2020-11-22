@@ -131,15 +131,15 @@ in *maxima-mode*, for example, put the line:
 *** Motion commands
     Main motions commands, this can be used inside the =maxima-mode= buffer.
 
-    | Key combination | Function name                             | Explanation                                        |
-    |-----------------+-------------------------------------------+----------------------------------------------------|
-    | M-C-a           | maxima-goto-beginning-of-form-interactive | Move to the beginning of the form.                 |
-    | M-C-e           | maxima-goto-end-of-form-interactive       | Move to the end of the form.                       |
-    | M-C-b           | maxima-goto-beginning-of-list-interactive | Move to the beginning of the list.                 |
-    | M-C-f           | maxima-goto-end-of-list-interactive       | Move to the end of the list.                       |
-    | M-h             | maxima-mark-form                          | Mark the current form                              |
-    | C-c )           | maxima-check-parens-region                | Check the current region for balanced parentheses. |
-    | C-c C-)         | maxima-check-form-parens                  | Check the current form for balanced parentheses.   |
+    | Key combination | Function name                 | Explanation                                        |
+    |-----------------+-------------------------------+----------------------------------------------------|
+    | M-C-a           | maxima-goto-beginning-of-form | Move to the beginning of the form.                 |
+    | M-C-e           | maxima-goto-end-of-form       | Move to the end of the form.                       |
+    | M-C-b           | maxima-goto-beginning-of-list | Move to the beginning of the list.                 |
+    | M-C-f           | maxima-goto-end-of-list       | Move to the end of the list.                       |
+    | M-h             | maxima-mark-form              | Mark the current form                              |
+    | C-c )           | maxima-check-parens-region    | Check the current region for balanced parentheses. |
+    | C-c C-)         | maxima-check-form-parens      | Check the current form for balanced parentheses.   |
 
 
 *** Completions command
