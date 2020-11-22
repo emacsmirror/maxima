@@ -2229,16 +2229,17 @@ It requires PROC and STATE."
 ;;       (or (literal "block")
 ;; 	  (literal "load")
 ;; 	  (literal "loadfile")
-;; 	  (literal "kill")) (* space) (literal "(") (* anything) (literal ")")(literal ";"))
+;; 	  (literal "kill")) (* space) (literal "(") (* anything) (literal ")")(or (literal ";") (literal "$")))
 ;;      ;;:lisp construct match
 ;;      (group
 ;;       (literal ":lisp") (* anything) eol)
 ;;      ;; Variable definition match
-;;      (group bol (* alnum) (literal ":") (* anything) (literal ";"))
+;;      (group bol (* alnum) (literal ":") (* anything) (or (literal ";") (literal "$")))
 ;;      ;; Function definition match
 ;;      (group (+ alnum)(syntax open-parenthesis)
 ;; 	    (+ alnum (? (literal ",") ) (? (literal "[")) (? (literal "]")))
-;; 	    (literal ")") (* space) (literal ":=") (* anything) (literal ";"))))
+;; 	    (literal ")") (* space) (literal ":=") (* anything)
+;; 	    (or (literal ";") (literal "$")))))
 
 (defun maxima-inferior-auxiliar-filter (user-string)
   "Check if USER-STRING is allow in the auxiliar-process.
@@ -2246,7 +2247,7 @@ This prevents gnuplot or similar functions to show duplicates
 graphics and allow only some commands.  This only affects user
 sending commands throw `maxima-string'"
   (let* ((auxiliar-regex
-	  "\\(\\(?:block\\|load\\|loadfile\\|kill\\)[[:space:]]*([^z-a]*);\\|$\\)\\|\\(:lisp[^z-a]*$\\)\\|\\(^[[:alnum:]]*:[^z-a]*;\\)\\|\\([[:alnum:]]+\\s(\\(?:[[:alnum:]],?\\[?]?\\)+)[[:space:]]*:=[^z-a]*;\\)"))
+	  "\\(\\(?:block\\|load\\|loadfile\\|kill\\)[[:space:]]*([^z-a]*)\\(?:;\\|\\$\\)\\)\\|\\(:lisp[^z-a]*$\\)\\|\\(^[[:alnum:]]*:[^z-a]*\\(?:;\\|\\$\\)\\)\\|\\([[:alnum:]]+\\s(\\(?:[[:alnum:]],?\\[?]?\\)+)[[:space:]]*:=[^z-a]*\\(?:;\\|\\$\\)\\)"))
     (string-match-p auxiliar-regex user-string)))
 
 (defun maxima-make-inferior (name &optional test)

@@ -194,15 +194,31 @@
 			       "loadfile(\"dasdasdajjkkJJk23.mac\");"
 			       "loadfile(\"dasdasdajjkkJJk23.mac\")$"
 			       "f(x,t,[x])  := x^2;"
+			       "f(x,t,[x])  := x^2$"
 			       "m:sin(%pi/2);"
+			       "m:sin(%pi/2)$"
 			       "kill(\"seksile\");"
+			       "kill(\"seksile\")$"
 			       ":lisp (format t \"hello from lisp~%\"")))
 	      (if (< (string-to-number emacs-version) 27.1)
-		  (seq-contains
+		  (seq-contains-p
 		   (seq-map #'maxima-inferior-auxiliar-filter examples) nil)
 		(seq-contains-p
 		 (seq-map #'maxima-inferior-auxiliar-filter examples) nil)))
 	    "`maxima-inferior-auxiliar-filter' doesn't filter correctly.")
+
+;;DOC The function `maxima-inferior-auxiliar-filter' return the position of the
+;; regex, in these case, all the regex position are 0.
+(assert-t (let* ((examples '("plot2d(f(x),[x,1,100]);"
+			     "plot2d(f(x),[x,1,100])$"
+			     "draw(scene1, scene2, columns = 2)$"
+			     "draw(scene1, scene2, columns = 2);")))
+	    (if (< (string-to-number emacs-version) 27.1)
+		(not (seq-contains-p
+		      (seq-map #'maxima-inferior-auxiliar-filter examples)0))
+	      (not (seq-contains-p
+		    (seq-map #'maxima-inferior-auxiliar-filter examples) 0))))
+	  "`maxima-inferior-auxiliar-filter' doesn't filter correctly.")
 
 (assert-nil (progn
 	      (maxima-init-inferiors)
