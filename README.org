@@ -184,7 +184,6 @@ in *maxima-mode*, for example, put the line:
     | C-c C-d m       | maxima-info   |
     | C-C C-d C-m     | maxima-info   |
     | C-C C-d i       | maxima-info   |
-    | C-C C-d i       | maxima-info   |
     | C-C C-d C-i     | maxima-info   |
 
  
