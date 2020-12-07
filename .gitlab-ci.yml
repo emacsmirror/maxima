@@ -7,11 +7,6 @@ variables:
   VERSION: "0.7.6"
   PKG: "maxima-${VERSION}.tar.gz"
 
-default:
-  before_script:
-    - apt-get update && apt-get install -y make maxima
-
-
 byte-compile:27.1:
   stage: byte-compile
   image: silex/emacs:27.1
@@ -21,14 +16,30 @@ byte-compile:27.1:
 test:27.1:
   stage: test
   image: silex/emacs:27.1
+  before_script:
+    - apt-get update && apt-get install -y make maxima
   script:
     - make test
+
+lint:27.1:
+  stage: test
+  image: silex/emacs:27.1
+  script:
+    - make lint
 
 test:26.3:
   stage: test
   image: silex/emacs:26.3
+  before_script:
+    - apt-get update && apt-get install -y make maxima
   script:
     - make test
+
+lint:26.3:
+  stage: test
+  image: silex/emacs:26.3
+  script:
+    - make lint
 
 artifact:
   stage: artifact

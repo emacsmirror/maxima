@@ -1,6 +1,6 @@
 EMACS=emacs
 
-.PHONY: test package elpa clean build-keywords compile-test
+.PHONY: test package elpa clean build-keywords compile-test lint
 
 package: *.el
 	@ver=`grep -o "Version: .*" maxima.el | cut -c 10-`; \
@@ -23,6 +23,9 @@ make-test:
 	${EMACS}  --batch -l test/make-install.el -l test/make-test.el 
 
 test: make-test clean
+
+lint:
+	${EMACS} --batch -l test/make-install.el -f package-lint-batch-and-exit maxima.el
 
 build-keywords:
 	awk '/^ -- Function/' keywords/keywords.txt > keywords/functions
