@@ -1,4 +1,5 @@
 EMACS=emacs
+FILES=maxima.el company-maxima.el maxima-font-lock.el
 
 .PHONY: test package elpa clean build-keywords compile-test lint
 
@@ -25,7 +26,7 @@ make-test:
 test: make-test clean
 
 lint:
-	${EMACS} --batch -l test/make-install.el -f package-lint-batch-and-exit maxima.el
+	${EMACS} --batch -l test/make-install.el -f checkdoc ${FILES} -f package-lint-batch-and-exit ${FILES}
 
 build-keywords:
 	awk '/^ -- Function/' keywords/keywords.txt > keywords/functions
