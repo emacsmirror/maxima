@@ -26,7 +26,7 @@ make-test:
 test: make-test clean
 
 lint:
-	${EMACS} --batch -l test/make-install.el -f checkdoc ${FILES} -f package-lint-batch-and-exit ${FILES}
+	${EMACS} --batch -l test/make-install.el -f package-lint-batch-and-exit ${FILES}
 
 build-keywords:
 	awk '/^ -- Function/' keywords/keywords.txt > keywords/functions
