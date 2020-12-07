@@ -7,6 +7,11 @@ variables:
   VERSION: "0.7.6"
   PKG: "maxima-${VERSION}.tar.gz"
 
+default:
+  before_script:
+    - apt-get update && apt-get install -y make
+
+
 byte-compile:27.1:
   stage: byte-compile
   image: silex/emacs:27.1
