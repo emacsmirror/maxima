@@ -236,7 +236,7 @@ Available with function `maxima-minor-mode'."
   '(maxima-inferior-output-filter
     maxima-inferior-replace-tabs-by-spaces
     maxima-inferior-remove-double-input-prompt)
-  "List of functions to when `maxima-make-inferior' is called."
+  "List of functions to use when `maxima-make-inferior' is called."
   :group 'maxima
   :type 'list)
 
