@@ -2255,6 +2255,8 @@ The TEST variable is for test purpose."
     (setq proc (get-buffer-process proc-buf))
     (unless test
       (maxima-inferior-wait-for-output proc))
+    (with-current-buffer proc-buf
+      (goto-char (point-max)))
     proc))
 
 ;;;###autoload
@@ -2270,9 +2272,12 @@ The inferior processes are defined inside
 the variables `maxima-inferior-process' and `maxima-auxiliary-inferior-process'.
 This functions assigns process to those variables."
   (interactive)
-  (unless maxima-inferior-process
+  (unless (and (get-process "maxima")
+	       maxima-inferior-process)
     (maxima-start maxima-inferior-process "maxima"))
-  (unless maxima-auxiliary-inferior-process
+
+  (unless (and (get-process "aux-maxima")
+	       maxima-auxiliary-inferior-process)
     (maxima-start maxima-auxiliary-inferior-process "aux-maxima")))
 
 ;;;###autoload

@@ -180,6 +180,17 @@
 
 (note "Inferior process functions")
 
+
+(assert-t (let* ((inferior (maxima-make-inferior "test" t))
+		 (inferior-buffer (process-buffer inferior))
+		 (inferior-point))
+	    (with-current-buffer inferior-buffer
+	      (setq inferior-point (= (point) (point-max))))
+	    (maxima-remove-inferior inferior)
+	    inferior-point)
+	  "The point is not in the last character of the buffer
+	  when a inferior-maxima process start.")
+
 (assert-t (progn
 	    (maxima-init-inferiors)
 	    (and maxima-inferior-process maxima-auxiliary-inferior-process))
