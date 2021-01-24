@@ -2255,8 +2255,6 @@ The TEST variable is for test purpose."
     (setq proc (get-buffer-process proc-buf))
     (unless test
       (maxima-inferior-wait-for-output proc))
-    (with-current-buffer proc-buf
-      (goto-char (point-max)))
     proc))
 
 ;;;###autoload
@@ -2265,6 +2263,12 @@ The TEST variable is for test purpose."
   `(let* ((inferior-buffer (get-buffer (process-buffer ,inferior-process))))
      (delete-process ,inferior-process)
      (kill-buffer inferior-buffer)))
+
+;;;###autoload
+(defmacro maxima-start (inferior-symbol name)
+  "Start a maxima process and save the process in INFERIOR-SYMBOL.
+The process name is passed in NAME."
+  `(setq ,inferior-symbol (maxima-make-inferior ,name)))
 
 (defun maxima-init-inferiors ()
   "Check if the main inferior process exists.
@@ -2280,11 +2284,6 @@ This functions assigns process to those variables."
 	       maxima-auxiliary-inferior-process)
     (maxima-start maxima-auxiliary-inferior-process "aux-maxima")))
 
-;;;###autoload
-(defmacro maxima-start (inferior-symbol name)
-  "Start a maxima process and save the process in INFERIOR-SYMBOL.
-The process name is passed in NAME."
-  `(setq ,inferior-symbol (maxima-make-inferior ,name)))
 
 (defun maxima-stop (&optional arg)
   "Kill the main inferior.
