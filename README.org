@@ -326,6 +326,8 @@ in *maxima-mode*, for example, put the line:
    These are integration with various packages from internal Emacs, [[https://elpa.gnu.org/][ELPA]] or [[https://melpa.org/][MELPA]].
 
 *** Company
+[[https://melpa.org/#/company-maxima][file:https://melpa.org/packages/company-maxima-badge.svg]] [[https://stable.melpa.org/#/company-maxima][file:https://stable.melpa.org/packages/company-maxima-badge.svg]]
+
     Maxima.el have a company backend for people who use [[https://melpa.org/#/company][company-mode]], to enable it, make sure that [[file:company-maxima.el][company-maxima.el]] is loaded.
     (Assume that the file is already in the =load-path=)
     For example:
