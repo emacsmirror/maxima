@@ -2145,7 +2145,8 @@ If QUERY is not nil, it takes the input in point."
 	(forward-line 1)
 	(if (looking-at (concat "(" maxima-inchar "[0-9]+)"))
 	    (kill-line 1))
-	(if (looking-at "")
+	(if (looking-at "
+")
 	    (delete-char 1))))))
 
 (defun maxima-inferior-replace-tabs-by-spaces (&optional _string)
@@ -2791,7 +2792,9 @@ To scroll through previous commands,
   "Run Maxima interactively inside a buffer."
   (interactive)
   (maxima-init-inferiors)
-  (switch-to-buffer (process-buffer maxima-inferior-process)))
+  (switch-to-buffer (process-buffer maxima-inferior-process))
+  (goto-char (point-max)))
+
 
 ;;; Interacting with Maxima outside of a maxima buffer
 
