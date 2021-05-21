@@ -92,18 +92,16 @@ in *maxima-mode*, for example, put the line:
     my personal configuration:
 
 #+begin_src emacs-lisp
-     (use-package maxima
-       :straight (maxima :type git :host gitlab :repo "sasanidas/maxima")
-       :defer t
-       :init 
-       (require 'maxima-font-lock)
-       (require 'company-maxima)
-       (add-to-list 'company-backends '(company-maxima-symbols company-maxima-libraries))
-       (setq
-	org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
-	maxima-display-maxima-buffer nil)
-       :mode ("\\.mac\\'" . maxima-mode)
-       :interpreter ("maxima" . maxima-mode))
+   (use-package maxima
+     :straight (maxima :type git :host gitlab :repo "sasanidas/maxima")
+     :init
+     (add-hook 'maxima-mode-hook #'maxima-hook-function)
+     (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
+     (setq
+      org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
+      maxima-display-maxima-buffer nil)
+     :mode ("\\.mac\\'" . maxima-mode)
+     :interpreter ("maxima" . maxima-mode))
 #+end_src
 
 
@@ -321,7 +319,10 @@ in *maxima-mode*, for example, put the line:
      | M-r             | Bring the previous input matching a regular expression to the prompt, |
      | M-s             | Bring the next input matching a regular expression to the prompt.     |
 
-     
+*Comment*
+If you have [[https://sites.google.com/site/imaximaimath/][imaxima]] installed then it can also be used to render the output
+with latex (see https://gitlab.com/sasanidas/maxima/-/issues/34).
+
 ** External packages
    These are integration with various packages from internal Emacs, [[https://elpa.gnu.org/][ELPA]] or [[https://melpa.org/][MELPA]].
 
