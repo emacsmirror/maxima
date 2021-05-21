@@ -15,12 +15,16 @@ default:
 byte-compile:27.1:
   stage: byte-compile
   image: silex/emacs:27.1
+  cache:
+    policy: pull
   script:
     - make compile-test
 
 test:27.1:
   stage: test
   image: silex/emacs:27.1
+  cache:
+    policy: pull
   before_script:
     - apt-get update && apt-get install -y make maxima
   script:
@@ -29,12 +33,16 @@ test:27.1:
 lint:27.1:
   stage: test
   image: silex/emacs:27.1
+  cache:
+    policy: pull
   script:
     - make lint
 
 test:26.3:
   stage: test
   image: silex/emacs:26.3
+  cache:
+    policy: pull
   before_script:
     - apt-get update && apt-get install -y make maxima
   script:
@@ -43,12 +51,16 @@ test:26.3:
 lint:26.3:
   stage: test
   image: silex/emacs:26.3
+  cache:
+    policy: pull
   script:
     - make lint
 
 artifact:
   stage: artifact
   image: silex/emacs:27.1
+  cache:
+    policy: pull
   script:
     - make package
   artifacts:
