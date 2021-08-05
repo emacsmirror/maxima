@@ -19,7 +19,7 @@
   - [[#source][Source]]
   - [[#quelpa][Quelpa]]
   - [[#melpa][Melpa]]
-  - [[#use-pacakge--straightel][use-pacakge + straight.el]]
+  - [[#use-pacakge--straightel][use-package + straight.el]]
 - [[#major-mode][Major-mode]]
   - [[#indentation][Indentation]]
   - [[#motion-commands][Motion commands]]
@@ -87,8 +87,8 @@ in *maxima-mode*, for example, put the line:
      =M-x package-install RET maxima RET= to install =maxima= from [[https://melpa.org/][MELPA]].
 
 
-*** use-pacakge + straight.el
-    This is a configuration example with =use-pacakge= and =straight.el=, it is also
+*** use-package + straight.el
+    This is a configuration example with =use-package= and =straight.el=, it is also
     my personal configuration:
 
 #+begin_src emacs-lisp
