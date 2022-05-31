@@ -51,11 +51,7 @@
 (require 's)
 
 (defvar maxima-font-lock-keywords-directory
-  (format "%skeywords" (let* ((directory (file-name-directory load-file-name)))
-			 ;; straight.el workaround
-			 (if (s-contains-p "straight" directory)
-			     (s-replace "build" "repos" directory)
-			   directory)))
+  (format "%skeywords"  (file-name-directory load-file-name))
   "Keywords definition directory.")
 
 (defvar maxima-font-lock-keywords-categories
