@@ -88,20 +88,17 @@ in *maxima-mode*, for example, put the line:
 
 
 *** use-package + straight.el
-    This is a configuration example with =use-package= and =straight.el=, it is also
-    my personal configuration:
+    This is a configuration example with =use-package= (it's also my personal configuration):
 
 #+begin_src emacs-lisp
-   (use-package maxima
-     :straight (maxima :type git :host gitlab :repo "sasanidas/maxima")
-     :init
-     (add-hook 'maxima-mode-hook #'maxima-hook-function)
-     (add-hook 'maxima-inferior-mode-hook #'maxima-hook-function)
-     (setq
-      org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
-      maxima-display-maxima-buffer nil)
-     :mode ("\\.mac\\'" . maxima-mode)
-     :interpreter ("maxima" . maxima-mode))
+  (use-package maxima
+    :init
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0)
+	  maxima-display-maxima-buffer nil)
+    (add-to-list 'auto-mode-alist
+		 (cons "\\.mac\\'" 'maxima-mode))
+    (add-to-list 'interpreter-mode-alist
+		 (cons "maxima" 'maxima-mode)))
 #+end_src
 
 
