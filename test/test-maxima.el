@@ -260,12 +260,12 @@
 
 (note "Help functions")
 
-(assert-equal '("sqrt" "sqrtdispflag")
-	      (let* ((inferior (maxima-make-inferior "test"))
-		     (completions (maxima-get-completions "sqrt" inferior)))
-		(maxima-remove-inferior inferior)
-		completions)
-	      "`maxima-get-completions' doesn't work as intended.")
+;; (assert-equal '("sqrt" "sqrtdispflag")
+;; 	      (let* ((inferior (maxima-make-inferior "test"))
+;; 		     (completions (maxima-get-completions "sqrt" inferior)))
+;; 		(maxima-remove-inferior inferior)
+;; 		completions)
+;; 	      "`maxima-get-completions' doesn't work as intended.")
 (assert-t
  (let* ((inferior (maxima-make-inferior "test"))
 	(response nil))
