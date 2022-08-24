@@ -58,7 +58,7 @@ lint:26.3:
 
 artifact:
   stage: artifact
-  image: silex/emacs:27.1
+  image: silex/emacs:27.2
   cache:
     policy: pull
   script:
