@@ -12,17 +12,17 @@ default:
     - apt-get update && apt-get install -y make
 
 
-byte-compile:27.1:
+byte-compile:27.2:
   stage: byte-compile
-  image: silex/emacs:27.1
+  image: silex/emacs:27.2
   cache:
     policy: pull
   script:
     - make compile-test
 
-test:27.1:
+test:27.2:
   stage: test
-  image: silex/emacs:27.1
+  image: silex/emacs:27.2
   cache:
     policy: pull
   before_script:
@@ -30,9 +30,9 @@ test:27.1:
   script:
     - make test
 
-lint:27.1:
+lint:27.2:
   stage: test
-  image: silex/emacs:27.1
+  image: silex/emacs:27.2
   cache:
     policy: pull
   script:
