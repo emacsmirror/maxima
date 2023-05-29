@@ -1,6 +1,6 @@
 ;;; poly-maxima.el --- Polymode for Maxima                 -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020 Fermin Munoz
+;; Copyright (C) 2023 Fermin Munoz
 
 ;; Author: Fermin Munoz
 ;; Maintainer: Fermin Munoz <fmfs@posteo.net>

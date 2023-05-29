@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 1998,1999 William F. Schelter
 ;; Copyright (C) 2001-2007 Jay Belanger
-;; Copyright (C) 2020 Fermin Munoz
+;; Copyright (C) 2023 Fermin Munoz
 
 ;; Author: William F. Schelter
 ;;         Jay Belanger
