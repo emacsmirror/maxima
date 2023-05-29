@@ -3023,7 +3023,7 @@ anything in the determined region after any occurrence of \" ==>
           (setq beg (match-end 0))
         (error "No beginning to determined region"))
       (goto-char pt)
-      (if (re-search-forward maxima-minor-prefix nil t)
+      (if (re-search-forward maxima-minor-postfix nil t)
           (setq end (match-beginning 0))))
     (maxima-minibuffer-on-region beg end arg)))
 
