@@ -249,6 +249,8 @@ in *maxima-mode*, for example, put the line:
  this will look unpleasant.  
  The command  =maxima-insert-last-output-tex=
  will insert the TeX form of the output.
+ Additionally, the command =maxima-insert-last-output-tex-wrap=
+ will do the same but with the result wrapped as an environment.
 
      | Key combination | Function                               |
      |-----------------+----------------------------------------|

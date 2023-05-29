@@ -251,6 +251,11 @@ Available with function `maxima-minor-mode'."
   :group 'maxima
   :type 'list)
 
+(defcustom maxima-default-latex-environment "equation*"
+  "Default environment name used in the TeX output."
+  :group 'maxima
+  :type 'string)
+
 (defun maxima-minor-output-mark ()
   "Internal function, check if point is in a comment.
 And call the correct function."
@@ -3031,13 +3036,30 @@ anything in the determined region after any occurrence of \" ==>
     (maxima-single-string "block(display2d:emacsdisplay,linenum:linenum-1,%);" maxima-inferior-process)
     (insert (string-trim-right output))))
 
-(defun maxima-insert-last-output-tex ()
-  "Insert the last output in tex format."
-  (interactive)
+(defun maxima--generate-last-output-tex ()
   (maxima-single-string-wait "tex(%);")
   (let ((output (substring (maxima-last-output-tex-noprompt maxima-inferior-process) 2 -3)))
     (maxima-single-string "block(linenum:linenum-2,%th(2));" maxima-inferior-process)
-    (insert output)))
+    output))
+
+(defun maxima-insert-last-output-tex ()
+  "Insert the last output in tex format."
+  (interactive)
+  (insert (maxima--generate-last-output-tex)))
+
+(defun maxima-insert-last-output-tex-wrap (&optional environment)
+  "Insert  the last output in maxima wrapped in TeX ENVIRONMENT.
+The default value is `maxima-default-latex-environment'."
+  (interactive (list (read-string
+		      (format "LaTeX environment [%s]: " maxima-default-latex-environment)
+		      nil t maxima-default-latex-environment)))
+  (unless environment (setq environment "$$"))
+  (let ((output (maxima--generate-last-output-tex)))
+    (insert (pcase environment
+	      ((rx "$") (format "%1$s%2$s%1$s" environment output))
+	      ((rx "(") (format "\\(%s\\)" output))
+	      ((rx "[") (format "\\[%s\\]" output))
+	      (_ (format "\\begin{%1$s}\n%2$s\n\\end{%1$s}" environment output))))))
 
 ;;; Latex and org-mode interaction
 
